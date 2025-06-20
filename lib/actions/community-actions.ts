@@ -36,8 +36,7 @@ export async function createFindingAction(
       console.error('❌ [createFindingAction] Authentication error:', {
         error: userError,
         code: userError.code,
-        message: userError.message,
-        details: userError.details
+        message: userError.message
       });
       return { message: 'You must be logged in to create a finding' };
     }
