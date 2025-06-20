@@ -36,7 +36,8 @@ export async function createFindingAction(
       console.error('❌ [createFindingAction] Authentication error:', {
         error: userError,
         code: userError.code,
-        message: userError.message
+        message: userError.message,
+        details: userError.details
       });
       return { message: 'You must be logged in to create a finding' };
     }
@@ -147,6 +148,7 @@ export async function createFindingAction(
         error: insertError,
         code: insertError.code,
         message: insertError.message,
+        details: insertError.details,
         hint: insertError.hint,
         insertData
       });
