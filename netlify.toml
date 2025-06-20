@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[build.processing.secrets]
+  omit_keys = ["NEXT_PUBLIC_SUPABASE_ANON_KEY"]
+  
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
