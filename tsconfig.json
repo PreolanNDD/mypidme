@@ -18,6 +18,8 @@
     "jsx": "preserve",
     "incremental": true,
     "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "plugins": [
       {
         "name": "next"

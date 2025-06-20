@@ -31,6 +31,17 @@ const nextConfig = {
       };
     }
     
+    // Fix for exports is not defined error
+    config.resolve.alias = {
+      ...config.resolve.alias,
+    };
+    
+    // Ensure proper module resolution
+    config.resolve.extensionAlias = {
+      '.js': ['.js', '.ts', '.tsx'],
+      '.jsx': ['.jsx', '.tsx'],
+    };
+    
     // Optimize for development in WebContainer
     if (dev) {
       config.optimization = {
