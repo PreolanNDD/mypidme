@@ -26,6 +26,27 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
   const router = useRouter();
   const { user: currentUser } = useAuth();
 
+  console.log('🎨 [UserProfileClient] === CLIENT COMPONENT RENDERED ===');
+  console.log('🎨 [UserProfileClient] Props received:', {
+    userProfile: {
+      id: userProfile.id,
+      first_name: userProfile.first_name,
+      last_name: userProfile.last_name,
+      created_at: userProfile.created_at
+    },
+    userFindingsCount: userFindings.length,
+    userFindingsData: userFindings.map(f => ({
+      id: f.id,
+      title: f.title,
+      status: f.status,
+      upvotes: f.upvotes,
+      downvotes: f.downvotes,
+      created_at: f.created_at
+    })),
+    currentUserId: currentUser?.id,
+    timestamp: new Date().toISOString()
+  });
+
   const getDisplayName = (profile: UserProfile) => {
     const { first_name, last_name } = profile;
     if (first_name && last_name) {
@@ -61,10 +82,30 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
   const displayName = getDisplayName(userProfile);
   const isOwnProfile = currentUser?.id === userProfile.id;
 
+  console.log('🎨 [UserProfileClient] Display calculations:', {
+    displayName,
+    isOwnProfile,
+    currentUserId: currentUser?.id,
+    profileUserId: userProfile.id
+  });
+
   // Calculate stats
   const totalFindings = userFindings.length;
   const totalUpvotes = userFindings.reduce((sum, finding) => sum + finding.upvotes, 0);
   const totalScore = userFindings.reduce((sum, finding) => sum + (finding.upvotes - finding.downvotes), 0);
+
+  console.log('📊 [UserProfileClient] Stats calculated:', {
+    totalFindings,
+    totalUpvotes,
+    totalScore,
+    findingBreakdown: userFindings.map(f => ({
+      id: f.id,
+      title: f.title,
+      upvotes: f.upvotes,
+      downvotes: f.downvotes,
+      score: f.upvotes - f.downvotes
+    }))
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,7 +114,10 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
         <div className="max-w-4xl mx-auto">
           <Button
             variant="ghost"
-            onClick={() => router.back()}
+            onClick={() => {
+              console.log('🔙 [UserProfileClient] Back button clicked');
+              router.back();
+            }}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -162,8 +206,18 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
               </Card>
             ) : (
               <div className="space-y-6">
-                {userFindings.map((finding) => {
+                {userFindings.map((finding, index) => {
                   const score = finding.upvotes - finding.downvotes;
+
+                  console.log(`🎨 [UserProfileClient] Rendering finding ${index + 1}:`, {
+                    id: finding.id,
+                    title: finding.title,
+                    status: finding.status,
+                    upvotes: finding.upvotes,
+                    downvotes: finding.downvotes,
+                    score,
+                    share_data: finding.share_data
+                  });
 
                   return (
                     <Card key={finding.id} className="hover:shadow-md transition-shadow">

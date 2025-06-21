@@ -175,9 +175,27 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
 }
 
 export async function getUserFindings(userId: string): Promise<CommunityFinding[]> {
-  console.log('Fetching user findings for:', userId);
+  console.log('🔍 [getUserFindings] === STARTING USER FINDINGS FETCH ===');
+  console.log('🔍 [getUserFindings] Input userId:', userId);
+  console.log('🔍 [getUserFindings] Timestamp:', new Date().toISOString());
   
+  // Validate input
+  if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+    console.error('❌ [getUserFindings] Invalid userId provided:', { userId, type: typeof userId });
+    return [];
+  }
+
+  const trimmedUserId = userId.trim();
+  console.log('🔍 [getUserFindings] Trimmed userId:', trimmedUserId);
+
   try {
+    console.log('📊 [getUserFindings] Step 1: Executing Supabase query...');
+    console.log('📊 [getUserFindings] Query details:', {
+      table: 'community_findings',
+      filter: `author_id = ${trimmedUserId}`,
+      orderBy: 'created_at DESC'
+    });
+
     // Fetch ALL findings by the user (any status) - this is for their profile page
     // We want to show all their published findings, not just visible ones
     const { data: findings, error: findingsError } = await supabase
@@ -196,59 +214,163 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
         created_at,
         updated_at
       `)
-      .eq('author_id', userId)
+      .eq('author_id', trimmedUserId)
       .order('created_at', { ascending: false });
 
+    console.log('📊 [getUserFindings] Step 2: Query completed');
+    console.log('📊 [getUserFindings] Raw query result:', {
+      hasError: !!findingsError,
+      errorCode: findingsError?.code,
+      errorMessage: findingsError?.message,
+      dataLength: findings?.length || 0,
+      dataExists: !!findings
+    });
+
     if (findingsError) {
-      console.error('Error fetching user findings:', findingsError);
+      console.error('❌ [getUserFindings] Database error occurred:', {
+        error: findingsError,
+        code: findingsError.code,
+        message: findingsError.message,
+        details: findingsError.details,
+        hint: findingsError.hint
+      });
       // Return empty array instead of throwing to prevent notFound() from being called
       return [];
     }
 
-    if (!findings || findings.length === 0) {
-      console.log('No user findings found');
+    console.log('📊 [getUserFindings] Step 3: Processing query results...');
+    
+    if (!findings) {
+      console.log('⚠️ [getUserFindings] Query returned null/undefined data');
       return [];
     }
 
-    // For user's findings, we don't need to fetch author details since it's the same user
-    const transformedData = findings.map(finding => ({
-      ...finding,
-      author: undefined // We don't need author details for user's own findings
-    }));
+    if (findings.length === 0) {
+      console.log('📊 [getUserFindings] No findings found for user');
+      console.log('📊 [getUserFindings] This could mean:');
+      console.log('  - User has not created any findings yet');
+      console.log('  - User ID does not match any author_id in the database');
+      console.log('  - Database connection issue');
+      return [];
+    }
 
-    console.log('Fetched user findings:', transformedData.length);
+    console.log('✅ [getUserFindings] Found findings for user:', {
+      count: findings.length,
+      findingIds: findings.map(f => f.id),
+      findingTitles: findings.map(f => f.title),
+      statuses: findings.map(f => f.status),
+      createdDates: findings.map(f => f.created_at)
+    });
+
+    // Log each finding in detail
+    findings.forEach((finding, index) => {
+      console.log(`📄 [getUserFindings] Finding ${index + 1}:`, {
+        id: finding.id,
+        title: finding.title,
+        status: finding.status,
+        author_id: finding.author_id,
+        upvotes: finding.upvotes,
+        downvotes: finding.downvotes,
+        share_data: finding.share_data,
+        created_at: finding.created_at,
+        content_length: finding.content?.length || 0
+      });
+    });
+
+    console.log('📊 [getUserFindings] Step 4: Transforming data...');
+    
+    // For user's findings, we don't need to fetch author details since it's the same user
+    const transformedData = findings.map((finding, index) => {
+      console.log(`🔄 [getUserFindings] Transforming finding ${index + 1}:`, finding.id);
+      return {
+        ...finding,
+        author: undefined // We don't need author details for user's own findings
+      };
+    });
+
+    console.log('✅ [getUserFindings] Step 5: Transformation complete');
+    console.log('✅ [getUserFindings] Final result:', {
+      totalFindings: transformedData.length,
+      findingIds: transformedData.map(f => f.id),
+      allHaveRequiredFields: transformedData.every(f => f.id && f.title && f.content && f.author_id)
+    });
+
+    console.log('🎉 [getUserFindings] === USER FINDINGS FETCH COMPLETED SUCCESSFULLY ===');
     return transformedData;
+
   } catch (error) {
-    console.error('Unexpected error fetching user findings:', error);
+    console.error('💥 [getUserFindings] === UNEXPECTED ERROR OCCURRED ===');
+    console.error('💥 [getUserFindings] Error details:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : 'No stack trace',
+      userId: trimmedUserId,
+      timestamp: new Date().toISOString()
+    });
+    
     // Return empty array instead of throwing to prevent notFound() from being called
     return [];
   }
 }
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
-  console.log('Fetching user profile for:', userId);
+  console.log('👤 [getUserProfile] === STARTING USER PROFILE FETCH ===');
+  console.log('👤 [getUserProfile] Input userId:', userId);
+  console.log('👤 [getUserProfile] Timestamp:', new Date().toISOString());
   
+  // Validate input
+  if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+    console.error('❌ [getUserProfile] Invalid userId provided:', { userId, type: typeof userId });
+    return null;
+  }
+
+  const trimmedUserId = userId.trim();
+  console.log('👤 [getUserProfile] Trimmed userId:', trimmedUserId);
+
   try {
+    console.log('📊 [getUserProfile] Step 1: Querying users table...');
+    
     // First try to get from users table
     const { data: user, error } = await supabase
       .from('users')
       .select('id, first_name, last_name, created_at')
-      .eq('id', userId)
+      .eq('id', trimmedUserId)
       .single();
+
+    console.log('📊 [getUserProfile] Step 2: Users table query completed');
+    console.log('📊 [getUserProfile] Query result:', {
+      hasError: !!error,
+      errorCode: error?.code,
+      errorMessage: error?.message,
+      userData: user ? {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        created_at: user.created_at
+      } : null
+    });
 
     if (error) {
       if (error.code === 'PGRST116') {
-        console.log('User not found in users table, checking auth.users:', userId);
+        console.log('⚠️ [getUserProfile] User not found in users table, checking auth.users:', trimmedUserId);
         
         // Create admin client with service role key for auth operations
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
         
+        console.log('🔑 [getUserProfile] Environment check:', {
+          hasSupabaseUrl: !!supabaseUrl,
+          hasServiceRoleKey: !!serviceRoleKey,
+          supabaseUrlLength: supabaseUrl?.length || 0,
+          serviceRoleKeyLength: serviceRoleKey?.length || 0
+        });
+        
         if (!supabaseUrl || !serviceRoleKey) {
-          console.error('Missing Supabase configuration for admin operations');
+          console.error('❌ [getUserProfile] Missing Supabase configuration for admin operations');
           return null;
         }
         
+        console.log('🔧 [getUserProfile] Step 3: Creating admin client...');
         const adminClient = createClient(supabaseUrl, serviceRoleKey, {
           auth: {
             autoRefreshToken: false,
@@ -256,48 +378,81 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
           }
         });
         
+        console.log('🔍 [getUserProfile] Step 4: Checking auth.users table...');
+        
         // If not found in users table, check if they exist in auth.users
         // This handles cases where a user exists but doesn't have a profile yet
-        const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(userId);
+        const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(trimmedUserId);
+        
+        console.log('📊 [getUserProfile] Step 5: Auth.users query completed');
+        console.log('📊 [getUserProfile] Auth query result:', {
+          hasError: !!authError,
+          errorMessage: authError?.message,
+          hasAuthUser: !!authUser?.user,
+          authUserId: authUser?.user?.id,
+          authUserEmail: authUser?.user?.email,
+          authUserMetadata: authUser?.user?.user_metadata
+        });
         
         if (authError || !authUser.user) {
-          console.log('User not found in auth.users either:', userId);
+          console.log('❌ [getUserProfile] User not found in auth.users either:', trimmedUserId);
           return null;
         }
         
         // User exists in auth but not in users table - create a basic profile
-        console.log('Creating basic profile for auth user:', userId);
+        console.log('🔧 [getUserProfile] Step 6: Creating basic profile for auth user:', trimmedUserId);
+        console.log('🔧 [getUserProfile] Auth user metadata:', authUser.user.user_metadata);
+        
         const { data: newUser, error: createError } = await supabase
           .from('users')
           .insert({
-            id: userId,
+            id: trimmedUserId,
             first_name: authUser.user.user_metadata?.first_name || null,
             last_name: authUser.user.user_metadata?.last_name || null
           })
           .select('id, first_name, last_name, created_at')
           .single();
         
+        console.log('📊 [getUserProfile] Step 7: Profile creation completed');
+        console.log('📊 [getUserProfile] Creation result:', {
+          hasError: !!createError,
+          errorMessage: createError?.message,
+          newUserData: newUser
+        });
+        
         if (createError) {
-          console.error('Error creating user profile:', createError);
+          console.error('❌ [getUserProfile] Error creating user profile:', createError);
           // Return a basic profile even if creation fails
-          return {
-            id: userId,
+          const fallbackProfile = {
+            id: trimmedUserId,
             first_name: authUser.user.user_metadata?.first_name || null,
             last_name: authUser.user.user_metadata?.last_name || null,
             created_at: authUser.user.created_at || new Date().toISOString()
           };
+          console.log('🔄 [getUserProfile] Returning fallback profile:', fallbackProfile);
+          return fallbackProfile;
         }
         
+        console.log('✅ [getUserProfile] Profile created successfully:', newUser);
         return newUser;
       }
-      console.error('Error fetching user profile:', error);
+      console.error('❌ [getUserProfile] Database error fetching user profile:', error);
       return null;
     }
 
-    console.log('Fetched user profile:', user);
+    console.log('✅ [getUserProfile] User profile found:', user);
+    console.log('🎉 [getUserProfile] === USER PROFILE FETCH COMPLETED SUCCESSFULLY ===');
     return user;
+    
   } catch (error) {
-    console.error('Unexpected error fetching user profile:', error);
+    console.error('💥 [getUserProfile] === UNEXPECTED ERROR OCCURRED ===');
+    console.error('💥 [getUserProfile] Error details:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : 'No stack trace',
+      userId: trimmedUserId,
+      timestamp: new Date().toISOString()
+    });
     return null;
   }
 }
