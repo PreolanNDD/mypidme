@@ -6,12 +6,18 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { getCommunityFindingById, getUserVotes } from '@/lib/community';
 import { castVoteAction, reportFindingAction } from '@/lib/actions/community-actions';
 import { CommunityFinding, FindingVote } from '@/lib/community';
+import { getTrackableItems } from '@/lib/trackable-items';
+import { getDualMetricChartData } from '@/lib/chart-data';
+import { calculatePearsonCorrelation } from '@/lib/correlation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
+import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { ChevronUp, ChevronDown, Flag, User, Calendar, ArrowLeft, MessageSquare } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface ReportDialogProps {
@@ -118,6 +124,133 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
 
   const finding = findingData;
 
+  // Fetch trackable items for chart context
+  const { data: trackableItems = [] } = useQuery({
+    queryKey: ['trackableItems', user?.id],
+    queryFn: () => getTrackableItems(user!.id),
+    enabled: !!user?.id && finding.share_data && !!finding.chart_config,
+  });
+
+  // Fetch chart data if there's chart config
+  const { data: chartData = [] } = useQuery({
+    queryKey: ['findingChartData', finding.id, finding.chart_config],
+    queryFn: () => {
+      if (!finding.chart_config || !user?.id) return [];
+      
+      const { primaryMetricId, comparisonMetricId, dateRange } = finding.chart_config;
+      return getDualMetricChartData(
+        user.id,
+        primaryMetricId,
+        comparisonMetricId || null,
+        dateRange || 30
+      );
+    },
+    enabled: !!user?.id && finding.share_data && !!finding.chart_config,
+  });
+
+  // Get metric details
+  const primaryMetric = trackableItems.find(item => item.id === finding.chart_config?.primaryMetricId);
+  const comparisonMetric = trackableItems.find(item => item.id === finding.chart_config?.comparisonMetricId);
+
+  // Calculate correlation score
+  const correlationScore = React.useMemo(() => {
+    if (!primaryMetric || !comparisonMetric || !chartData.length) {
+      return null;
+    }
+
+    const primaryValues: number[] = [];
+    const comparisonValues: number[] = [];
+
+    chartData.forEach(dataPoint => {
+      if (dataPoint.primaryValue !== null && dataPoint.primaryValue !== undefined &&
+          dataPoint.comparisonValue !== null && dataPoint.comparisonValue !== undefined) {
+        primaryValues.push(dataPoint.primaryValue);
+        comparisonValues.push(dataPoint.comparisonValue);
+      }
+    });
+
+    if (primaryValues.length >= 2) {
+      return calculatePearsonCorrelation(primaryValues, comparisonValues);
+    }
+
+    return null;
+  }, [chartData, primaryMetric, comparisonMetric]);
+
+  // Advanced Axis Synchronization Processing (same as /data page)
+  const { processedChartData, axisConfig } = React.useMemo(() => {
+    if (!primaryMetric || !chartData.length) {
+      return { processedChartData: chartData, axisConfig: null };
+    }
+
+    const primaryValues = chartData
+      .map(d => d.primaryValue)
+      .filter(v => v !== null && v !== undefined) as number[];
+    const comparisonValues = chartData
+      .map(d => d.comparisonValue)
+      .filter(v => v !== null && v !== undefined) as number[];
+    
+    const primaryMax = primaryValues.length > 0 ? Math.max(...primaryValues) : 10;
+    const comparisonMax = comparisonValues.length > 0 ? Math.max(...comparisonValues) : 10;
+
+    let config: any;
+    let processedData = [...chartData];
+
+    if (!comparisonMetric) {
+      config = {
+        leftDomain: primaryMetric.type === 'SCALE_1_10' ? [1, 10] : [0, Math.max(primaryMax * 1.1, 1)],
+        rightDomain: [0, 10],
+        normalizeComparison: false
+      };
+    } else if (primaryMetric.type === 'NUMERIC' && comparisonMetric.type === 'SCALE_1_10') {
+      const scaledMax = Math.max(primaryMax * 1.1, 1);
+      config = {
+        leftDomain: [0, scaledMax],
+        rightDomain: [0, scaledMax],
+        rightTickFormatter: (value: number) => {
+          const scaleValue = Math.round((value / scaledMax) * 10);
+          return scaleValue >= 1 && scaleValue <= 10 ? scaleValue.toString() : '';
+        },
+        rightTicks: Array.from({ length: 10 }, (_, i) => ((i + 1) / 10) * scaledMax),
+        normalizeComparison: false
+      };
+    } else if (primaryMetric.type === 'SCALE_1_10' && comparisonMetric.type === 'NUMERIC') {
+      config = {
+        leftDomain: [1, 10],
+        rightDomain: [0, Math.max(comparisonMax * 1.1, 1)],
+        normalizeComparison: false
+      };
+    } else if (primaryMetric.type === 'SCALE_1_10' && comparisonMetric.type === 'BOOLEAN') {
+      processedData = chartData.map(d => ({
+        ...d,
+        normalizedComparisonValue: d.comparisonValue === 1 ? 7.5 : 
+                                   d.comparisonValue === 0 ? 2.5 : null
+      }));
+
+      config = {
+        leftDomain: [1, 10],
+        rightDomain: [1, 10],
+        rightTickFormatter: (value: number) => {
+          if (Math.abs(value - 7.5) < 0.5) return 'Yes';
+          if (Math.abs(value - 2.5) < 0.5) return 'No';
+          return '';
+        },
+        rightTicks: [2.5, 7.5],
+        normalizeComparison: true
+      };
+    } else {
+      const leftMax = primaryMetric.type === 'SCALE_1_10' ? 10 : Math.max(primaryMax * 1.1, 1);
+      const rightMax = comparisonMetric.type === 'SCALE_1_10' ? 10 : Math.max(comparisonMax * 1.1, 1);
+      
+      config = {
+        leftDomain: primaryMetric.type === 'SCALE_1_10' ? [1, 10] : [0, leftMax],
+        rightDomain: comparisonMetric.type === 'SCALE_1_10' ? [1, 10] : [0, rightMax],
+        normalizeComparison: false
+      };
+    }
+
+    return { processedChartData: processedData, axisConfig: config };
+  }, [chartData, primaryMetric, comparisonMetric]);
+
   // Fetch user votes for this finding
   const { data: userVotes = [] } = useQuery<FindingVote[]>({
     queryKey: ['userVotes', user?.id, finding.id],
@@ -199,6 +332,56 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     return 'Anonymous';
   };
 
+  // Custom Tooltip Component (same as /data page)
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-primary-text">{label}</p>
+          {(data.primaryValue !== null && data.primaryValue !== undefined) && (
+            <p className="text-sm">
+              <span className="font-medium">{primaryMetric?.name}:</span> {data.primaryValue}
+            </p>
+          )}
+          {comparisonMetric && (data.comparisonValue !== null && data.comparisonValue !== undefined) && (
+            <p className="text-sm">
+              <span className="font-medium">{comparisonMetric.name}:</span>{' '}
+              {comparisonMetric.type === 'BOOLEAN' 
+                ? (data.comparisonValue === 1 ? 'Yes' : 'No')
+                : data.comparisonValue
+              }
+            </p>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom Legend Component (same as /data page)
+  const CustomLegend = (props: any) => {
+    const { payload } = props;
+    if (!payload || payload.length === 0) return null;
+
+    return (
+      <div className="flex justify-center items-center space-x-8 mt-4">
+        {payload.map((entry: any, index: number) => (
+          <div key={index} className="flex items-center space-x-3 px-4 py-2">
+            <div 
+              className="w-4 h-0.5" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm font-medium text-black">
+              {entry.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const score = finding.upvotes - finding.downvotes;
 
   return (
@@ -255,22 +438,127 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
               </CardContent>
             </Card>
 
-            {/* Data Visualization Placeholder */}
-            {finding.share_data && (
+            {/* Data Visualization - Chart Analysis */}
+            {finding.share_data && finding.chart_config && primaryMetric && (
+              <div className="space-y-6">
+                {/* Chart Display */}
+                <Card>
+                  <CardContent className="p-8">
+                    <h3 className="font-heading text-xl text-primary-text mb-4">
+                      Data Analysis: {primaryMetric.name}
+                      {comparisonMetric && ` vs ${comparisonMetric.name}`}
+                    </h3>
+                    
+                    {processedChartData.length > 0 ? (
+                      <div className="h-96">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={processedChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis 
+                              dataKey="formattedDate" 
+                              stroke="#708090"
+                              fontSize={12}
+                              tickLine={false}
+                            />
+                            
+                            {/* Left Y-Axis */}
+                            <YAxis 
+                              yAxisId="left"
+                              stroke="#7ed984"
+                              fontSize={12}
+                              tickLine={false}
+                              domain={axisConfig?.leftDomain || ['auto', 'auto']}
+                            />
+                            
+                            {/* Right Y-Axis (only if comparison metric exists) */}
+                            {comparisonMetric && axisConfig && (
+                              <YAxis 
+                                yAxisId="right"
+                                orientation="right"
+                                stroke="#FFA500"
+                                fontSize={12}
+                                tickLine={false}
+                                domain={axisConfig.rightDomain}
+                                tickFormatter={axisConfig.rightTickFormatter}
+                                ticks={axisConfig.rightTicks}
+                              />
+                            )}
+                            
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend content={<CustomLegend />} />
+                            
+                            {/* Primary metric line */}
+                            <Line 
+                              yAxisId="left"
+                              type="monotone" 
+                              dataKey="primaryValue"
+                              stroke="#7ed984"
+                              strokeWidth={2}
+                              connectNulls={false}
+                              name={primaryMetric.name}
+                              dot={{ fill: '#7ed984', strokeWidth: 2, r: 3 }}
+                              activeDot={{ r: 5, stroke: '#7ed984', strokeWidth: 2 }}
+                            />
+                            
+                            {/* Comparison metric line */}
+                            {comparisonMetric && axisConfig && (
+                              <Line 
+                                yAxisId={axisConfig.normalizeComparison ? "left" : "right"}
+                                type="monotone" 
+                                dataKey={axisConfig.normalizeComparison ? "normalizedComparisonValue" : "comparisonValue"}
+                                stroke="#FFA500"
+                                strokeWidth={2}
+                                strokeDasharray={comparisonMetric.type === 'BOOLEAN' ? "5 5" : "0"}
+                                connectNulls={false}
+                                name={comparisonMetric.name}
+                                dot={{ fill: '#FFA500', strokeWidth: 2, r: 3 }}
+                                activeDot={{ r: 5, stroke: '#FFA500', strokeWidth: 2 }}
+                              />
+                            )}
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div className="h-96 flex items-center justify-center">
+                        <div className="text-center">
+                          <p className="text-secondary-text">No chart data available for this time period</p>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* At a Glance - Correlation Analysis */}
+                {correlationScore !== null && primaryMetric && comparisonMetric && (
+                  <CorrelationCard
+                    correlationScore={correlationScore}
+                    primaryMetricName={primaryMetric.name}
+                    comparisonMetricName={comparisonMetric.name}
+                  />
+                )}
+
+                {/* Metric Relationship Breakdown */}
+                {primaryMetric && comparisonMetric && processedChartData.length > 0 && (
+                  <MetricRelationshipBreakdown
+                    chartData={processedChartData}
+                    primaryMetric={primaryMetric}
+                    comparisonMetric={comparisonMetric}
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Data Visualization Placeholder for Experiment */}
+            {finding.share_data && finding.experiment_id && !finding.chart_config && (
               <Card>
                 <CardContent className="p-8">
                   <h3 className="font-heading text-xl text-primary-text mb-4">
-                    Shared Data Visualization
+                    Experiment Results
                   </h3>
                   <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <p className="text-secondary-text">
-                      Data visualization will be displayed here when implemented
+                      Experiment data visualization will be displayed here when implemented
                     </p>
-                    {finding.chart_config && (
-                      <div className="mt-4 text-xs text-secondary-text">
-                        Chart Config: {JSON.stringify(finding.chart_config, null, 2)}
-                      </div>
-                    )}
                     {finding.experiment_id && (
                       <div className="mt-4 text-xs text-secondary-text">
                         Experiment ID: {finding.experiment_id}
