@@ -33,7 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Track if we're currently fetching a profile to prevent concurrent requests
   const fetchingProfileRef = useRef<string | null>(null);
   const profileCacheRef = useRef<Map<string, any>>(new Map());
-  const initializedRef = useRef<boolean>(false);
 
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
     // Prevent concurrent fetches for the same user
@@ -114,88 +113,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    console.log("AuthProvider: Setting up auth state listener");
+    console.log("AuthProvider: Setting up auth state listener (modern approach)");
 
     const supabase = createClient();
 
-    // Check for existing session and handle invalid tokens
-    const initializeAuth = async () => {
-      try {
-        console.log('AuthProvider: Checking initial session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.log('AuthProvider: Initial session check error:', error.message);
-          
-          // Check for invalid refresh token errors
-          if (error.message?.includes('Invalid Refresh Token') || 
-              error.message?.includes('refresh_token_not_found') ||
-              error.message?.includes('Refresh Token Not Found')) {
-            console.log('🧹 AuthProvider: Invalid refresh token detected, clearing session...');
-            
-            try {
-              await supabase.auth.signOut();
-              console.log('✅ AuthProvider: Session cleared successfully');
-              router.replace('/login');
-            } catch (signOutError) {
-              console.log('⚠️ AuthProvider: Error during session cleanup:', signOutError);
-              router.replace('/login');
-            }
-          }
-        } else if (session) {
-          console.log('AuthProvider: Valid initial session found');
-          setSession(session);
-          setUser(session.user);
-          
-          // Fetch user profile for valid session
-          const profile = await fetchUserProfile(session.user.id);
-          setUserProfile(profile);
-        } else {
-          console.log('AuthProvider: No initial session found');
-        }
-      } catch (error: any) {
-        console.log('AuthProvider: Error during initial auth check:', error);
-        
-        // Handle invalid refresh token errors in catch block
-        if (error?.message?.includes('Invalid Refresh Token') || 
-            error?.message?.includes('refresh_token_not_found') ||
-            error?.message?.includes('Refresh Token Not Found')) {
-          console.log('🧹 AuthProvider: Invalid refresh token detected in catch, clearing session...');
-          
-          try {
-            await supabase.auth.signOut();
-            console.log('✅ AuthProvider: Session cleared successfully in catch');
-            router.replace('/login');
-          } catch (signOutError) {
-            console.log('⚠️ AuthProvider: Error during session cleanup in catch:', signOutError);
-            router.replace('/login');
-          }
-        }
-      } finally {
-        if (!initializedRef.current) {
-          initializedRef.current = true;
-          setLoading(false);
-        }
-      }
-    };
-
-    // Initialize auth state
-    initializeAuth();
-
-    // Listen for auth changes - this will fire immediately with current session
+    // Set up the auth state change listener - this is our single source of truth
+    // It will fire immediately with the current session (INITIAL_SESSION event)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log(`AuthProvider: Auth event received: ${event}`, session ? 'with session.' : 'without session.');
 
-        // Handle the initial session load
-        if (!initializedRef.current) {
-          console.log('AuthProvider: Initial auth state received');
-          initializedRef.current = true;
-          setLoading(false);
+        // Handle the initial session load - this replaces the manual getSession() call
+        if (event === 'INITIAL_SESSION') {
+          console.log('AuthProvider: Processing initial session');
+          setLoading(false); // We can stop loading after the initial session is processed
+        }
+
+        // Handle invalid refresh token errors
+        if (event === 'TOKEN_REFRESHED' && !session) {
+          console.log('🧹 AuthProvider: Token refresh failed, likely invalid refresh token');
+          
+          try {
+            await supabase.auth.signOut();
+            console.log('✅ AuthProvider: Session cleared after failed token refresh');
+            router.replace('/login');
+          } catch (signOutError) {
+            console.log('⚠️ AuthProvider: Error during session cleanup:', signOutError);
+            router.replace('/login');
+          }
+          return;
         }
 
         // Handle specific events that should trigger profile updates
         const shouldUpdateProfile = [
+          'INITIAL_SESSION',
           'SIGNED_IN',
           'TOKEN_REFRESHED',
           'USER_UPDATED'
