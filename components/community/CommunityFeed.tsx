@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { castVoteAction, reportFindingAction, fetchAllCommunityFindingsAction, fetchUserCommunityFindingsAction, fetchUserVotesAction } from '@/lib/actions/community-actions';
+import { getCommunityFindings, getUserFindings, getUserVotes } from '@/lib/community';
+import { castVoteAction, reportFindingAction } from '@/lib/actions/community-actions';
 import { CommunityFinding, FindingVote } from '@/lib/community';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
@@ -92,17 +93,17 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const queryClient = useQueryClient();
   const [reportingFindingId, setReportingFindingId] = useState<string | null>(null);
 
-  // Fetch community findings (visible only) using Server Action
+  // Fetch community findings (visible only) - back to using the original functions
   const { data: communityFindings = [], isLoading: loadingCommunity } = useQuery<CommunityFinding[]>({
     queryKey: ['communityFindings'],
-    queryFn: fetchAllCommunityFindingsAction,
+    queryFn: getCommunityFindings,
     enabled: activeTab === 'community',
   });
 
-  // Fetch user's personal findings (all statuses) using Server Action
+  // Fetch user's personal findings (all statuses) - back to using the original functions
   const { data: userFindings = [], isLoading: loadingUser } = useQuery<CommunityFinding[]>({
     queryKey: ['userFindings', user?.id],
-    queryFn: () => fetchUserCommunityFindingsAction(user!.id),
+    queryFn: () => getUserFindings(user!.id),
     enabled: activeTab === 'my-findings' && !!user?.id,
   });
 
@@ -110,11 +111,11 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const findings = activeTab === 'community' ? communityFindings : userFindings;
   const isLoading = activeTab === 'community' ? loadingCommunity : loadingUser;
 
-  // Fetch user votes for all findings using Server Action
+  // Fetch user votes for all findings - back to using the original function
   const findingIds = useMemo(() => findings.map(f => f.id), [findings]);
   const { data: userVotes = [] } = useQuery<FindingVote[]>({
     queryKey: ['userVotes', user?.id, findingIds],
-    queryFn: () => fetchUserVotesAction(user!.id, findingIds),
+    queryFn: () => getUserVotes(user!.id, findingIds),
     enabled: !!user?.id && findingIds.length > 0 && activeTab === 'community',
   });
 
