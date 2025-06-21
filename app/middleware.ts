@@ -107,7 +107,8 @@ export async function middleware(request: NextRequest) {
       console.log('✅ [Middleware] User authenticated:', { 
         userId: user.id, 
         email: user.email,
-        lastSignIn: user.last_sign_in_at 
+        lastSignIn: user.last_sign_in_at,
+        userMetadata: user.user_metadata
       });
     } else {
       console.log('👤 [Middleware] No authenticated user found');

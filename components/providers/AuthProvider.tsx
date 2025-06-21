@@ -208,7 +208,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userId: session?.user?.id,
           userEmail: session?.user?.email,
           expiresAt: session?.expires_at,
-          tokenType: session?.token_type
+          tokenType: session?.token_type,
+          userMetadata: session?.user?.user_metadata
         });
 
         // Handle the initial session load
@@ -326,7 +327,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       hasSession: !!session,
       loading,
       hasUserProfile: !!userProfile,
-      userProfileId: userProfile?.id
+      userProfileId: userProfile?.id,
+      userEmail: user?.email,
+      userMetadata: user?.user_metadata
     });
     
     return contextValue;
