@@ -312,7 +312,6 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   };
 
   const handleAuthorClick = () => {
-    console.log('👤 [FindingDetailClient] Author clicked, navigating to profile:', finding.author_id);
     router.push(`/community/user/${finding.author_id}`);
   };
 

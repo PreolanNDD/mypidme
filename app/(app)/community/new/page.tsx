@@ -32,8 +32,6 @@ interface ShareContext {
 function SubmitButton() {
   const { pending } = useFormStatus();
 
-  console.log('🔘 [SubmitButton] Render state:', { pending });
-
   return (
     <Button
       type="submit"
@@ -52,26 +50,14 @@ export default function CreateFindingPage() {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  console.log('🎯 [CreateFindingPage] Component mounted/rendered:', {
-    userId: user?.id,
-    userEmail: user?.email,
-    searchParams: Object.fromEntries(searchParams.entries()),
-    timestamp: new Date().toISOString()
-  });
 
   // Use useFormState for form handling
   const [state, formAction] = useFormState(createFindingAction, { message: '' });
 
-  console.log('📋 [CreateFindingPage] Form state:', state);
-
   // Parse context from URL parameters
   const context = useMemo((): ShareContext | null => {
-    console.log('🔍 [CreateFindingPage] Parsing context from URL params...');
-    
     const type = searchParams.get('type') as 'chart' | 'experiment' | null;
     if (!type) {
-      console.log('❌ [CreateFindingPage] No type parameter found');
       return null;
     }
 
@@ -82,28 +68,22 @@ export default function CreateFindingPage() {
         comparisonMetricId: searchParams.get('comparisonMetricId') || null,
         dateRange: searchParams.get('dateRange') ? parseInt(searchParams.get('dateRange')!) : undefined
       };
-      console.log('📊 [CreateFindingPage] Chart context parsed:', chartContext);
       return chartContext;
     } else if (type === 'experiment') {
       const experimentContext = {
         type: 'experiment' as const,
         experimentId: searchParams.get('experimentId') || undefined
       };
-      console.log('🧪 [CreateFindingPage] Experiment context parsed:', experimentContext);
       return experimentContext;
     }
 
-    console.log('❓ [CreateFindingPage] Unknown context type:', type);
     return null;
   }, [searchParams]);
 
   // Fetch trackable items for chart context
   const { data: trackableItems = [] } = useQuery({
     queryKey: ['trackableItems', user?.id],
-    queryFn: () => {
-      console.log('📊 [CreateFindingPage] Fetching trackable items for user:', user?.id);
-      return getTrackableItems(user!.id);
-    },
+    queryFn: () => getTrackableItems(user!.id),
     enabled: !!user?.id && context?.type === 'chart',
   });
 
@@ -112,15 +92,8 @@ export default function CreateFindingPage() {
     queryKey: ['chartData', context],
     queryFn: () => {
       if (!context || context.type !== 'chart' || !context.primaryMetricId) {
-        console.log('❌ [CreateFindingPage] Cannot fetch chart data - missing context or primaryMetricId');
         return [];
       }
-      console.log('📈 [CreateFindingPage] Fetching chart data:', {
-        userId: user!.id,
-        primaryMetricId: context.primaryMetricId,
-        comparisonMetricId: context.comparisonMetricId,
-        dateRange: context.dateRange
-      });
       return getDualMetricChartData(
         user!.id,
         context.primaryMetricId,
@@ -134,10 +107,7 @@ export default function CreateFindingPage() {
   // Fetch experiment data for preview
   const { data: experiments = [] } = useQuery({
     queryKey: ['experiments', user?.id],
-    queryFn: () => {
-      console.log('🧪 [CreateFindingPage] Fetching experiments for user:', user?.id);
-      return getExperiments(user!.id);
-    },
+    queryFn: () => getExperiments(user!.id),
     enabled: !!user?.id && context?.type === 'experiment',
   });
 
@@ -260,53 +230,20 @@ export default function CreateFindingPage() {
     return '';
   };
 
-  // Enhanced form action wrapper with detailed logging
+  // Enhanced form action wrapper
   const enhancedFormAction = async (formData: FormData) => {
-    console.log('🚀 [CreateFindingPage] Form submission initiated');
-    console.log('📝 [CreateFindingPage] Form data entries:');
-    
-    // Log all form data entries
-    for (const [key, value] of formData.entries()) {
-      if (key === 'content') {
-        console.log(`  ${key}: "${String(value).substring(0, 100)}${String(value).length > 100 ? '...' : ''}" (${String(value).length} chars)`);
-      } else {
-        console.log(`  ${key}: "${value}"`);
-      }
-    }
-
     // Automatically set shareData to 'on' if there's context (chart or experiment data)
     if (context) {
       formData.set('shareData', 'on');
-      console.log('📊 [CreateFindingPage] Automatically enabled data sharing due to context');
     }
 
-    console.log('👤 [CreateFindingPage] User context:', {
-      userId: user?.id,
-      userEmail: user?.email,
-      isAuthenticated: !!user
-    });
-
-    console.log('🎯 [CreateFindingPage] Share context:', context);
-
     try {
-      console.log('📤 [CreateFindingPage] Calling createFindingAction...');
       const result = await formAction(formData);
-      console.log('✅ [CreateFindingPage] createFindingAction completed with result:', result);
       return result;
     } catch (error) {
-      console.error('❌ [CreateFindingPage] createFindingAction failed:', error);
       throw error;
     }
   };
-
-  // Log state changes
-  useEffect(() => {
-    console.log('📊 [CreateFindingPage] State change detected:', {
-      hasMessage: !!state?.message,
-      message: state?.message,
-      timestamp: new Date().toISOString()
-    });
-  }, [state]);
 
   // Custom Tooltip Component (same as /data page)
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -367,10 +304,7 @@ export default function CreateFindingPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                console.log('🔙 [CreateFindingPage] Back button clicked');
-                router.back();
-              }}
+              onClick={() => router.back()}
               className="mr-2"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -463,9 +397,6 @@ export default function CreateFindingPage() {
                       name="title"
                       placeholder="e.g., Morning meditation significantly improves my focus"
                       required
-                      onChange={(e) => {
-                        console.log('📝 [CreateFindingPage] Title changed:', e.target.value.length, 'characters');
-                      }}
                     />
 
                     {/* Content */}
@@ -479,9 +410,6 @@ export default function CreateFindingPage() {
                         className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         rows={12}
                         required
-                        onChange={(e) => {
-                          console.log('📝 [CreateFindingPage] Content changed:', e.target.value.length, 'characters');
-                        }}
                       />
                     </div>
 

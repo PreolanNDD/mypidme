@@ -93,77 +93,29 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const queryClient = useQueryClient();
   const [reportingFindingId, setReportingFindingId] = useState<string | null>(null);
 
-  console.log('🎨 [CommunityFeed] === COMPONENT RENDERED ===');
-  console.log('🎨 [CommunityFeed] Props:', {
-    activeTab,
-    userId: user?.id,
-    userEmail: user?.email,
-    timestamp: new Date().toISOString()
-  });
-
-  // Fetch community findings (visible only) - back to using the original functions
+  // Fetch community findings (visible only)
   const { data: communityFindings = [], isLoading: loadingCommunity } = useQuery<CommunityFinding[]>({
     queryKey: ['communityFindings'],
-    queryFn: () => {
-      console.log('📊 [CommunityFeed] Fetching community findings...');
-      return getCommunityFindings();
-    },
+    queryFn: () => getCommunityFindings(),
     enabled: activeTab === 'community',
   });
 
-  // Fetch user's personal findings (all statuses) - back to using the original functions
+  // Fetch user's personal findings (all statuses)
   const { data: userFindings = [], isLoading: loadingUser } = useQuery<CommunityFinding[]>({
     queryKey: ['userFindings', user?.id],
-    queryFn: () => {
-      console.log('📊 [CommunityFeed] Fetching user findings for:', user?.id);
-      return getUserFindings(user!.id);
-    },
+    queryFn: () => getUserFindings(user!.id),
     enabled: activeTab === 'my-findings' && !!user?.id,
   });
-
-  // Log query results
-  React.useEffect(() => {
-    if (activeTab === 'community') {
-      console.log('📊 [CommunityFeed] Community findings query result:', {
-        loading: loadingCommunity,
-        count: communityFindings.length,
-        findingIds: communityFindings.map(f => f.id),
-        findingTitles: communityFindings.map(f => f.title)
-      });
-    }
-  }, [activeTab, loadingCommunity, communityFindings]);
-
-  React.useEffect(() => {
-    if (activeTab === 'my-findings') {
-      console.log('📊 [CommunityFeed] User findings query result:', {
-        loading: loadingUser,
-        count: userFindings.length,
-        findingIds: userFindings.map(f => f.id),
-        findingTitles: userFindings.map(f => f.title),
-        userId: user?.id
-      });
-    }
-  }, [activeTab, loadingUser, userFindings, user?.id]);
 
   // Determine which findings to display
   const findings = activeTab === 'community' ? communityFindings : userFindings;
   const isLoading = activeTab === 'community' ? loadingCommunity : loadingUser;
 
-  console.log('📊 [CommunityFeed] Final findings to display:', {
-    activeTab,
-    count: findings.length,
-    isLoading,
-    findingIds: findings.map(f => f.id)
-  });
-
-  // Fetch user votes for all findings - back to using the original function
+  // Fetch user votes for all findings
   const findingIds = useMemo(() => findings.map(f => f.id), [findings]);
   const { data: userVotes = [] } = useQuery<FindingVote[]>({
     queryKey: ['userVotes', user?.id, findingIds],
-    queryFn: () => {
-      console.log('🗳️ [CommunityFeed] Fetching user votes for findings:', { userId: user?.id, findingIds });
-      return getUserVotes(user!.id, findingIds);
-    },
+    queryFn: () => getUserVotes(user!.id, findingIds),
     enabled: !!user?.id && findingIds.length > 0 && activeTab === 'community',
   });
 
@@ -173,24 +125,19 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     userVotes.forEach(vote => {
       map.set(vote.finding_id, vote.vote_type);
     });
-    console.log('🗺️ [CommunityFeed] User vote map created:', map);
     return map;
   }, [userVotes]);
 
   // Vote mutation
   const voteMutation = useMutation({
     mutationFn: ({ findingId, voteType }: { findingId: string; voteType: 'upvote' | 'downvote' }) => {
-      console.log('🗳️ [CommunityFeed] Vote mutation triggered:', { findingId, voteType });
       return castVoteAction(user!.id, findingId, voteType);
     },
     onSuccess: (_, variables) => {
-      console.log('✅ [CommunityFeed] Vote mutation successful, invalidating queries...');
       queryClient.invalidateQueries({ queryKey: ['communityFindings'] });
       queryClient.invalidateQueries({ queryKey: ['userVotes', user?.id] });
-      console.log('🔄 [CommunityFeed] Queries invalidated for finding:', variables.findingId);
     },
     onError: (error: any, variables) => {
-      console.error('❌ [CommunityFeed] Vote mutation failed:', error, 'for finding:', variables.findingId);
       alert(`Failed to cast vote: ${error.message}`);
     },
   });
@@ -209,18 +156,10 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   });
 
   const handleVote = (findingId: string, voteType: 'upvote' | 'downvote') => {
-    console.log('🎯 [CommunityFeed] Vote button clicked:', { findingId, voteType, userId: user?.id });
-    
     if (!user || voteMutation.isPending || activeTab !== 'community') {
-      console.log('⚠️ [CommunityFeed] Vote blocked:', { 
-        hasUser: !!user, 
-        isPending: voteMutation.isPending, 
-        activeTab 
-      });
       return;
     }
     
-    console.log('🚀 [CommunityFeed] Executing vote mutation...');
     voteMutation.mutate({ findingId, voteType });
   };
 
@@ -236,7 +175,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const handleAuthorClick = (e: React.MouseEvent, authorId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('👤 [CommunityFeed] Author clicked, navigating to profile:', authorId);
     router.push(`/community/user/${authorId}`);
   };
 
@@ -278,7 +216,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   };
 
   if (isLoading) {
-    console.log('⏳ [CommunityFeed] Showing loading state');
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
@@ -302,7 +239,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   }
 
   if (findings.length === 0) {
-    console.log('📭 [CommunityFeed] No findings to display, showing empty state');
     return (
       <Card>
         <CardContent className="text-center py-12">
@@ -321,8 +257,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     );
   }
 
-  console.log('🎨 [CommunityFeed] Rendering findings:', findings.length, 'userVoteMap size:', userVoteMap.size);
-
   return (
     <>
       <div className="space-y-6">
@@ -330,17 +264,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
           const userVote = userVoteMap.get(finding.id);
           const score = finding.upvotes - finding.downvotes;
           const authorName = getAuthorName(finding);
-
-          console.log(`🎯 [CommunityFeed] Rendering finding ${index + 1}:`, {
-            id: finding.id,
-            title: finding.title,
-            upvotes: finding.upvotes,
-            downvotes: finding.downvotes,
-            score,
-            userVote,
-            authorName,
-            author_id: finding.author_id
-          });
 
           return (
             <Card key={finding.id} className="hover:shadow-md transition-shadow">
@@ -365,10 +288,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                             <User className="w-4 h-4" />
                             <span 
                               className="hover:text-primary transition-colors cursor-pointer"
-                              onClick={(e) => {
-                                console.log('👤 [CommunityFeed] Author name clicked:', { authorId: finding.author_id, authorName });
-                                handleAuthorClick(e, finding.author_id);
-                              }}
+                              onClick={(e) => handleAuthorClick(e, finding.author_id)}
                             >
                               {authorName}
                             </span>
@@ -411,7 +331,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log('⬆️ [CommunityFeed] Upvote button clicked for finding:', finding.id);
                             handleVote(finding.id, 'upvote');
                           }}
                           disabled={!user || voteMutation.isPending}
@@ -436,7 +355,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log('⬇️ [CommunityFeed] Downvote button clicked for finding:', finding.id);
                             handleVote(finding.id, 'downvote');
                           }}
                           disabled={!user || voteMutation.isPending}

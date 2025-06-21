@@ -45,8 +45,6 @@ export interface UserProfile {
 }
 
 export async function getCommunityFindings(): Promise<CommunityFinding[]> {
-  console.log('Fetching community findings');
-  
   // First, fetch the findings (only visible ones)
   const { data: findings, error: findingsError } = await supabase
     .from('community_findings')
@@ -68,12 +66,10 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
     .order('created_at', { ascending: false });
 
   if (findingsError) {
-    console.error('Error fetching community findings:', findingsError);
     throw new Error(`Failed to fetch community findings: ${findingsError.message}`);
   }
 
   if (!findings || findings.length === 0) {
-    console.log('No community findings found');
     return [];
   }
 
@@ -87,7 +83,6 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
     .in('id', userIds);
 
   if (usersError) {
-    console.error('Error fetching users:', usersError);
     // Don't throw here, just continue without author details
   }
 
@@ -108,27 +103,18 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
     author: userMap.get(finding.author_id) || undefined
   }));
 
-  console.log('Fetched community findings:', transformedData.length);
   return transformedData;
 }
 
 export async function getCommunityFindingById(findingId: string): Promise<CommunityFinding | null> {
-  console.log('🔍 [getCommunityFindingById] === STARTING FINDING FETCH BY ID ===');
-  console.log('🔍 [getCommunityFindingById] Input findingId:', findingId);
-  console.log('🔍 [getCommunityFindingById] Timestamp:', new Date().toISOString());
-  
   // Validate input
   if (!findingId || typeof findingId !== 'string' || findingId.trim() === '') {
-    console.error('❌ [getCommunityFindingById] Invalid findingId provided:', { findingId, type: typeof findingId });
     return null;
   }
 
   const trimmedFindingId = findingId.trim();
-  console.log('🔍 [getCommunityFindingById] Trimmed findingId:', trimmedFindingId);
 
   try {
-    console.log('📊 [getCommunityFindingById] Step 1: Fetching finding from database...');
-    
     // Fetch the finding
     const { data: finding, error: findingError } = await supabase
       .from('community_findings')
@@ -150,77 +136,32 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
       .eq('status', 'visible')
       .single();
 
-    console.log('📊 [getCommunityFindingById] Step 2: Finding query completed');
-    console.log('📊 [getCommunityFindingById] Query result:', {
-      hasError: !!findingError,
-      errorCode: findingError?.code,
-      errorMessage: findingError?.message,
-      findingExists: !!finding,
-      findingData: finding ? {
-        id: finding.id,
-        author_id: finding.author_id,
-        title: finding.title,
-        status: finding.status,
-        upvotes: finding.upvotes,
-        downvotes: finding.downvotes,
-        share_data: finding.share_data,
-        created_at: finding.created_at
-      } : null
-    });
-
     if (findingError) {
       if (findingError.code === 'PGRST116') {
-        console.log('⚠️ [getCommunityFindingById] Finding not found:', trimmedFindingId);
         return null;
       }
-      console.error('❌ [getCommunityFindingById] Database error fetching finding:', findingError);
       throw new Error(`Failed to fetch finding: ${findingError.message}`);
     }
 
     if (!finding) {
-      console.log('⚠️ [getCommunityFindingById] No finding found with ID:', trimmedFindingId);
       return null;
     }
 
-    console.log('✅ [getCommunityFindingById] Finding found, now fetching author details...');
-    console.log('👤 [getCommunityFindingById] Author ID to fetch:', finding.author_id);
-
-    // Fetch author details separately with detailed logging
-    console.log('📊 [getCommunityFindingById] Step 3: Fetching author details...');
+    // Fetch author details separately
     const { data: author, error: authorError } = await supabase
       .from('users')
       .select('id, first_name, last_name')
       .eq('id', finding.author_id)
       .single();
 
-    console.log('📊 [getCommunityFindingById] Step 4: Author query completed');
-    console.log('📊 [getCommunityFindingById] Author query result:', {
-      hasError: !!authorError,
-      errorCode: authorError?.code,
-      errorMessage: authorError?.message,
-      authorExists: !!author,
-      authorData: author ? {
-        id: author.id,
-        first_name: author.first_name,
-        last_name: author.last_name
-      } : null
-    });
-
     if (authorError) {
       if (authorError.code === 'PGRST116') {
-        console.log('⚠️ [getCommunityFindingById] Author not found in users table for ID:', finding.author_id);
-        console.log('⚠️ [getCommunityFindingById] This could mean:');
-        console.log('  - Author account was deleted');
-        console.log('  - Author exists in auth.users but not in public.users');
-        console.log('  - Data inconsistency between tables');
+        // Author not found - continue without author details
       } else {
-        console.error('❌ [getCommunityFindingById] Database error fetching author:', authorError);
+        // Continue without author details instead of throwing
       }
-      // Continue without author details instead of throwing
     }
 
-    console.log('📊 [getCommunityFindingById] Step 5: Constructing final result...');
-    
     const transformedData = {
       ...finding,
       author: author ? {
@@ -229,55 +170,22 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
       } : undefined
     };
 
-    console.log('✅ [getCommunityFindingById] Final transformed data:', {
-      id: transformedData.id,
-      title: transformedData.title,
-      author_id: transformedData.author_id,
-      hasAuthor: !!transformedData.author,
-      authorData: transformedData.author,
-      authorDisplayName: transformedData.author ? 
-        `${transformedData.author.first_name || ''} ${transformedData.author.last_name || ''}`.trim() || 'Anonymous' :
-        'Anonymous (no author data)'
-    });
-
-    console.log('🎉 [getCommunityFindingById] === FINDING FETCH COMPLETED SUCCESSFULLY ===');
     return transformedData;
 
   } catch (error) {
-    console.error('💥 [getCommunityFindingById] === UNEXPECTED ERROR OCCURRED ===');
-    console.error('💥 [getCommunityFindingById] Error details:', {
-      error,
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      errorStack: error instanceof Error ? error.stack : 'No stack trace',
-      findingId: trimmedFindingId,
-      timestamp: new Date().toISOString()
-    });
     throw error;
   }
 }
 
 export async function getUserFindings(userId: string): Promise<CommunityFinding[]> {
-  console.log('🔍 [getUserFindings] === STARTING USER FINDINGS FETCH ===');
-  console.log('🔍 [getUserFindings] Input userId:', userId);
-  console.log('🔍 [getUserFindings] Timestamp:', new Date().toISOString());
-  
   // Validate input
   if (!userId || typeof userId !== 'string' || userId.trim() === '') {
-    console.error('❌ [getUserFindings] Invalid userId provided:', { userId, type: typeof userId });
     return [];
   }
 
   const trimmedUserId = userId.trim();
-  console.log('🔍 [getUserFindings] Trimmed userId:', trimmedUserId);
 
   try {
-    console.log('📊 [getUserFindings] Step 1: Executing Supabase query...');
-    console.log('📊 [getUserFindings] Query details:', {
-      table: 'community_findings',
-      filter: `author_id = ${trimmedUserId}`,
-      orderBy: 'created_at DESC'
-    });
-
     // Fetch ALL findings by the user (any status) - this is for their profile page
     // We want to show all their published findings, not just visible ones
     const { data: findings, error: findingsError } = await supabase
@@ -299,119 +207,44 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
       .eq('author_id', trimmedUserId)
       .order('created_at', { ascending: false });
 
-    console.log('📊 [getUserFindings] Step 2: Query completed');
-    console.log('📊 [getUserFindings] Raw query result:', {
-      hasError: !!findingsError,
-      errorCode: findingsError?.code,
-      errorMessage: findingsError?.message,
-      dataLength: findings?.length || 0,
-      dataExists: !!findings
-    });
-
     if (findingsError) {
-      console.error('❌ [getUserFindings] Database error occurred:', {
-        error: findingsError,
-        code: findingsError.code,
-        message: findingsError.message,
-        details: findingsError.details,
-        hint: findingsError.hint
-      });
       // Return empty array instead of throwing to prevent notFound() from being called
       return [];
     }
 
-    console.log('📊 [getUserFindings] Step 3: Processing query results...');
-    
     if (!findings) {
-      console.log('⚠️ [getUserFindings] Query returned null/undefined data');
       return [];
     }
 
     if (findings.length === 0) {
-      console.log('📊 [getUserFindings] No findings found for user');
-      console.log('📊 [getUserFindings] This could mean:');
-      console.log('  - User has not created any findings yet');
-      console.log('  - User ID does not match any author_id in the database');
-      console.log('  - Database connection issue');
       return [];
     }
 
-    console.log('✅ [getUserFindings] Found findings for user:', {
-      count: findings.length,
-      findingIds: findings.map(f => f.id),
-      findingTitles: findings.map(f => f.title),
-      statuses: findings.map(f => f.status),
-      createdDates: findings.map(f => f.created_at)
-    });
-
-    // Log each finding in detail
-    findings.forEach((finding, index) => {
-      console.log(`📄 [getUserFindings] Finding ${index + 1}:`, {
-        id: finding.id,
-        title: finding.title,
-        status: finding.status,
-        author_id: finding.author_id,
-        upvotes: finding.upvotes,
-        downvotes: finding.downvotes,
-        share_data: finding.share_data,
-        created_at: finding.created_at,
-        content_length: finding.content?.length || 0
-      });
-    });
-
-    console.log('📊 [getUserFindings] Step 4: Transforming data...');
-    
     // For user's findings, we don't need to fetch author details since it's the same user
-    const transformedData = findings.map((finding, index) => {
-      console.log(`🔄 [getUserFindings] Transforming finding ${index + 1}:`, finding.id);
+    const transformedData = findings.map((finding) => {
       return {
         ...finding,
         author: undefined // We don't need author details for user's own findings
       };
     });
 
-    console.log('✅ [getUserFindings] Step 5: Transformation complete');
-    console.log('✅ [getUserFindings] Final result:', {
-      totalFindings: transformedData.length,
-      findingIds: transformedData.map(f => f.id),
-      allHaveRequiredFields: transformedData.every(f => f.id && f.title && f.content && f.author_id)
-    });
-
-    console.log('🎉 [getUserFindings] === USER FINDINGS FETCH COMPLETED SUCCESSFULLY ===');
     return transformedData;
 
   } catch (error) {
-    console.error('💥 [getUserFindings] === UNEXPECTED ERROR OCCURRED ===');
-    console.error('💥 [getUserFindings] Error details:', {
-      error,
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      errorStack: error instanceof Error ? error.stack : 'No stack trace',
-      userId: trimmedUserId,
-      timestamp: new Date().toISOString()
-    });
-    
     // Return empty array instead of throwing to prevent notFound() from being called
     return [];
   }
 }
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
-  console.log('👤 [getUserProfile] === STARTING USER PROFILE FETCH ===');
-  console.log('👤 [getUserProfile] Input userId:', userId);
-  console.log('👤 [getUserProfile] Timestamp:', new Date().toISOString());
-  
   // Validate input
   if (!userId || typeof userId !== 'string' || userId.trim() === '') {
-    console.error('❌ [getUserProfile] Invalid userId provided:', { userId, type: typeof userId });
     return null;
   }
 
   const trimmedUserId = userId.trim();
-  console.log('👤 [getUserProfile] Trimmed userId:', trimmedUserId);
 
   try {
-    console.log('📊 [getUserProfile] Step 1: Querying users table...');
-    
     // First try to get from users table
     const { data: user, error } = await supabase
       .from('users')
@@ -419,40 +252,16 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       .eq('id', trimmedUserId)
       .single();
 
-    console.log('📊 [getUserProfile] Step 2: Users table query completed');
-    console.log('📊 [getUserProfile] Query result:', {
-      hasError: !!error,
-      errorCode: error?.code,
-      errorMessage: error?.message,
-      userData: user ? {
-        id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        created_at: user.created_at
-      } : null
-    });
-
     if (error) {
       if (error.code === 'PGRST116') {
-        console.log('⚠️ [getUserProfile] User not found in users table, checking auth.users:', trimmedUserId);
-        
         // Create admin client with service role key for auth operations
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
         
-        console.log('🔑 [getUserProfile] Environment check:', {
-          hasSupabaseUrl: !!supabaseUrl,
-          hasServiceRoleKey: !!serviceRoleKey,
-          supabaseUrlLength: supabaseUrl?.length || 0,
-          serviceRoleKeyLength: serviceRoleKey?.length || 0
-        });
-        
         if (!supabaseUrl || !serviceRoleKey) {
-          console.error('❌ [getUserProfile] Missing Supabase configuration for admin operations');
           return null;
         }
         
-        console.log('🔧 [getUserProfile] Step 3: Creating admin client...');
         const adminClient = createClient(supabaseUrl, serviceRoleKey, {
           auth: {
             autoRefreshToken: false,
@@ -460,31 +269,15 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
           }
         });
         
-        console.log('🔍 [getUserProfile] Step 4: Checking auth.users table...');
-        
         // If not found in users table, check if they exist in auth.users
         // This handles cases where a user exists but doesn't have a profile yet
         const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(trimmedUserId);
         
-        console.log('📊 [getUserProfile] Step 5: Auth.users query completed');
-        console.log('📊 [getUserProfile] Auth query result:', {
-          hasError: !!authError,
-          errorMessage: authError?.message,
-          hasAuthUser: !!authUser?.user,
-          authUserId: authUser?.user?.id,
-          authUserEmail: authUser?.user?.email,
-          authUserMetadata: authUser?.user?.user_metadata
-        });
-        
         if (authError || !authUser.user) {
-          console.log('❌ [getUserProfile] User not found in auth.users either:', trimmedUserId);
           return null;
         }
         
         // User exists in auth but not in users table - create a basic profile
-        console.log('🔧 [getUserProfile] Step 6: Creating basic profile for auth user:', trimmedUserId);
-        console.log('🔧 [getUserProfile] Auth user metadata:', authUser.user.user_metadata);
-        
         const { data: newUser, error: createError } = await supabase
           .from('users')
           .insert({
@@ -495,15 +288,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
           .select('id, first_name, last_name, created_at')
           .single();
         
-        console.log('📊 [getUserProfile] Step 7: Profile creation completed');
-        console.log('📊 [getUserProfile] Creation result:', {
-          hasError: !!createError,
-          errorMessage: createError?.message,
-          newUserData: newUser
-        });
-        
         if (createError) {
-          console.error('❌ [getUserProfile] Error creating user profile:', createError);
           // Return a basic profile even if creation fails
           const fallbackProfile = {
             id: trimmedUserId,
@@ -511,38 +296,23 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
             last_name: authUser.user.user_metadata?.last_name || null,
             created_at: authUser.user.created_at || new Date().toISOString()
           };
-          console.log('🔄 [getUserProfile] Returning fallback profile:', fallbackProfile);
           return fallbackProfile;
         }
         
-        console.log('✅ [getUserProfile] Profile created successfully:', newUser);
         return newUser;
       }
-      console.error('❌ [getUserProfile] Database error fetching user profile:', error);
       return null;
     }
 
-    console.log('✅ [getUserProfile] User profile found:', user);
-    console.log('🎉 [getUserProfile] === USER PROFILE FETCH COMPLETED SUCCESSFULLY ===');
     return user;
     
   } catch (error) {
-    console.error('💥 [getUserProfile] === UNEXPECTED ERROR OCCURRED ===');
-    console.error('💥 [getUserProfile] Error details:', {
-      error,
-      errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      errorStack: error instanceof Error ? error.stack : 'No stack trace',
-      userId: trimmedUserId,
-      timestamp: new Date().toISOString()
-    });
     return null;
   }
 }
 
 export async function getUserVotes(userId: string, findingIds: string[]): Promise<FindingVote[]> {
   if (findingIds.length === 0) return [];
-  
-  console.log('🗳️ [getUserVotes] Fetching user votes for findings:', { userId, findingIds });
   
   const { data, error } = await supabase
     .from('finding_votes')
@@ -551,11 +321,9 @@ export async function getUserVotes(userId: string, findingIds: string[]): Promis
     .in('finding_id', findingIds);
 
   if (error) {
-    console.error('❌ [getUserVotes] Error fetching user votes:', error);
     throw new Error(`Failed to fetch user votes: ${error.message}`);
   }
 
-  console.log('✅ [getUserVotes] Fetched user votes:', data?.length || 0, 'votes:', data);
   return data || [];
 }
 
@@ -564,8 +332,6 @@ export async function getUserVotes(userId: string, findingIds: string[]): Promis
 // The Server Actions handle all the database mutations with proper authentication
 
 export async function createFinding(userId: string, title: string, content: string): Promise<CommunityFinding> {
-  console.log('Creating finding:', { userId, title, content });
-  
   const { data, error } = await supabase
     .from('community_findings')
     .insert({
@@ -591,11 +357,9 @@ export async function createFinding(userId: string, title: string, content: stri
     .single();
 
   if (error) {
-    console.error('Error creating finding:', error);
     throw new Error(`Failed to create finding: ${error.message}`);
   }
 
-  console.log('Finding created successfully:', data);
   return {
     ...data,
     author: undefined // Author details not populated for creation operations
@@ -610,8 +374,6 @@ export async function createFindingWithContext(findingData: {
   chart_config?: any;
   experiment_id?: string;
 }): Promise<CommunityFinding> {
-  console.log('Creating finding with context:', findingData);
-  
   // Map user_id to author_id for the database insert
   const insertData = {
     author_id: findingData.user_id,
@@ -643,11 +405,9 @@ export async function createFindingWithContext(findingData: {
     .single();
 
   if (error) {
-    console.error('Error creating finding:', error);
     throw new Error(`Failed to create finding: ${error.message}`);
   }
 
-  console.log('Finding created successfully:', data);
   return {
     ...data,
     author: undefined // Author details not populated for creation operations
