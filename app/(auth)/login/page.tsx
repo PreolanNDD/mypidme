@@ -45,8 +45,10 @@ export default function Login() {
         hasSession: !!data.session
       });
 
-      // Force a page refresh to ensure the auth state is properly updated
-      window.location.href = '/dashboard';
+      // Don't force redirect here - let the AuthProvider handle it
+      // The auth state change will trigger the redirect automatically
+      console.log('🔄 [Login] Authentication successful, waiting for redirect...');
+      
     } catch (err) {
       console.error('💥 [Login] Unexpected error:', err);
       setError('An unexpected error occurred');

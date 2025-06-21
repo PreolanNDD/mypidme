@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Track if we're currently fetching a profile to prevent concurrent requests
   const fetchingProfileRef = useRef<string | null>(null);
   const profileCacheRef = useRef<Map<string, any>>(new Map());
+  const initializationRef = useRef<boolean>(false);
 
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
     // Prevent concurrent fetches for the same user
@@ -116,7 +117,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log("AuthProvider: Main useEffect starting up");
 
     const supabase = createClient();
-    let isInitialized = false;
 
     // Get initial session with timeout
     const initializeAuth = async () => {
@@ -145,10 +145,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
         
-        isInitialized = true;
+        initializationRef.current = true;
       } catch (error) {
         console.error('AuthProvider: Failed to initialize auth:', error);
-        isInitialized = true;
+        initializationRef.current = true;
       } finally {
         setLoading(false);
       }
@@ -162,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log(`AuthProvider: Auth event received: ${event}`, session ? 'with session.' : 'without session.');
 
         // Skip processing if we haven't finished initialization
-        if (!isInitialized) {
+        if (!initializationRef.current) {
           console.log('AuthProvider: Skipping auth state change - not yet initialized');
           return;
         }
@@ -225,16 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {loading ? (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-secondary-text">Loading...</p>
-          </div>
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </AuthContext.Provider>
   );
 }

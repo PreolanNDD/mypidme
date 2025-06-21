@@ -21,7 +21,8 @@ export default function AuthLayout({
 
     // For other auth pages, redirect authenticated users to dashboard
     if (!loading && user) {
-      router.push('/dashboard');
+      console.log('AuthLayout: User is authenticated, redirecting to dashboard');
+      router.replace('/dashboard'); // Use replace instead of push
     }
   }, [user, loading, router, pathname]);
 
@@ -46,7 +47,11 @@ export default function AuthLayout({
 
   // For other auth pages, don't render if user is authenticated (will redirect)
   if (user) {
-    return null;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (

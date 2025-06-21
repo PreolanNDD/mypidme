@@ -14,7 +14,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push('/dashboard');
+      console.log('Home: User is authenticated, redirecting to dashboard');
+      router.replace('/dashboard'); // Use replace instead of push
     }
   }, [user, loading, router]);
 
@@ -27,7 +28,11 @@ export default function Home() {
   }
 
   if (user) {
-    return null; // Will redirect to dashboard
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (

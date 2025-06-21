@@ -13,20 +13,15 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
 
   useEffect(() => {
-    // The core logic: if the initial auth check is done and there is still no user,
-    // redirect them to the login page.
+    // Only redirect if loading is complete and there's no user
     if (!loading && !user) {
       console.log('ProtectedRoute: No authenticated user found, redirecting to login');
-      router.push('/login');
+      router.replace('/login'); // Use replace instead of push to avoid back button issues
     }
-    // This effect runs whenever the loading or user state changes.
-    // Because our AuthProvider is now stable, this will behave predictably.
   }, [user, loading, router]);
 
-  // If the initial session is still loading, show a full-screen spinner.
-  // OR if the user is not present (and we are about to redirect),
-  // also show the spinner. This prevents any flash of content.
-  if (loading || !user) {
+  // Show loading spinner while auth is being determined
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
@@ -37,6 +32,18 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // If loading is finished and a user exists, render the actual content.
+  // Show loading spinner while redirecting (no user)
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-secondary-text">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If we have a user, render the protected content
   return <>{children}</>;
 }
