@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Share2, MessageSquare } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -32,8 +31,7 @@ export function ShareFindingDialog({ isOpen, onClose, context }: ShareFindingDia
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     title: '',
-    content: '',
-    shareData: false
+    content: ''
   });
   const [error, setError] = useState('');
 
@@ -47,7 +45,7 @@ export function ShareFindingDialog({ isOpen, onClose, context }: ShareFindingDia
         type: context.type,
         title: data.title.trim(),
         content: data.content.trim(),
-        share_data: data.shareData
+        share_data: true // Always share data when there's context
       };
 
       // Add context-specific data
@@ -63,7 +61,7 @@ export function ShareFindingDialog({ isOpen, onClose, context }: ShareFindingDia
       return shareFindingAction(shareData);
     },
     onSuccess: (result) => {
-      setFormData({ title: '', content: '', shareData: false });
+      setFormData({ title: '', content: '' });
       setError('');
       queryClient.invalidateQueries({ queryKey: ['communityFindings'] });
       onClose();
@@ -89,7 +87,7 @@ export function ShareFindingDialog({ isOpen, onClose, context }: ShareFindingDia
 
   const handleClose = () => {
     if (createMutation.isPending) return;
-    setFormData({ title: '', content: '', shareData: false });
+    setFormData({ title: '', content: '' });
     setError('');
     onClose();
   };
@@ -135,6 +133,9 @@ export function ShareFindingDialog({ isOpen, onClose, context }: ShareFindingDia
                   <p className="text-blue-800 text-sm">
                     {getContextDescription()}
                   </p>
+                  <p className="text-blue-700 text-xs mt-2">
+                    📊 Your data visualization will be automatically shared with this finding
+                  </p>
                 </div>
               </div>
             </div>
@@ -174,28 +175,6 @@ export function ShareFindingDialog({ isOpen, onClose, context }: ShareFindingDia
               <p className="text-xs text-secondary-text">
                 Tip: Include specific details about your discovery and actionable insights for the community.
               </p>
-            </div>
-
-            {/* Share Data Checkbox */}
-            <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
-              <Checkbox
-                id="shareData"
-                checked={formData.shareData}
-                onCheckedChange={(checked) => setFormData({ ...formData, shareData: !!checked })}
-                disabled={isLoading}
-              />
-              <div className="flex-1">
-                <Label 
-                  htmlFor="shareData" 
-                  className="text-sm font-medium text-primary-text cursor-pointer"
-                >
-                  Attach and share the anonymized data from this {context?.type === 'chart' ? 'chart' : 'experiment'}
-                </Label>
-                <p className="text-xs text-secondary-text mt-1">
-                  This will allow others to see the data patterns that led to your insights. 
-                  All personal information is removed.
-                </p>
-              </div>
             </div>
 
             <div className="flex space-x-3 pt-4">

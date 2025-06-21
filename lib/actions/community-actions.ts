@@ -103,12 +103,21 @@ export async function createFindingAction(
       console.log('ℹ️ [createFindingAction] No chart config provided');
     }
 
+    // Determine if data should be shared automatically
+    const shouldShareData = shareData || !!(chartConfig || experimentId);
+    console.log('📊 [createFindingAction] Data sharing decision:', {
+      explicitShareData: shareData,
+      hasChartConfig: !!chartConfig,
+      hasExperimentId: !!experimentId,
+      finalShareData: shouldShareData
+    });
+
     console.log('📊 [createFindingAction] Step 6: Preparing database insert data...');
     const insertData = {
       author_id: user.id, // Associate with the authenticated user
       title: title.trim(),
       content: content.trim(),
-      share_data: shareData,
+      share_data: shouldShareData,
       chart_config: chartConfig,
       experiment_id: experimentId || null
     };
@@ -250,7 +259,7 @@ export async function shareFindingAction(data: ShareFindingData) {
       author_id: user.id,
       title: data.title,
       content: data.content,
-      share_data: data.share_data,
+      share_data: data.share_data, // Always true when called from ShareFindingDialog
       chart_config: null as any,
       experiment_id: null as string | null
     };

@@ -10,7 +10,6 @@ import { getExperiments, analyzeExperimentResults } from '@/lib/experiments';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -175,6 +174,12 @@ export default function CreateFindingPage() {
       }
     }
 
+    // Automatically set shareData to 'on' if there's context (chart or experiment data)
+    if (context) {
+      formData.set('shareData', 'on');
+      console.log('📊 [CreateFindingPage] Automatically enabled data sharing due to context');
+    }
+
     console.log('👤 [CreateFindingPage] User context:', {
       userId: user?.id,
       userEmail: user?.email,
@@ -270,6 +275,9 @@ export default function CreateFindingPage() {
                             <p className="text-blue-800 text-sm">
                               {getContextDescription()}
                             </p>
+                            <p className="text-blue-700 text-xs mt-2">
+                              📊 Your data visualization will be automatically shared with this finding
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -327,29 +335,6 @@ export default function CreateFindingPage() {
                       />
                     </div>
 
-                    {/* Share Data Checkbox */}
-                    <div className="flex items-start space-x-3 p-4 bg-gray-50 rounded-lg">
-                      <Checkbox
-                        id="shareData"
-                        name="shareData"
-                        onCheckedChange={(checked) => {
-                          console.log('☑️ [CreateFindingPage] Share data checkbox changed:', checked);
-                        }}
-                      />
-                      <div className="flex-1">
-                        <Label 
-                          htmlFor="shareData" 
-                          className="text-sm font-medium text-primary-text cursor-pointer"
-                        >
-                          Share anonymized data with this finding
-                        </Label>
-                        <p className="text-xs text-secondary-text mt-1">
-                          This will allow others to see the data patterns that led to your insights. 
-                          All personal information is removed.
-                        </p>
-                      </div>
-                    </div>
-
                     <SubmitButton />
                   </form>
                 </CardContent>
@@ -386,6 +371,11 @@ export default function CreateFindingPage() {
 
                       <div className="flex items-center space-x-2">
                         <Badge className="bg-green-100 text-green-800 border-green-300">Published</Badge>
+                        {context && (
+                          <Badge variant="outline" className="text-blue-700 border-blue-300">
+                            Data Shared
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
