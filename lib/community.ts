@@ -113,65 +113,147 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
 }
 
 export async function getCommunityFindingById(findingId: string): Promise<CommunityFinding | null> {
-  console.log('Fetching community finding by ID:', findingId);
+  console.log('🔍 [getCommunityFindingById] === STARTING FINDING FETCH BY ID ===');
+  console.log('🔍 [getCommunityFindingById] Input findingId:', findingId);
+  console.log('🔍 [getCommunityFindingById] Timestamp:', new Date().toISOString());
   
-  // Fetch the finding
-  const { data: finding, error: findingError } = await supabase
-    .from('community_findings')
-    .select(`
-      id,
-      author_id,
-      title,
-      content,
-      status,
-      upvotes,
-      downvotes,
-      share_data,
-      chart_config,
-      experiment_id,
-      created_at,
-      updated_at
-    `)
-    .eq('id', findingId)
-    .eq('status', 'visible')
-    .single();
-
-  if (findingError) {
-    if (findingError.code === 'PGRST116') {
-      console.log('Finding not found:', findingId);
-      return null;
-    }
-    console.error('Error fetching finding:', findingError);
-    throw new Error(`Failed to fetch finding: ${findingError.message}`);
-  }
-
-  if (!finding) {
-    console.log('No finding found with ID:', findingId);
+  // Validate input
+  if (!findingId || typeof findingId !== 'string' || findingId.trim() === '') {
+    console.error('❌ [getCommunityFindingById] Invalid findingId provided:', { findingId, type: typeof findingId });
     return null;
   }
 
-  // Fetch author details separately
-  const { data: author, error: authorError } = await supabase
-    .from('users')
-    .select('id, first_name, last_name')
-    .eq('id', finding.author_id)
-    .single();
+  const trimmedFindingId = findingId.trim();
+  console.log('🔍 [getCommunityFindingById] Trimmed findingId:', trimmedFindingId);
 
-  if (authorError) {
-    console.error('Error fetching author:', authorError);
-    // Continue without author details
+  try {
+    console.log('📊 [getCommunityFindingById] Step 1: Fetching finding from database...');
+    
+    // Fetch the finding
+    const { data: finding, error: findingError } = await supabase
+      .from('community_findings')
+      .select(`
+        id,
+        author_id,
+        title,
+        content,
+        status,
+        upvotes,
+        downvotes,
+        share_data,
+        chart_config,
+        experiment_id,
+        created_at,
+        updated_at
+      `)
+      .eq('id', trimmedFindingId)
+      .eq('status', 'visible')
+      .single();
+
+    console.log('📊 [getCommunityFindingById] Step 2: Finding query completed');
+    console.log('📊 [getCommunityFindingById] Query result:', {
+      hasError: !!findingError,
+      errorCode: findingError?.code,
+      errorMessage: findingError?.message,
+      findingExists: !!finding,
+      findingData: finding ? {
+        id: finding.id,
+        author_id: finding.author_id,
+        title: finding.title,
+        status: finding.status,
+        upvotes: finding.upvotes,
+        downvotes: finding.downvotes,
+        share_data: finding.share_data,
+        created_at: finding.created_at
+      } : null
+    });
+
+    if (findingError) {
+      if (findingError.code === 'PGRST116') {
+        console.log('⚠️ [getCommunityFindingById] Finding not found:', trimmedFindingId);
+        return null;
+      }
+      console.error('❌ [getCommunityFindingById] Database error fetching finding:', findingError);
+      throw new Error(`Failed to fetch finding: ${findingError.message}`);
+    }
+
+    if (!finding) {
+      console.log('⚠️ [getCommunityFindingById] No finding found with ID:', trimmedFindingId);
+      return null;
+    }
+
+    console.log('✅ [getCommunityFindingById] Finding found, now fetching author details...');
+    console.log('👤 [getCommunityFindingById] Author ID to fetch:', finding.author_id);
+
+    // Fetch author details separately with detailed logging
+    console.log('📊 [getCommunityFindingById] Step 3: Fetching author details...');
+    const { data: author, error: authorError } = await supabase
+      .from('users')
+      .select('id, first_name, last_name')
+      .eq('id', finding.author_id)
+      .single();
+
+    console.log('📊 [getCommunityFindingById] Step 4: Author query completed');
+    console.log('📊 [getCommunityFindingById] Author query result:', {
+      hasError: !!authorError,
+      errorCode: authorError?.code,
+      errorMessage: authorError?.message,
+      authorExists: !!author,
+      authorData: author ? {
+        id: author.id,
+        first_name: author.first_name,
+        last_name: author.last_name
+      } : null
+    });
+
+    if (authorError) {
+      if (authorError.code === 'PGRST116') {
+        console.log('⚠️ [getCommunityFindingById] Author not found in users table for ID:', finding.author_id);
+        console.log('⚠️ [getCommunityFindingById] This could mean:');
+        console.log('  - Author account was deleted');
+        console.log('  - Author exists in auth.users but not in public.users');
+        console.log('  - Data inconsistency between tables');
+      } else {
+        console.error('❌ [getCommunityFindingById] Database error fetching author:', authorError);
+      }
+      // Continue without author details instead of throwing
+    }
+
+    console.log('📊 [getCommunityFindingById] Step 5: Constructing final result...');
+    
+    const transformedData = {
+      ...finding,
+      author: author ? {
+        first_name: author.first_name,
+        last_name: author.last_name
+      } : undefined
+    };
+
+    console.log('✅ [getCommunityFindingById] Final transformed data:', {
+      id: transformedData.id,
+      title: transformedData.title,
+      author_id: transformedData.author_id,
+      hasAuthor: !!transformedData.author,
+      authorData: transformedData.author,
+      authorDisplayName: transformedData.author ? 
+        `${transformedData.author.first_name || ''} ${transformedData.author.last_name || ''}`.trim() || 'Anonymous' :
+        'Anonymous (no author data)'
+    });
+
+    console.log('🎉 [getCommunityFindingById] === FINDING FETCH COMPLETED SUCCESSFULLY ===');
+    return transformedData;
+
+  } catch (error) {
+    console.error('💥 [getCommunityFindingById] === UNEXPECTED ERROR OCCURRED ===');
+    console.error('💥 [getCommunityFindingById] Error details:', {
+      error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : 'No stack trace',
+      findingId: trimmedFindingId,
+      timestamp: new Date().toISOString()
+    });
+    throw error;
   }
-
-  const transformedData = {
-    ...finding,
-    author: author ? {
-      first_name: author.first_name,
-      last_name: author.last_name
-    } : undefined
-  };
-
-  console.log('Fetched finding with author:', transformedData);
-  return transformedData;
 }
 
 export async function getUserFindings(userId: string): Promise<CommunityFinding[]> {
