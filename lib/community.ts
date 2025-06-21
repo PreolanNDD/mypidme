@@ -178,7 +178,8 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
   console.log('Fetching user findings for:', userId);
   
   try {
-    // Fetch all visible findings by the user
+    // Fetch ALL findings by the user (any status) - this is for their profile page
+    // We want to show all their published findings, not just visible ones
     const { data: findings, error: findingsError } = await supabase
       .from('community_findings')
       .select(`
@@ -196,7 +197,6 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
         updated_at
       `)
       .eq('author_id', userId)
-      .eq('status', 'visible') // Only show visible findings on public profile
       .order('created_at', { ascending: false });
 
     if (findingsError) {
