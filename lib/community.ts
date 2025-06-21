@@ -163,45 +163,52 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
 export async function getUserFindings(userId: string): Promise<CommunityFinding[]> {
   console.log('Fetching user findings for:', userId);
   
-  // Fetch all visible findings by the user
-  const { data: findings, error: findingsError } = await supabase
-    .from('community_findings')
-    .select(`
-      id,
-      author_id,
-      title,
-      content,
-      status,
-      upvotes,
-      downvotes,
-      share_data,
-      chart_config,
-      experiment_id,
-      created_at,
-      updated_at
-    `)
-    .eq('author_id', userId)
-    .eq('status', 'visible') // Only show visible findings on public profile
-    .order('created_at', { ascending: false });
+  try {
+    // Fetch all visible findings by the user
+    const { data: findings, error: findingsError } = await supabase
+      .from('community_findings')
+      .select(`
+        id,
+        author_id,
+        title,
+        content,
+        status,
+        upvotes,
+        downvotes,
+        share_data,
+        chart_config,
+        experiment_id,
+        created_at,
+        updated_at
+      `)
+      .eq('author_id', userId)
+      .eq('status', 'visible') // Only show visible findings on public profile
+      .order('created_at', { ascending: false });
 
-  if (findingsError) {
-    console.error('Error fetching user findings:', findingsError);
-    throw new Error(`Failed to fetch user findings: ${findingsError.message}`);
-  }
+    if (findingsError) {
+      console.error('Error fetching user findings:', findingsError);
+      // Return empty array instead of throwing to prevent notFound() from being called
+      return [];
+    }
 
-  if (!findings || findings.length === 0) {
-    console.log('No user findings found');
+    if (!findings || findings.length === 0) {
+      console.log('No user findings found');
+      return [];
+    }
+
+    // For user's findings, we don't need to fetch author details since it's the same user
+    const transformedData = findings.map(finding => ({
+      ...finding,
+      author: undefined // We don't need author details for user's own findings
+    }));
+
+    console.log('Fetched user findings:', transformedData.length);
+    return transformedData;
+  } catch (error) {
+    console.error('Unexpected error fetching user findings:', error);
+    // Return empty array instead of throwing to prevent notFound() from being called
     return [];
   }
-
-  // For user's findings, we don't need to fetch author details since it's the same user
-  const transformedData = findings.map(finding => ({
-    ...finding,
-    author: undefined // We don't need author details for user's own findings
-  }));
-
-  console.log('Fetched user findings:', transformedData.length);
-  return transformedData;
 }
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
