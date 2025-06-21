@@ -44,12 +44,6 @@ export const createClient = () => {
       supabaseUrl,
       supabaseAnonKey,
       {
-        auth: {
-          autoRefreshToken: true,
-          persistSession: true,
-          detectSessionInUrl: true,
-          flowType: 'pkce'
-        },
         cookies: {
           get(name: string) {
             try {
