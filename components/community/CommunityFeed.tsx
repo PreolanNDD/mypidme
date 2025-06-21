@@ -270,6 +270,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
         {findings.map((finding) => {
           const userVote = userVoteMap.get(finding.id);
           const score = finding.upvotes - finding.downvotes;
+          const authorName = getAuthorName(finding);
 
           console.log('🎯 [CommunityFeed] Rendering finding:', {
             id: finding.id,
@@ -300,7 +301,13 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                           {activeTab === 'community' && (
                             <div className="flex items-center space-x-1">
                               <User className="w-4 h-4" />
-                              <span>{getAuthorName(finding)}</span>
+                              <Link 
+                                href={`/community/user/${finding.author_id}`}
+                                className="hover:text-primary transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {authorName}
+                              </Link>
                             </div>
                           )}
                           <div className="flex items-center space-x-1">

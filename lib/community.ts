@@ -36,6 +36,13 @@ export interface FindingReport {
   created_at: string;
 }
 
+export interface UserProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  created_at: string;
+}
+
 export async function getCommunityFindings(): Promise<CommunityFinding[]> {
   console.log('Fetching community findings');
   
@@ -153,7 +160,7 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
 export async function getUserFindings(userId: string): Promise<CommunityFinding[]> {
   console.log('Fetching user findings for:', userId);
   
-  // Fetch all findings by the user (any status)
+  // Fetch all visible findings by the user
   const { data: findings, error: findingsError } = await supabase
     .from('community_findings')
     .select(`
@@ -171,6 +178,7 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
       updated_at
     `)
     .eq('author_id', userId)
+    .eq('status', 'visible') // Only show visible findings on public profile
     .order('created_at', { ascending: false });
 
   if (findingsError) {
@@ -183,7 +191,7 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
     return [];
   }
 
-  // For user's own findings, we don't need to fetch author details since it's the same user
+  // For user's findings, we don't need to fetch author details since it's the same user
   const transformedData = findings.map(finding => ({
     ...finding,
     author: undefined // We don't need author details for user's own findings
@@ -191,6 +199,28 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
 
   console.log('Fetched user findings:', transformedData.length);
   return transformedData;
+}
+
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  console.log('Fetching user profile for:', userId);
+  
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('id, first_name, last_name, created_at')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      console.log('User not found:', userId);
+      return null;
+    }
+    console.error('Error fetching user profile:', error);
+    throw new Error(`Failed to fetch user profile: ${error.message}`);
+  }
+
+  console.log('Fetched user profile:', user);
+  return user;
 }
 
 export async function getUserVotes(userId: string, findingIds: string[]): Promise<FindingVote[]> {
