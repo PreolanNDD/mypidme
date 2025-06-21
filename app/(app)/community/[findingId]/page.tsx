@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getCommunityFindingById } from '@/lib/community';
 import { FindingDetailClient } from './finding-detail-client';
 
@@ -19,6 +19,12 @@ export default async function FindingDetailPage({ params }: FindingDetailPagePro
   const { findingId } = params;
 
   console.log(`🎯 FindingDetailPage called with findingId: ${findingId}`);
+
+  // Check if findingId is empty or invalid, redirect to community page
+  if (!findingId || findingId.trim() === '') {
+    console.log(`🔄 Empty or invalid findingId, redirecting to /community`);
+    redirect('/community');
+  }
 
   // Fetch the finding data on the server
   const finding = await getCommunityFindingById(findingId);
