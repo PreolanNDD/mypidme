@@ -311,6 +311,11 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     reportMutation.mutate({ reason });
   };
 
+  const handleAuthorClick = () => {
+    console.log('👤 [FindingDetailClient] Author clicked, navigating to profile:', finding.author_id);
+    router.push(`/community/user/${finding.author_id}`);
+  };
+
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', { 
       month: 'long', 
@@ -383,6 +388,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   };
 
   const score = finding.upvotes - finding.downvotes;
+  const authorName = getAuthorName(finding);
 
   return (
     <>
@@ -405,7 +411,12 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
               <div className="flex items-center space-x-4 text-sm text-secondary-text">
                 <div className="flex items-center space-x-1">
                   <User className="w-4 h-4" />
-                  <span>{getAuthorName(finding)}</span>
+                  <span 
+                    className="hover:text-primary transition-colors cursor-pointer"
+                    onClick={handleAuthorClick}
+                  >
+                    {authorName}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Calendar className="w-4 h-4" />
