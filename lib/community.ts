@@ -107,7 +107,7 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
 export async function getCommunityFindingById(findingId: string): Promise<CommunityFinding | null> {
   console.log('Fetching community finding by ID:', findingId);
   
-  // Fetch the finding
+  // Fetch the finding with author details using a join
   const { data: finding, error: findingError } = await supabase
     .from('community_findings')
     .select(`
@@ -122,7 +122,11 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
       chart_config,
       experiment_id,
       created_at,
-      updated_at
+      updated_at,
+      author:users!community_findings_author_id_fkey(
+        first_name,
+        last_name
+      )
     `)
     .eq('id', findingId)
     .eq('status', 'visible')
@@ -142,28 +146,8 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
     return null;
   }
 
-  // Fetch author details
-  const { data: author, error: authorError } = await supabase
-    .from('users')
-    .select('id, first_name, last_name')
-    .eq('id', finding.author_id)
-    .single();
-
-  if (authorError) {
-    console.error('Error fetching author:', authorError);
-    // Continue without author details
-  }
-
-  const transformedData = {
-    ...finding,
-    author: author ? {
-      first_name: author.first_name,
-      last_name: author.last_name
-    } : undefined
-  };
-
-  console.log('Fetched finding:', transformedData);
-  return transformedData;
+  console.log('Fetched finding with author:', finding);
+  return finding;
 }
 
 export async function getUserFindings(userId: string): Promise<CommunityFinding[]> {
