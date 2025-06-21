@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export interface CommunityFinding {
   id: string;
@@ -239,9 +240,25 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       if (error.code === 'PGRST116') {
         console.log('User not found in users table, checking auth.users:', userId);
         
+        // Create admin client with service role key for auth operations
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        
+        if (!supabaseUrl || !serviceRoleKey) {
+          console.error('Missing Supabase configuration for admin operations');
+          return null;
+        }
+        
+        const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
+        });
+        
         // If not found in users table, check if they exist in auth.users
         // This handles cases where a user exists but doesn't have a profile yet
-        const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
+        const { data: authUser, error: authError } = await adminClient.auth.admin.getUserById(userId);
         
         if (authError || !authUser.user) {
           console.log('User not found in auth.users either:', userId);
