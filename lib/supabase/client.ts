@@ -1,7 +1,8 @@
-// lib/supabase/client.ts
-import { createBrowserClient } from '@supabase/ssr'
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
 
-export const createClient = () => createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+// Create a singleton client instance for the browser
+export const createClient = () =>
+  createBrowserSupabaseClient({
+    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  })

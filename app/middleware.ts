@@ -1,45 +1,45 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
-export async function middleware(req: NextRequest) {
+export async function middleware(request: NextRequest) {
   console.log('🔧 [Middleware] Request intercepted:', {
-    url: req.url,
-    method: req.method,
-    pathname: req.nextUrl.pathname,
-    timestamp: new Date().toISOString(),
+    url: request.url,
+    method: request.method,
+    pathname: request.nextUrl.pathname,
+    timestamp: new Date().toISOString()
+  });
+
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
   })
 
-  const res = NextResponse.next()
-
-  const supabase = createMiddlewareClient({ req, res })
+  const supabase = createMiddlewareClient({ req: request, res: response })
 
   try {
-    console.log('🔐 [Middleware] Checking user authentication...')
-
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
-
+    console.log('🔐 [Middleware] Checking user authentication...');
+    // This will refresh the user's session cookie if it's expired
+    const { data: { user }, error } = await supabase.auth.getUser();
+    
     if (error) {
-      console.error('❌ [Middleware] Auth error:', error)
+      console.error('❌ [Middleware] Auth error:', error);
     } else if (user) {
-      console.log('✅ [Middleware] User authenticated:', {
-        userId: user.id,
+      console.log('✅ [Middleware] User authenticated:', { 
+        userId: user.id, 
         email: user.email,
-        lastSignIn: user.last_sign_in_at,
-      })
+        lastSignIn: user.last_sign_in_at 
+      });
     } else {
-      console.log('👤 [Middleware] No authenticated user found')
+      console.log('👤 [Middleware] No authenticated user found');
     }
   } catch (error) {
-    console.error('💥 [Middleware] Critical auth check error:', error)
+    console.error('💥 [Middleware] Critical auth check error:', error);
   }
 
-  console.log('🔧 [Middleware] Request processing complete, forwarding to app')
-  return res
+  console.log('🔧 [Middleware] Request processing complete, forwarding to app');
+  return response;
 }
-
 
 // Ensure the middleware is only called for relevant paths.
 export const config = {

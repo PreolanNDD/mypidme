@@ -4,10 +4,10 @@ import { cookies } from 'next/headers'
 export const createClient = () => {
   console.log('🔧 [Supabase Server Client] Creating server client...');
   
+  const cookieStore = cookies()
+
   const client = createServerComponentClient({ 
-    cookies,
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    cookies: () => cookieStore,
   });
 
   console.log('✅ [Supabase Server Client] Server client created successfully');
