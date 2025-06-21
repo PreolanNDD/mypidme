@@ -261,22 +261,103 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   // Get user's vote for this finding
   const userVote = userVotes.find(vote => vote.finding_id === finding.id)?.vote_type;
 
-  // Vote mutation using Server Action
+  // Optimistic vote mutation with immediate UI updates
   const voteMutation = useMutation({
-    mutationFn: ({ voteType }: { voteType: 'upvote' | 'downvote' }) =>
-      castVoteAction(user!.id, finding.id, voteType),
-    onSuccess: (result) => {
+    mutationFn: async ({ voteType }: { voteType: 'upvote' | 'downvote' }) => {
+      const result = await castVoteAction(user!.id, finding.id, voteType);
       if (result?.error) {
-        alert(`Failed to cast vote: ${result.error}`);
-      } else {
-        // Invalidate queries to refresh the data
-        queryClient.invalidateQueries({ queryKey: ['communityFinding', finding.id] });
-        queryClient.invalidateQueries({ queryKey: ['communityFindings'] });
-        queryClient.invalidateQueries({ queryKey: ['userVotes', user?.id] });
+        throw new Error(result.error);
       }
+      return result;
     },
-    onError: (error: any) => {
-      alert(`Failed to cast vote: ${error.message}`);
+    onMutate: async ({ voteType }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['communityFinding', finding.id] });
+      await queryClient.cancelQueries({ queryKey: ['userVotes', user?.id, finding.id] });
+
+      // Snapshot the previous values
+      const previousFinding = queryClient.getQueryData<CommunityFinding>(['communityFinding', finding.id]);
+      const previousVotes = queryClient.getQueryData<FindingVote[]>(['userVotes', user?.id, finding.id]);
+
+      // Optimistically update the finding
+      if (previousFinding) {
+        let newUpvotes = previousFinding.upvotes;
+        let newDownvotes = previousFinding.downvotes;
+
+        // Handle vote logic
+        if (userVote === voteType) {
+          // User clicked same vote - remove it
+          if (voteType === 'upvote') {
+            newUpvotes = Math.max(0, newUpvotes - 1);
+          } else {
+            newDownvotes = Math.max(0, newDownvotes - 1);
+          }
+        } else if (userVote) {
+          // User clicked different vote - switch it
+          if (userVote === 'upvote') {
+            newUpvotes = Math.max(0, newUpvotes - 1);
+            newDownvotes = newDownvotes + 1;
+          } else {
+            newDownvotes = Math.max(0, newDownvotes - 1);
+            newUpvotes = newUpvotes + 1;
+          }
+        } else {
+          // No previous vote - add new vote
+          if (voteType === 'upvote') {
+            newUpvotes = newUpvotes + 1;
+          } else {
+            newDownvotes = newDownvotes + 1;
+          }
+        }
+
+        const updatedFinding = {
+          ...previousFinding,
+          upvotes: newUpvotes,
+          downvotes: newDownvotes
+        };
+
+        queryClient.setQueryData(['communityFinding', finding.id], updatedFinding);
+      }
+
+      // Optimistically update the user votes
+      if (previousVotes) {
+        const updatedVotes = previousVotes.filter(vote => vote.finding_id !== finding.id);
+        
+        // Add new vote if it's different from current or if no current vote
+        if (userVote !== voteType) {
+          updatedVotes.push({
+            id: `temp-${Date.now()}`,
+            user_id: user!.id,
+            finding_id: finding.id,
+            vote_type: voteType,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        }
+
+        queryClient.setQueryData(['userVotes', user?.id, finding.id], updatedVotes);
+      }
+
+      // Return a context object with the previous values
+      return { previousFinding, previousVotes };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousFinding) {
+        queryClient.setQueryData(['communityFinding', finding.id], context.previousFinding);
+      }
+      if (context?.previousVotes) {
+        queryClient.setQueryData(['userVotes', user?.id, finding.id], context.previousVotes);
+      }
+      
+      // Show error message
+      alert(`Failed to cast vote: ${err.message}`);
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we have the latest data
+      queryClient.invalidateQueries({ queryKey: ['communityFinding', finding.id] });
+      queryClient.invalidateQueries({ queryKey: ['communityFindings'] });
+      queryClient.invalidateQueries({ queryKey: ['userVotes', user?.id] });
     },
   });
 
@@ -298,7 +379,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   });
 
   const handleVote = (voteType: 'upvote' | 'downvote') => {
-    if (!user || voteMutation.isPending) return;
+    if (!user) return;
     voteMutation.mutate({ voteType });
   };
 
@@ -590,8 +671,8 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                       size="sm"
                       variant="ghost"
                       onClick={() => handleVote('upvote')}
-                      disabled={!user || voteMutation.isPending}
-                      className={`flex items-center space-x-1 ${
+                      disabled={!user}
+                      className={`flex items-center space-x-1 transition-all duration-200 ${
                         userVote === 'upvote' 
                           ? 'text-green-600 bg-green-50 hover:bg-green-100' 
                           : 'text-secondary-text hover:text-green-600 hover:bg-green-50'
@@ -611,8 +692,8 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                       size="sm"
                       variant="ghost"
                       onClick={() => handleVote('downvote')}
-                      disabled={!user || voteMutation.isPending}
-                      className={`flex items-center space-x-1 ${
+                      disabled={!user}
+                      className={`flex items-center space-x-1 transition-all duration-200 ${
                         userVote === 'downvote' 
                           ? 'text-red-600 bg-red-50 hover:bg-red-100' 
                           : 'text-secondary-text hover:text-red-600 hover:bg-red-50'

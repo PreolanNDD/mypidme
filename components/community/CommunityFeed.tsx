@@ -128,17 +128,111 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     return map;
   }, [userVotes]);
 
-  // Vote mutation
+  // Optimistic vote mutation with immediate UI updates
   const voteMutation = useMutation({
-    mutationFn: ({ findingId, voteType }: { findingId: string; voteType: 'upvote' | 'downvote' }) => {
-      return castVoteAction(user!.id, findingId, voteType);
+    mutationFn: async ({ findingId, voteType }: { findingId: string; voteType: 'upvote' | 'downvote' }) => {
+      // Call the server action
+      const result = await castVoteAction(user!.id, findingId, voteType);
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+      return result;
     },
-    onSuccess: (_, variables) => {
+    onMutate: async ({ findingId, voteType }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['communityFindings'] });
+      await queryClient.cancelQueries({ queryKey: ['userVotes', user?.id] });
+
+      // Snapshot the previous values
+      const previousFindings = queryClient.getQueryData<CommunityFinding[]>(['communityFindings']);
+      const previousVotes = queryClient.getQueryData<FindingVote[]>(['userVotes', user?.id, findingIds]);
+
+      // Get current user vote for this finding
+      const currentVote = userVoteMap.get(findingId);
+
+      // Optimistically update the findings
+      if (previousFindings) {
+        const updatedFindings = previousFindings.map(finding => {
+          if (finding.id === findingId) {
+            let newUpvotes = finding.upvotes;
+            let newDownvotes = finding.downvotes;
+
+            // Handle vote logic
+            if (currentVote === voteType) {
+              // User clicked same vote - remove it
+              if (voteType === 'upvote') {
+                newUpvotes = Math.max(0, newUpvotes - 1);
+              } else {
+                newDownvotes = Math.max(0, newDownvotes - 1);
+              }
+            } else if (currentVote) {
+              // User clicked different vote - switch it
+              if (currentVote === 'upvote') {
+                newUpvotes = Math.max(0, newUpvotes - 1);
+                newDownvotes = newDownvotes + 1;
+              } else {
+                newDownvotes = Math.max(0, newDownvotes - 1);
+                newUpvotes = newUpvotes + 1;
+              }
+            } else {
+              // No previous vote - add new vote
+              if (voteType === 'upvote') {
+                newUpvotes = newUpvotes + 1;
+              } else {
+                newDownvotes = newDownvotes + 1;
+              }
+            }
+
+            return {
+              ...finding,
+              upvotes: newUpvotes,
+              downvotes: newDownvotes
+            };
+          }
+          return finding;
+        });
+
+        queryClient.setQueryData(['communityFindings'], updatedFindings);
+      }
+
+      // Optimistically update the user votes
+      if (previousVotes) {
+        const updatedVotes = previousVotes.filter(vote => vote.finding_id !== findingId);
+        
+        // Add new vote if it's different from current or if no current vote
+        if (currentVote !== voteType) {
+          updatedVotes.push({
+            id: `temp-${Date.now()}`,
+            user_id: user!.id,
+            finding_id: findingId,
+            vote_type: voteType,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        }
+
+        queryClient.setQueryData(['userVotes', user?.id, findingIds], updatedVotes);
+      }
+
+      // Return a context object with the previous values
+      return { previousFindings, previousVotes };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousFindings) {
+        queryClient.setQueryData(['communityFindings'], context.previousFindings);
+      }
+      if (context?.previousVotes) {
+        queryClient.setQueryData(['userVotes', user?.id, findingIds], context.previousVotes);
+      }
+      
+      // Show error message
+      alert(`Failed to cast vote: ${err.message}`);
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure we have the latest data
       queryClient.invalidateQueries({ queryKey: ['communityFindings'] });
       queryClient.invalidateQueries({ queryKey: ['userVotes', user?.id] });
-    },
-    onError: (error: any, variables) => {
-      alert(`Failed to cast vote: ${error.message}`);
     },
   });
 
@@ -333,8 +427,8 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                             e.stopPropagation();
                             handleVote(finding.id, 'upvote');
                           }}
-                          disabled={!user || voteMutation.isPending}
-                          className={`flex items-center space-x-1 ${
+                          disabled={!user}
+                          className={`flex items-center space-x-1 transition-all duration-200 ${
                             userVote === 'upvote' 
                               ? 'text-green-600 bg-green-50 hover:bg-green-100' 
                               : 'text-secondary-text hover:text-green-600 hover:bg-green-50'
@@ -344,7 +438,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                         </Button>
 
                         {/* Score */}
-                        <div className="px-2 py-1 text-sm font-medium text-primary-text">
+                        <div className="px-2 py-1 text-sm font-medium text-primary-text min-w-[3rem] text-center">
                           {score > 0 ? '+' : ''}{score}
                         </div>
 
@@ -357,8 +451,8 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                             e.stopPropagation();
                             handleVote(finding.id, 'downvote');
                           }}
-                          disabled={!user || voteMutation.isPending}
-                          className={`flex items-center space-x-1 ${
+                          disabled={!user}
+                          className={`flex items-center space-x-1 transition-all duration-200 ${
                             userVote === 'downvote' 
                               ? 'text-red-600 bg-red-50 hover:bg-red-100' 
                               : 'text-secondary-text hover:text-red-600 hover:bg-red-50'
