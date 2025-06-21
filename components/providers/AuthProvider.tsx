@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
-import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
@@ -30,12 +30,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Create a stable supabase client instance
-  const supabase = useMemo(() => createClient(), []);
-
   const fetchUserProfile = useCallback(async (userId: string) => {
     try {
       console.log('AuthProvider: Fetching user profile for:', userId);
+      const supabase = createClient();
       const { data, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
       
       if (error) {
@@ -53,60 +51,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('AuthProvider: Error fetching user profile:', error);
       return null;
     }
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     console.log("AuthProvider: Main useEffect starting up (should run only once).");
 
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('AuthProvider: Error getting initial session:', error);
-        } else {
-          console.log('AuthProvider: Initial session retrieved:', session ? 'with session' : 'without session');
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            const profile = await fetchUserProfile(session.user.id);
-            setUserProfile(profile);
-          }
-        }
-      } catch (error) {
-        console.error('AuthProvider: Error in getInitialSession:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const supabase = createClient();
 
-    getInitialSession();
-
-    // Listen for auth changes
+    // We rely solely on onAuthStateChange as the single source of truth.
+    // It fires with the initial session ('INITIAL_SESSION') right away.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
+      async (event, session) => {
         console.log(`AuthProvider: Auth event received: ${event}`, session ? 'with session.' : 'without session.');
 
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Only fetch profile if it's a new user or the user has changed
+          // This will run on INITIAL_SESSION and SIGNED_IN
+          // We can add a check to prevent re-fetching if the profile already exists for this user
           if (!userProfile || userProfile.id !== session.user.id) {
             console.log("AuthProvider: Fetching profile for new or changed user...");
             const profile = await fetchUserProfile(session.user.id);
             setUserProfile(profile);
           }
         } else {
+          // This will run on SIGNED_OUT or if the initial session is null
           setUserProfile(null);
         }
         
-        // Loading is already false from initial session fetch
-        if (loading) {
-          setLoading(false);
-        }
+        // The initial loading is finished after the first event is handled.
+        setLoading(false);
 
         if (event === 'PASSWORD_RECOVERY') {
           console.log("AuthProvider: Password recovery detected, redirecting...");
@@ -119,8 +94,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("AuthProvider: Cleaning up auth subscription.");
       subscription?.unsubscribe();
     };
-  }, [supabase, fetchUserProfile, router, userProfile, loading]);
+  }, [fetchUserProfile, router, userProfile]); // Dependencies are stable or controlled
 
+  
   const refreshUserProfile = useCallback(async () => {
     if (user) {
       console.log('AuthProvider: Refreshing user profile.');
@@ -128,6 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserProfile(profile);
     }
   }, [user, fetchUserProfile]);
+
 
   const value = useMemo(() => ({
     user,

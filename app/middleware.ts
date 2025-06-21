@@ -1,5 +1,5 @@
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
 export async function middleware(request: NextRequest) {
   console.log('🔧 [Middleware] Request intercepted:', {
@@ -15,7 +15,59 @@ export async function middleware(request: NextRequest) {
     },
   })
 
-  const supabase = createMiddlewareClient({ req: request, res: response })
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          const value = request.cookies.get(name)?.value;
+          if (name.includes('supabase') || name.includes('auth')) {
+            console.log('🍪 [Middleware] Getting cookie:', { name, hasValue: !!value });
+          }
+          return value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          if (name.includes('supabase') || name.includes('auth')) {
+            console.log('🍪 [Middleware] Setting cookie:', { name, hasValue: !!value, options });
+          }
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: CookieOptions) {
+          console.log('🗑️ [Middleware] Removing cookie:', { name, options });
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
+    }
+  )
 
   try {
     console.log('🔐 [Middleware] Checking user authentication...');
