@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Track if we're currently fetching a profile to prevent concurrent requests
   const fetchingProfileRef = useRef<string | null>(null);
   const profileCacheRef = useRef<Map<string, any>>(new Map());
+  const initializationRef = useRef<boolean>(false);
 
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
     const startTime = Date.now();
@@ -182,6 +183,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   useEffect(() => {
+    // CRITICAL FIX: Prevent multiple initializations
+    if (initializationRef.current) {
+      console.log('⚠️ [AuthProvider] Initialization already in progress, skipping...');
+      return;
+    }
+
+    initializationRef.current = true;
     console.log("🚀 [AuthProvider] === AUTH PROVIDER INITIALIZATION ===");
     console.log("🚀 [AuthProvider] Setting up auth state listener");
 
@@ -285,9 +293,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("🧹 [AuthProvider] === AUTH PROVIDER CLEANUP ===");
       console.log("🧹 [AuthProvider] Unsubscribing from auth state changes");
       subscription?.unsubscribe();
+      initializationRef.current = false; // Reset initialization flag
       console.log("🧹 [AuthProvider] Cleanup completed");
     };
-  }, [fetchUserProfile, router, userProfile]);
+  }, []); // CRITICAL: Empty dependency array to prevent re-initialization
 
   
   const refreshUserProfile = useCallback(async () => {
