@@ -25,19 +25,19 @@ export async function createFindingAction(
   try {
     console.log('🔧 [createFindingAction] Step 1: Creating Supabase client...');
     
-    // Create authenticated Supabase client with error handling
+    // Create authenticated Supabase client with comprehensive error handling
     let supabase;
     try {
       supabase = createClient();
       console.log('✅ [createFindingAction] Supabase client created successfully');
     } catch (clientError) {
       console.error('❌ [createFindingAction] Failed to create Supabase client:', clientError);
-      return { message: 'Authentication service unavailable. Please try again.' };
+      return { message: 'Authentication service unavailable. Please check your deployment configuration and try again.' };
     }
     
     console.log('🔐 [createFindingAction] Step 2: Getting authenticated user...');
     
-    // Get the current user with error handling
+    // Get the current user with comprehensive error handling
     let user;
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -48,12 +48,12 @@ export async function createFindingAction(
           code: userError.code,
           message: userError.message
         });
-        return { message: 'You must be logged in to create a finding' };
+        return { message: 'Authentication failed. Please log in again and try again.' };
       }
 
       if (!userData?.user) {
         console.error('❌ [createFindingAction] No user found in session');
-        return { message: 'You must be logged in to create a finding' };
+        return { message: 'You must be logged in to create a finding. Please log in and try again.' };
       }
       
       user = userData.user;
@@ -64,7 +64,7 @@ export async function createFindingAction(
       });
     } catch (authError) {
       console.error('❌ [createFindingAction] Authentication check failed:', authError);
-      return { message: 'Authentication failed. Please try logging in again.' };
+      return { message: 'Authentication system error. Please try logging in again.' };
     }
 
     console.log('📝 [createFindingAction] Step 3: Extracting form data...');
@@ -227,7 +227,7 @@ export async function createFindingAction(
       executionTime: `${executionTime}ms`,
       timestamp: new Date().toISOString()
     });
-    return { message: 'An unexpected error occurred while creating the finding' };
+    return { message: 'An unexpected error occurred while creating the finding. Please try again.' };
   }
 }
 
