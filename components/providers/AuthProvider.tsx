@@ -136,8 +136,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
               await supabase.auth.signOut();
               console.log('✅ AuthProvider: Session cleared successfully');
+              router.replace('/login');
             } catch (signOutError) {
               console.log('⚠️ AuthProvider: Error during session cleanup:', signOutError);
+              router.replace('/login');
             }
           }
         } else if (session) {
@@ -163,8 +165,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           try {
             await supabase.auth.signOut();
             console.log('✅ AuthProvider: Session cleared successfully in catch');
+            router.replace('/login');
           } catch (signOutError) {
             console.log('⚠️ AuthProvider: Error during session cleanup in catch:', signOutError);
+            router.replace('/login');
           }
         }
       } finally {
