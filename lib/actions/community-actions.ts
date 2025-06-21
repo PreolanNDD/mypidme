@@ -184,10 +184,20 @@ export async function createFindingAction(
     console.log(`🎯 [createFindingAction] Redirecting to: /community/${newFinding.id}`);
     
     // Step 3: Redirect to the new finding's detail page
+    // Note: This will throw a NEXT_REDIRECT error, which is expected behavior in Next.js Server Actions
     redirect(`/community/${newFinding.id}`);
 
   } catch (error) {
     const executionTime = Date.now() - startTime;
+    
+    // Check if this is a Next.js redirect (which is expected)
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      console.log('🎯 [createFindingAction] Redirect successful (NEXT_REDIRECT is expected behavior)');
+      // Re-throw the redirect to let Next.js handle it
+      throw error;
+    }
+    
+    // Only log actual errors, not redirects
     console.error('💥 [createFindingAction] === SERVER ACTION FAILED ===');
     console.error('💥 [createFindingAction] Critical error occurred:', {
       error,
