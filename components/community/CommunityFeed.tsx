@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { ChevronUp, ChevronDown, Flag, User, Calendar, MessageSquare, ArrowRight } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface ReportDialogProps {
   isOpen: boolean;
@@ -88,6 +89,7 @@ interface CommunityFeedProps {
 
 export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [reportingFindingId, setReportingFindingId] = useState<string | null>(null);
 
@@ -181,6 +183,12 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const handleSubmitReport = (reason: string) => {
     if (!reportingFindingId || !user) return;
     reportMutation.mutate({ findingId: reportingFindingId, reason });
+  };
+
+  const handleAuthorClick = (e: React.MouseEvent, authorId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/community/user/${authorId}`);
   };
 
   const formatDate = (dateStr: string) => {
@@ -301,13 +309,12 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                           {activeTab === 'community' && (
                             <div className="flex items-center space-x-1">
                               <User className="w-4 h-4" />
-                              <Link 
-                                href={`/community/user/${finding.author_id}`}
-                                className="hover:text-primary transition-colors"
-                                onClick={(e) => e.stopPropagation()}
+                              <span 
+                                className="hover:text-primary transition-colors cursor-pointer"
+                                onClick={(e) => handleAuthorClick(e, finding.author_id)}
                               >
                                 {authorName}
-                              </Link>
+                              </span>
                             </div>
                           )}
                           <div className="flex items-center space-x-1">
