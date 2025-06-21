@@ -12,27 +12,11 @@ import { useQuery } from '@tanstack/react-query';
 export default function Dashboard() {
   const { userProfile, user } = useAuth();
 
-  console.log('🏠 [Dashboard] Rendering with auth state:', {
-    hasUser: !!user,
-    hasUserProfile: !!userProfile,
-    userId: user?.id,
-    userEmail: user?.email,
-    userMetadata: user?.user_metadata,
-    profileData: userProfile
-  });
-
   // Extract first name with fallback logic
   const firstName = userProfile?.first_name || 
                    user?.user_metadata?.first_name || 
                    user?.email?.split('@')[0] || 
                    'there';
-
-  console.log('👤 [Dashboard] Display name logic:', {
-    profileFirstName: userProfile?.first_name,
-    metadataFirstName: user?.user_metadata?.first_name,
-    emailPrefix: user?.email?.split('@')[0],
-    finalFirstName: firstName
-  });
 
   // Fetch trackable items
   const { data: trackableItems = [], isLoading: loadingItems } = useQuery({
@@ -73,10 +57,6 @@ export default function Dashboard() {
               <p className="text-secondary-text">
                 Ready to optimize your day?
               </p>
-              {/* Debug info - remove in production */}
-              <div className="text-xs text-gray-400 mt-1">
-                Debug: User ID: {user?.id?.substring(0, 8)}... | Profile: {userProfile ? 'Loaded' : 'Missing'}
-              </div>
             </div>
           </div>
         </div>
