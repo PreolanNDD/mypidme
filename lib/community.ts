@@ -1,4 +1,4 @@
-import { createClient } from './supabase/server';
+import { supabase } from './supabase';
 
 export interface CommunityFinding {
   id: string;
@@ -43,10 +43,11 @@ export interface UserProfile {
   created_at: string;
 }
 
+// Note: These functions are now only used by Server Actions and Server Components
+// Client components should use the corresponding Server Actions instead
+
 export async function getCommunityFindings(): Promise<CommunityFinding[]> {
   console.log('Fetching community findings');
-  
-  const supabase = createClient();
   
   // First, fetch the findings (only visible ones)
   const { data: findings, error: findingsError } = await supabase
@@ -116,8 +117,6 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
 export async function getCommunityFindingById(findingId: string): Promise<CommunityFinding | null> {
   console.log('Fetching community finding by ID:', findingId);
   
-  const supabase = createClient();
-  
   // Fetch the finding with author details using a join
   const { data: finding, error: findingError } = await supabase
     .from('community_findings')
@@ -164,8 +163,6 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
 export async function getUserFindings(userId: string): Promise<CommunityFinding[]> {
   console.log('Fetching user findings for:', userId);
   
-  const supabase = createClient();
-  
   // Fetch all visible findings by the user
   const { data: findings, error: findingsError } = await supabase
     .from('community_findings')
@@ -210,8 +207,6 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   console.log('Fetching user profile for:', userId);
   
-  const supabase = createClient();
-  
   const { data: user, error } = await supabase
     .from('users')
     .select('id, first_name, last_name, created_at')
@@ -236,8 +231,6 @@ export async function getUserVotes(userId: string, findingIds: string[]): Promis
   
   console.log('🗳️ [getUserVotes] Fetching user votes for findings:', { userId, findingIds });
   
-  const supabase = createClient();
-  
   const { data, error } = await supabase
     .from('finding_votes')
     .select('*')
@@ -259,8 +252,6 @@ export async function getUserVotes(userId: string, findingIds: string[]): Promis
 
 export async function createFinding(userId: string, title: string, content: string): Promise<CommunityFinding> {
   console.log('Creating finding:', { userId, title, content });
-  
-  const supabase = createClient();
   
   const { data, error } = await supabase
     .from('community_findings')
@@ -307,8 +298,6 @@ export async function createFindingWithContext(findingData: {
   experiment_id?: string;
 }): Promise<CommunityFinding> {
   console.log('Creating finding with context:', findingData);
-  
-  const supabase = createClient();
   
   // Map user_id to author_id for the database insert
   const insertData = {

@@ -2,8 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { getCommunityFindings, getUserFindings, getUserVotes } from '@/lib/community';
-import { castVoteAction, reportFindingAction } from '@/lib/actions/community-actions';
+import { castVoteAction, reportFindingAction, fetchAllCommunityFindingsAction, fetchUserCommunityFindingsAction, fetchUserVotesAction } from '@/lib/actions/community-actions';
 import { CommunityFinding, FindingVote } from '@/lib/community';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
@@ -93,17 +92,17 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const queryClient = useQueryClient();
   const [reportingFindingId, setReportingFindingId] = useState<string | null>(null);
 
-  // Fetch community findings (visible only)
+  // Fetch community findings (visible only) using Server Action
   const { data: communityFindings = [], isLoading: loadingCommunity } = useQuery<CommunityFinding[]>({
     queryKey: ['communityFindings'],
-    queryFn: getCommunityFindings,
+    queryFn: fetchAllCommunityFindingsAction,
     enabled: activeTab === 'community',
   });
 
-  // Fetch user's personal findings (all statuses)
+  // Fetch user's personal findings (all statuses) using Server Action
   const { data: userFindings = [], isLoading: loadingUser } = useQuery<CommunityFinding[]>({
     queryKey: ['userFindings', user?.id],
-    queryFn: () => getUserFindings(user!.id),
+    queryFn: () => fetchUserCommunityFindingsAction(user!.id),
     enabled: activeTab === 'my-findings' && !!user?.id,
   });
 
@@ -111,11 +110,11 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const findings = activeTab === 'community' ? communityFindings : userFindings;
   const isLoading = activeTab === 'community' ? loadingCommunity : loadingUser;
 
-  // Fetch user votes for all findings
+  // Fetch user votes for all findings using Server Action
   const findingIds = useMemo(() => findings.map(f => f.id), [findings]);
   const { data: userVotes = [] } = useQuery<FindingVote[]>({
     queryKey: ['userVotes', user?.id, findingIds],
-    queryFn: () => getUserVotes(user!.id, findingIds),
+    queryFn: () => fetchUserVotesAction(user!.id, findingIds),
     enabled: !!user?.id && findingIds.length > 0 && activeTab === 'community',
   });
 
@@ -292,139 +291,143 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
           return (
             <Card key={finding.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
-                <Link href={`/community/${finding.id}`} className="block">
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
+                <div className="space-y-4">
+                  {/* Header */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <Link href={`/community/${finding.id}`} className="flex-1">
                           <h3 className="font-heading text-xl text-primary-text hover:text-primary transition-colors">
                             {finding.title}
                           </h3>
-                          {/* Status badge - only show in My Findings view */}
-                          {activeTab === 'my-findings' && getStatusBadge(finding.status)}
-                        </div>
-                        <div className="flex items-center space-x-4 text-sm text-secondary-text">
-                          {/* Only show author info in community view */}
-                          {activeTab === 'community' && (
-                            <div className="flex items-center space-x-1">
-                              <User className="w-4 h-4" />
-                              <span 
-                                className="hover:text-primary transition-colors cursor-pointer"
-                                onClick={(e) => handleAuthorClick(e, finding.author_id)}
-                              >
-                                {authorName}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{formatDate(finding.created_at)}</span>
-                          </div>
-                          {finding.share_data && (
-                            <Badge variant="outline" className="text-blue-700 border-blue-300">
-                              Data Shared
-                            </Badge>
-                          )}
-                        </div>
+                        </Link>
+                        {/* Status badge - only show in My Findings view */}
+                        {activeTab === 'my-findings' && getStatusBadge(finding.status)}
                       </div>
-                      <ArrowRight className="w-5 h-5 text-secondary-text group-hover:text-primary transition-colors flex-shrink-0 ml-4" />
+                      <div className="flex items-center space-x-4 text-sm text-secondary-text">
+                        {/* Only show author info in community view */}
+                        {activeTab === 'community' && (
+                          <div className="flex items-center space-x-1">
+                            <User className="w-4 h-4" />
+                            <span 
+                              className="hover:text-primary transition-colors cursor-pointer"
+                              onClick={(e) => handleAuthorClick(e, finding.author_id)}
+                            >
+                              {authorName}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{formatDate(finding.created_at)}</span>
+                        </div>
+                        {finding.share_data && (
+                          <Badge variant="outline" className="text-blue-700 border-blue-300">
+                            Data Shared
+                          </Badge>
+                        )}
+                      </div>
                     </div>
+                    <Link href={`/community/${finding.id}`}>
+                      <ArrowRight className="w-5 h-5 text-secondary-text hover:text-primary transition-colors flex-shrink-0 ml-4" />
+                    </Link>
+                  </div>
 
-                    {/* Content Preview */}
+                  {/* Content Preview */}
+                  <Link href={`/community/${finding.id}`}>
                     <div className="prose prose-sm max-w-none">
                       <p className="text-primary-text leading-relaxed">
                         {truncateContent(finding.content)}
                       </p>
                     </div>
+                  </Link>
+
+                  {/* Actions - Outside the link to prevent nested interactive elements */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
+                    {/* Voting - only show in community view */}
+                    {activeTab === 'community' && (
+                      <div className="flex items-center space-x-2">
+                        {/* Upvote */}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('⬆️ [CommunityFeed] Upvote button clicked for finding:', finding.id);
+                            handleVote(finding.id, 'upvote');
+                          }}
+                          disabled={!user || voteMutation.isPending}
+                          className={`flex items-center space-x-1 ${
+                            userVote === 'upvote' 
+                              ? 'text-green-600 bg-green-50 hover:bg-green-100' 
+                              : 'text-secondary-text hover:text-green-600 hover:bg-green-50'
+                          }`}
+                        >
+                          <ChevronUp className="w-4 h-4" />
+                        </Button>
+
+                        {/* Score */}
+                        <div className="px-2 py-1 text-sm font-medium text-primary-text">
+                          {score > 0 ? '+' : ''}{score}
+                        </div>
+
+                        {/* Downvote */}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('⬇️ [CommunityFeed] Downvote button clicked for finding:', finding.id);
+                            handleVote(finding.id, 'downvote');
+                          }}
+                          disabled={!user || voteMutation.isPending}
+                          className={`flex items-center space-x-1 ${
+                            userVote === 'downvote' 
+                              ? 'text-red-600 bg-red-50 hover:bg-red-100' 
+                              : 'text-secondary-text hover:text-red-600 hover:bg-red-50'
+                          }`}
+                        >
+                          <ChevronDown className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* My Findings view - show score without voting */}
+                    {activeTab === 'my-findings' && (
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                          <ChevronUp className="w-4 h-4 text-green-600" />
+                          <span>{finding.upvotes}</span>
+                        </div>
+                        <div className="px-2 py-1 text-sm font-medium text-primary-text">
+                          {score > 0 ? '+' : ''}{score}
+                        </div>
+                        <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                          <ChevronDown className="w-4 h-4 text-red-600" />
+                          <span>{finding.downvotes}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Report Button - only show in community view for other users' posts */}
+                    {activeTab === 'community' && user && user.id !== finding.author_id && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleReport(finding.id);
+                        }}
+                        disabled={reportMutation.isPending}
+                        className="text-secondary-text hover:text-red-600 hover:bg-red-50"
+                      >
+                        <Flag className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
-                </Link>
-
-                {/* Actions - Outside the link to prevent nested interactive elements */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
-                  {/* Voting - only show in community view */}
-                  {activeTab === 'community' && (
-                    <div className="flex items-center space-x-2">
-                      {/* Upvote */}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          console.log('⬆️ [CommunityFeed] Upvote button clicked for finding:', finding.id);
-                          handleVote(finding.id, 'upvote');
-                        }}
-                        disabled={!user || voteMutation.isPending}
-                        className={`flex items-center space-x-1 ${
-                          userVote === 'upvote' 
-                            ? 'text-green-600 bg-green-50 hover:bg-green-100' 
-                            : 'text-secondary-text hover:text-green-600 hover:bg-green-50'
-                        }`}
-                      >
-                        <ChevronUp className="w-4 h-4" />
-                      </Button>
-
-                      {/* Score */}
-                      <div className="px-2 py-1 text-sm font-medium text-primary-text">
-                        {score > 0 ? '+' : ''}{score}
-                      </div>
-
-                      {/* Downvote */}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          console.log('⬇️ [CommunityFeed] Downvote button clicked for finding:', finding.id);
-                          handleVote(finding.id, 'downvote');
-                        }}
-                        disabled={!user || voteMutation.isPending}
-                        className={`flex items-center space-x-1 ${
-                          userVote === 'downvote' 
-                            ? 'text-red-600 bg-red-50 hover:bg-red-100' 
-                            : 'text-secondary-text hover:text-red-600 hover:bg-red-50'
-                        }`}
-                      >
-                        <ChevronDown className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* My Findings view - show score without voting */}
-                  {activeTab === 'my-findings' && (
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center space-x-1 text-sm text-secondary-text">
-                        <ChevronUp className="w-4 h-4 text-green-600" />
-                        <span>{finding.upvotes}</span>
-                      </div>
-                      <div className="px-2 py-1 text-sm font-medium text-primary-text">
-                        {score > 0 ? '+' : ''}{score}
-                      </div>
-                      <div className="flex items-center space-x-1 text-sm text-secondary-text">
-                        <ChevronDown className="w-4 h-4 text-red-600" />
-                        <span>{finding.downvotes}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Report Button - only show in community view for other users' posts */}
-                  {activeTab === 'community' && user && user.id !== finding.author_id && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleReport(finding.id);
-                      }}
-                      disabled={reportMutation.isPending}
-                      className="text-secondary-text hover:text-red-600 hover:bg-red-50"
-                    >
-                      <Flag className="w-4 h-4" />
-                    </Button>
-                  )}
                 </div>
               </CardContent>
             </Card>

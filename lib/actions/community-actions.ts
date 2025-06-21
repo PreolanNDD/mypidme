@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getCommunityFindingById, getUserVotes } from '@/lib/community';
 
 export interface CreateFindingData {
   title: string;
@@ -260,7 +259,7 @@ export async function shareFindingAction(data: ShareFindingData) {
       author_id: user.id,
       title: data.title,
       content: data.content,
-      share_data: data.share_data, // Always true when called from ShareFindingDialog
+      share_data: true, // Always true when called from ShareFindingDialog
       chart_config: null as any,
       experiment_id: null as string | null
     };
@@ -325,13 +324,178 @@ export async function shareFindingAction(data: ShareFindingData) {
   }
 }
 
-// --- NEW SERVER ACTIONS FOR CLIENT COMPONENT DATA FETCHING ---
+// --- SERVER ACTIONS FOR CLIENT COMPONENT DATA FETCHING ---
+
+export async function fetchAllCommunityFindingsAction() {
+  console.log('🔍 [fetchAllCommunityFindingsAction] Fetching all community findings');
+  
+  try {
+    const supabase = createClient();
+    
+    // First, fetch the findings (only visible ones)
+    const { data: findings, error: findingsError } = await supabase
+      .from('community_findings')
+      .select(`
+        id,
+        author_id,
+        title,
+        content,
+        status,
+        upvotes,
+        downvotes,
+        share_data,
+        chart_config,
+        experiment_id,
+        created_at,
+        updated_at
+      `)
+      .eq('status', 'visible')
+      .order('created_at', { ascending: false });
+
+    if (findingsError) {
+      console.error('Error fetching community findings:', findingsError);
+      throw new Error(`Failed to fetch community findings: ${findingsError.message}`);
+    }
+
+    if (!findings || findings.length === 0) {
+      console.log('No community findings found');
+      return [];
+    }
+
+    // Get unique user IDs
+    const userIds = Array.from(new Set(findings.map(finding => finding.author_id)));
+    
+    // Fetch user details
+    const { data: users, error: usersError } = await supabase
+      .from('users')
+      .select('id, first_name, last_name')
+      .in('id', userIds);
+
+    if (usersError) {
+      console.error('Error fetching users:', usersError);
+      // Don't throw here, just continue without author details
+    }
+
+    // Create a map of user details for quick lookup
+    const userMap = new Map();
+    if (users) {
+      users.forEach(user => {
+        userMap.set(user.id, {
+          first_name: user.first_name,
+          last_name: user.last_name
+        });
+      });
+    }
+
+    // Merge findings with author details
+    const transformedData = findings.map(finding => ({
+      ...finding,
+      author: userMap.get(finding.author_id) || undefined
+    }));
+
+    console.log('✅ [fetchAllCommunityFindingsAction] Community findings fetched successfully');
+    return transformedData;
+  } catch (error) {
+    console.error('❌ [fetchAllCommunityFindingsAction] Error fetching community findings:', error);
+    throw error;
+  }
+}
+
+export async function fetchUserCommunityFindingsAction(userId: string) {
+  console.log('🔍 [fetchUserCommunityFindingsAction] Fetching user findings:', userId);
+  
+  try {
+    const supabase = createClient();
+    
+    // Fetch all findings by the user (any status for their own view)
+    const { data: findings, error: findingsError } = await supabase
+      .from('community_findings')
+      .select(`
+        id,
+        author_id,
+        title,
+        content,
+        status,
+        upvotes,
+        downvotes,
+        share_data,
+        chart_config,
+        experiment_id,
+        created_at,
+        updated_at
+      `)
+      .eq('author_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (findingsError) {
+      console.error('Error fetching user findings:', findingsError);
+      throw new Error(`Failed to fetch user findings: ${findingsError.message}`);
+    }
+
+    if (!findings || findings.length === 0) {
+      console.log('No user findings found');
+      return [];
+    }
+
+    // For user's own findings, we don't need to fetch author details since it's the same user
+    const transformedData = findings.map(finding => ({
+      ...finding,
+      author: undefined // We don't need author details for user's own findings
+    }));
+
+    console.log('✅ [fetchUserCommunityFindingsAction] User findings fetched successfully');
+    return transformedData;
+  } catch (error) {
+    console.error('❌ [fetchUserCommunityFindingsAction] Error fetching user findings:', error);
+    throw error;
+  }
+}
 
 export async function fetchCommunityFindingByIdAction(findingId: string) {
   console.log('🔍 [fetchCommunityFindingByIdAction] Fetching finding:', findingId);
   
   try {
-    const finding = await getCommunityFindingById(findingId);
+    const supabase = createClient();
+    
+    // Fetch the finding with author details using a join
+    const { data: finding, error: findingError } = await supabase
+      .from('community_findings')
+      .select(`
+        id,
+        author_id,
+        title,
+        content,
+        status,
+        upvotes,
+        downvotes,
+        share_data,
+        chart_config,
+        experiment_id,
+        created_at,
+        updated_at,
+        author:users!community_findings_author_id_fkey(
+          first_name,
+          last_name
+        )
+      `)
+      .eq('id', findingId)
+      .eq('status', 'visible')
+      .single();
+
+    if (findingError) {
+      if (findingError.code === 'PGRST116') {
+        console.log('Finding not found:', findingId);
+        return null;
+      }
+      console.error('Error fetching finding:', findingError);
+      throw new Error(`Failed to fetch finding: ${findingError.message}`);
+    }
+
+    if (!finding) {
+      console.log('No finding found with ID:', findingId);
+      return null;
+    }
+
     console.log('✅ [fetchCommunityFindingByIdAction] Finding fetched successfully');
     return finding;
   } catch (error) {
@@ -344,9 +508,23 @@ export async function fetchUserVotesAction(userId: string, findingIds: string[])
   console.log('🗳️ [fetchUserVotesAction] Fetching user votes:', { userId, findingIds });
   
   try {
-    const votes = await getUserVotes(userId, findingIds);
+    if (findingIds.length === 0) return [];
+    
+    const supabase = createClient();
+    
+    const { data, error } = await supabase
+      .from('finding_votes')
+      .select('*')
+      .eq('user_id', userId)
+      .in('finding_id', findingIds);
+
+    if (error) {
+      console.error('❌ [fetchUserVotesAction] Error fetching user votes:', error);
+      throw new Error(`Failed to fetch user votes: ${error.message}`);
+    }
+
     console.log('✅ [fetchUserVotesAction] User votes fetched successfully');
-    return votes;
+    return data || [];
   } catch (error) {
     console.error('❌ [fetchUserVotesAction] Error fetching user votes:', error);
     throw error;
