@@ -27,9 +27,19 @@ const getDefaultValue = (dataType: string) => {
 };
 
 export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: TodaysLogWidgetProps) {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
+  
+  console.log('📊 [TodaysLogWidget] Rendering with props:', {
+    trackableItemsCount: trackableItems.length,
+    todaysEntriesCount: Object.keys(todaysEntries).length,
+    loading,
+    hasUser: !!user,
+    hasUserProfile: !!userProfile,
+    userId: user?.id,
+    userProfileData: userProfile
+  });
   
   // Initialize form data with existing entries or defaults
   const [formData, setFormData] = useState<Record<string, any>>({});
@@ -38,16 +48,24 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
 
   // Update form data when trackableItems or todaysEntries change
   useEffect(() => {
+    console.log('🔄 [TodaysLogWidget] useEffect triggered - updating form data');
+    console.log('🔄 [TodaysLogWidget] trackableItems.length:', trackableItems.length);
+    console.log('🔄 [TodaysLogWidget] todaysEntries:', todaysEntries);
+    
     if (trackableItems.length > 0) {
       const newFormData: Record<string, any> = {};
       trackableItems.forEach(item => {
         if (todaysEntries[item.id] !== undefined) {
           newFormData[item.id] = todaysEntries[item.id];
+          console.log(`📝 [TodaysLogWidget] Setting existing value for ${item.name}:`, todaysEntries[item.id]);
         } else {
-          newFormData[item.id] = getDefaultValue(item.type);
+          const defaultValue = getDefaultValue(item.type);
+          newFormData[item.id] = defaultValue;
+          console.log(`📝 [TodaysLogWidget] Setting default value for ${item.name}:`, defaultValue);
         }
       });
       setFormData(newFormData);
+      console.log('📝 [TodaysLogWidget] Form data updated:', newFormData);
     }
   }, [trackableItems, todaysEntries]);
 
@@ -59,16 +77,24 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     ).length;
     const progressPercentage = totalMetrics > 0 ? (completedMetrics / totalMetrics) * 100 : 0;
     
-    return {
+    const metrics = {
       total: totalMetrics,
       completed: completedMetrics,
       percentage: progressPercentage
     };
+    
+    console.log('📈 [TodaysLogWidget] Progress metrics calculated:', metrics);
+    return metrics;
   }, [trackableItems, todaysEntries]);
 
   // Save mutation
   const saveMutation = useMutation({
     mutationFn: async () => {
+      console.log('💾 [TodaysLogWidget] Save mutation started');
+      console.log('💾 [TodaysLogWidget] User ID:', user?.id);
+      console.log('💾 [TodaysLogWidget] Form data:', formData);
+      console.log('💾 [TodaysLogWidget] Trackable items count:', trackableItems.length);
+      
       if (!user?.id) throw new Error("User not found");
       
       const savePromises = trackableItems.map(item => {
@@ -81,12 +107,17 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
           text_value: item.type === 'TEXT' ? (value || null) : null,
           boolean_value: item.type === 'BOOLEAN' ? value : null,
         };
+        
+        console.log(`💾 [TodaysLogWidget] Saving entry for ${item.name}:`, entryData);
         return upsertLoggedEntry(entryData);
       });
       
-      await Promise.all(savePromises);
+      const results = await Promise.all(savePromises);
+      console.log('💾 [TodaysLogWidget] All entries saved successfully:', results);
+      return results;
     },
     onSuccess: () => {
+      console.log('✅ [TodaysLogWidget] Save mutation successful');
       setMessage('All data saved successfully!');
       setIsEditing(false); // Exit edit mode after successful save
       queryClient.invalidateQueries({ queryKey: ['todaysEntries', user?.id] });
@@ -98,6 +129,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
       }, 3000);
     },
     onError: (error: any) => {
+      console.error('❌ [TodaysLogWidget] Save mutation failed:', error);
       setMessage(`Failed to save data: ${error.message}`);
       
       // Clear error after 5 seconds
@@ -108,6 +140,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
   });
 
   const handleFieldChange = useCallback((itemId: string, value: any) => {
+    console.log(`📝 [TodaysLogWidget] Field changed - ${itemId}:`, value);
     setFormData(prev => ({
       ...prev,
       [itemId]: value
@@ -115,13 +148,22 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
   }, []);
 
   const handleSave = useCallback(() => {
+    console.log('💾 [TodaysLogWidget] Save button clicked');
+    console.log('💾 [TodaysLogWidget] Current state:', {
+      isPending: saveMutation.isPending,
+      trackableItemsLength: trackableItems.length,
+      hasUser: !!user?.id
+    });
+    
     if (saveMutation.isPending || trackableItems.length === 0) {
+      console.log('⚠️ [TodaysLogWidget] Save blocked - mutation pending or no items');
       return;
     }
     saveMutation.mutate();
-  }, [saveMutation, trackableItems.length]);
+  }, [saveMutation, trackableItems.length, user?.id]);
 
   const handleEditClick = useCallback(() => {
+    console.log('✏️ [TodaysLogWidget] Edit button clicked');
     setIsEditing(true);
     setMessage(''); // Clear any existing messages
   }, []);
@@ -130,12 +172,24 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
   const allMetricsSaved = useMemo(() => {
     if (trackableItems.length === 0) return false;
     
-    return trackableItems.every(item => {
+    const saved = trackableItems.every(item => {
       return todaysEntries[item.id] !== undefined;
     });
+    
+    console.log('✅ [TodaysLogWidget] All metrics saved check:', {
+      trackableItemsLength: trackableItems.length,
+      allSaved: saved,
+      todaysEntriesKeys: Object.keys(todaysEntries)
+    });
+    
+    return saved;
   }, [trackableItems, todaysEntries]);
 
+  const firstName = userProfile?.first_name || 'there';
+  console.log('👤 [TodaysLogWidget] User display name:', firstName);
+
   if (loading) {
+    console.log('⏳ [TodaysLogWidget] Rendering loading state');
     return (
       <Card>
         <CardHeader>
@@ -161,6 +215,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
   }
 
   if (trackableItems.length === 0) {
+    console.log('📭 [TodaysLogWidget] Rendering empty state - no trackable items');
     return (
       <Card>
         <CardHeader>
@@ -186,6 +241,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
 
   // Show completion state only if all metrics are saved AND we're not in edit mode
   if (allMetricsSaved && !isEditing) {
+    console.log('🎉 [TodaysLogWidget] Rendering completion state');
     return (
       <Card>
         <CardHeader>
@@ -245,8 +301,15 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     );
   }
 
+  console.log('📝 [TodaysLogWidget] Rendering main logging interface');
+
   const inputItems = trackableItems.filter(item => item.category === 'INPUT');
   const outputItems = trackableItems.filter(item => item.category === 'OUTPUT');
+
+  console.log('📊 [TodaysLogWidget] Item categories:', {
+    inputCount: inputItems.length,
+    outputCount: outputItems.length
+  });
 
   return (
     <Card>

@@ -7,10 +7,11 @@ export interface DashboardStats {
 }
 
 export async function getDashboardStats(userId: string): Promise<DashboardStats> {
-  console.log('Fetching dashboard stats for user:', userId);
+  console.log('📊 [getDashboardStats] === DASHBOARD STATS FETCH STARTED ===');
+  console.log('📊 [getDashboardStats] User ID:', userId);
 
   if (!userId) {
-    console.error('No userId provided to getDashboardStats');
+    console.error('❌ [getDashboardStats] No userId provided');
     return {
       currentStreak: 0,
       totalMetrics: 0,
@@ -19,6 +20,7 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
   }
 
   try {
+    console.log('📈 [getDashboardStats] Fetching total active metrics...');
     // Get total active metrics
     const { data: metricsData, error: metricsError } = await supabase
       .from('trackable_items')
@@ -27,10 +29,16 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
       .eq('is_active', true);
 
     if (metricsError) {
-      console.error('Error fetching metrics count:', metricsError);
+      console.error('❌ [getDashboardStats] Error fetching metrics count:', metricsError);
       throw new Error(`Failed to fetch metrics count: ${metricsError.message}`);
     }
 
+    console.log('📈 [getDashboardStats] Metrics data:', {
+      count: metricsData?.length || 0,
+      data: metricsData
+    });
+
+    console.log('📝 [getDashboardStats] Fetching total entries...');
     // Get total entries count
     const { data: entriesData, error: entriesError } = await supabase
       .from('logged_entries')
@@ -38,10 +46,15 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
       .eq('user_id', userId);
 
     if (entriesError) {
-      console.error('Error fetching entries count:', entriesError);
+      console.error('❌ [getDashboardStats] Error fetching entries count:', entriesError);
       throw new Error(`Failed to fetch entries count: ${entriesError.message}`);
     }
 
+    console.log('📝 [getDashboardStats] Entries data:', {
+      count: entriesData?.length || 0
+    });
+
+    console.log('🔥 [getDashboardStats] Calculating current streak...');
     // Calculate current streak
     const currentStreak = await calculateCurrentStreak(userId);
 
@@ -51,23 +64,26 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
       totalEntries: entriesData?.length || 0,
     };
 
-    console.log('Dashboard stats calculated:', stats);
+    console.log('✅ [getDashboardStats] Dashboard stats calculated successfully:', stats);
+    console.log('📊 [getDashboardStats] === DASHBOARD STATS FETCH COMPLETED ===');
     return stats;
   } catch (error) {
-    console.error('Unexpected error in getDashboardStats:', error);
+    console.error('💥 [getDashboardStats] Unexpected error:', error);
     throw error;
   }
 }
 
 async function calculateCurrentStreak(userId: string): Promise<number> {
-  console.log('Calculating current streak for user:', userId);
+  console.log('🔥 [calculateCurrentStreak] === STREAK CALCULATION STARTED ===');
+  console.log('🔥 [calculateCurrentStreak] User ID:', userId);
 
   if (!userId) {
-    console.error('No userId provided to calculateCurrentStreak');
+    console.error('❌ [calculateCurrentStreak] No userId provided');
     return 0;
   }
 
   try {
+    console.log('📅 [calculateCurrentStreak] Fetching entry dates...');
     // Get all dates where user has logged at least one entry, ordered by date descending
     const { data: entryDates, error } = await supabase
       .from('logged_entries')
@@ -76,12 +92,17 @@ async function calculateCurrentStreak(userId: string): Promise<number> {
       .order('entry_date', { ascending: false });
 
     if (error) {
-      console.error('Error fetching entry dates for streak:', error);
+      console.error('❌ [calculateCurrentStreak] Error fetching entry dates:', error);
       return 0;
     }
 
+    console.log('📅 [calculateCurrentStreak] Entry dates data:', {
+      count: entryDates?.length || 0,
+      sample: entryDates?.slice(0, 5)
+    });
+
     if (!entryDates || entryDates.length === 0) {
-      console.log('No entries found, streak is 0');
+      console.log('📅 [calculateCurrentStreak] No entries found, streak is 0');
       return 0;
     }
 
@@ -90,7 +111,10 @@ async function calculateCurrentStreak(userId: string): Promise<number> {
       new Date(b).getTime() - new Date(a).getTime()
     );
 
-    console.log('Unique entry dates:', uniqueDates);
+    console.log('📅 [calculateCurrentStreak] Unique entry dates:', {
+      count: uniqueDates.length,
+      dates: uniqueDates.slice(0, 10) // Show first 10 dates
+    });
 
     // Start from today and count backwards
     const today = new Date();
@@ -98,6 +122,8 @@ async function calculateCurrentStreak(userId: string): Promise<number> {
     
     let streak = 0;
     let currentDate = new Date(today);
+
+    console.log('🔢 [calculateCurrentStreak] Starting streak calculation from today:', today.toISOString().split('T')[0]);
 
     // Check each day going backwards
     for (let i = 0; i < uniqueDates.length; i++) {
@@ -107,33 +133,46 @@ async function calculateCurrentStreak(userId: string): Promise<number> {
       const expectedDate = new Date(currentDate);
       expectedDate.setDate(expectedDate.getDate() - streak);
       
+      console.log(`🔢 [calculateCurrentStreak] Checking day ${i + 1}:`, {
+        entryDate: entryDate.toISOString().split('T')[0],
+        expectedDate: expectedDate.toISOString().split('T')[0],
+        currentStreak: streak,
+        matches: entryDate.getTime() === expectedDate.getTime()
+      });
+      
       // If this entry date matches the expected date in our streak
       if (entryDate.getTime() === expectedDate.getTime()) {
         streak++;
+        console.log(`✅ [calculateCurrentStreak] Streak continued! New streak: ${streak}`);
       } else {
+        console.log(`❌ [calculateCurrentStreak] Streak broken at day ${i + 1}`);
         // If we hit a gap, break the streak
         break;
       }
     }
 
-    console.log('Calculated current streak:', streak);
+    console.log('🏁 [calculateCurrentStreak] Final calculated streak:', streak);
+    console.log('🔥 [calculateCurrentStreak] === STREAK CALCULATION COMPLETED ===');
     return streak;
   } catch (error) {
-    console.error('Unexpected error in calculateCurrentStreak:', error);
+    console.error('💥 [calculateCurrentStreak] Unexpected error:', error);
     return 0;
   }
 }
 
 export async function getTodaysEntries(userId: string): Promise<Record<string, any>> {
   const today = new Date().toISOString().split('T')[0];
-  console.log('Fetching today\'s entries for user:', userId, 'date:', today);
+  console.log('📝 [getTodaysEntries] === TODAYS ENTRIES FETCH STARTED ===');
+  console.log('📝 [getTodaysEntries] User ID:', userId);
+  console.log('📝 [getTodaysEntries] Date:', today);
 
   if (!userId) {
-    console.error('No userId provided to getTodaysEntries');
+    console.error('❌ [getTodaysEntries] No userId provided');
     return {};
   }
 
   try {
+    console.log('🔍 [getTodaysEntries] Querying database...');
     const { data: entries, error } = await supabase
       .from('logged_entries')
       .select('trackable_item_id, numeric_value, text_value, boolean_value')
@@ -141,9 +180,14 @@ export async function getTodaysEntries(userId: string): Promise<Record<string, a
       .eq('entry_date', today);
 
     if (error) {
-      console.error('Error fetching today\'s entries:', error);
+      console.error('❌ [getTodaysEntries] Error fetching entries:', error);
       throw new Error(`Failed to fetch today's entries: ${error.message}`);
     }
+
+    console.log('📝 [getTodaysEntries] Raw entries data:', {
+      count: entries?.length || 0,
+      entries: entries
+    });
 
     // Convert to a map of trackable_item_id -> value
     const entriesMap: Record<string, any> = {};
@@ -160,13 +204,15 @@ export async function getTodaysEntries(userId: string): Promise<Record<string, a
       
       if (value !== null) {
         entriesMap[entry.trackable_item_id] = value;
+        console.log(`📝 [getTodaysEntries] Mapped entry: ${entry.trackable_item_id} = ${value}`);
       }
     });
 
-    console.log('Today\'s entries map:', entriesMap);
+    console.log('✅ [getTodaysEntries] Entries map created:', entriesMap);
+    console.log('📝 [getTodaysEntries] === TODAYS ENTRIES FETCH COMPLETED ===');
     return entriesMap;
   } catch (error) {
-    console.error('Unexpected error in getTodaysEntries:', error);
+    console.error('💥 [getTodaysEntries] Unexpected error:', error);
     throw error;
   }
 }
