@@ -43,9 +43,6 @@ export interface UserProfile {
   created_at: string;
 }
 
-// Note: These functions are now only used by Server Actions and Server Components
-// Client components should use the corresponding Server Actions instead
-
 export async function getCommunityFindings(): Promise<CommunityFinding[]> {
   console.log('Fetching community findings');
   
@@ -117,7 +114,7 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
 export async function getCommunityFindingById(findingId: string): Promise<CommunityFinding | null> {
   console.log('Fetching community finding by ID:', findingId);
   
-  // Fetch the finding with author details using a join
+  // Fetch the finding
   const { data: finding, error: findingError } = await supabase
     .from('community_findings')
     .select(`
@@ -132,11 +129,7 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
       chart_config,
       experiment_id,
       created_at,
-      updated_at,
-      author:users!community_findings_author_id_fkey(
-        first_name,
-        last_name
-      )
+      updated_at
     `)
     .eq('id', findingId)
     .eq('status', 'visible')
@@ -156,8 +149,28 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
     return null;
   }
 
-  console.log('Fetched finding with author:', finding);
-  return finding;
+  // Fetch author details separately
+  const { data: author, error: authorError } = await supabase
+    .from('users')
+    .select('id, first_name, last_name')
+    .eq('id', finding.author_id)
+    .single();
+
+  if (authorError) {
+    console.error('Error fetching author:', authorError);
+    // Continue without author details
+  }
+
+  const transformedData = {
+    ...finding,
+    author: author ? {
+      first_name: author.first_name,
+      last_name: author.last_name
+    } : undefined
+  };
+
+  console.log('Fetched finding with author:', transformedData);
+  return transformedData;
 }
 
 export async function getUserFindings(userId: string): Promise<CommunityFinding[]> {
@@ -215,6 +228,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   console.log('Fetching user profile for:', userId);
   
   try {
+    // First try to get from users table
     const { data: user, error } = await supabase
       .from('users')
       .select('id, first_name, last_name, created_at')
@@ -223,11 +237,43 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 
     if (error) {
       if (error.code === 'PGRST116') {
-        console.log('User not found:', userId);
-        return null;
+        console.log('User not found in users table, checking auth.users:', userId);
+        
+        // If not found in users table, check if they exist in auth.users
+        // This handles cases where a user exists but doesn't have a profile yet
+        const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(userId);
+        
+        if (authError || !authUser.user) {
+          console.log('User not found in auth.users either:', userId);
+          return null;
+        }
+        
+        // User exists in auth but not in users table - create a basic profile
+        console.log('Creating basic profile for auth user:', userId);
+        const { data: newUser, error: createError } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            first_name: authUser.user.user_metadata?.first_name || null,
+            last_name: authUser.user.user_metadata?.last_name || null
+          })
+          .select('id, first_name, last_name, created_at')
+          .single();
+        
+        if (createError) {
+          console.error('Error creating user profile:', createError);
+          // Return a basic profile even if creation fails
+          return {
+            id: userId,
+            first_name: authUser.user.user_metadata?.first_name || null,
+            last_name: authUser.user.user_metadata?.last_name || null,
+            created_at: authUser.user.created_at || new Date().toISOString()
+          };
+        }
+        
+        return newUser;
       }
       console.error('Error fetching user profile:', error);
-      // Return null instead of throwing to prevent terminal error logging
       return null;
     }
 
@@ -235,7 +281,6 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     return user;
   } catch (error) {
     console.error('Unexpected error fetching user profile:', error);
-    // Return null instead of throwing to prevent terminal error logging
     return null;
   }
 }

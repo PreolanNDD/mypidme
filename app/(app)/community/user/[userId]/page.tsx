@@ -19,29 +19,34 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
 
   // Check if userId is empty or invalid
   if (!userId || userId.trim() === '') {
-    console.log(`🔄 Empty or invalid userId, redirecting to /community`);
+    console.log(`🔄 Empty or invalid userId, showing not found`);
     notFound();
   }
 
-  // Fetch the user profile and their findings
-  const [userProfile, userFindings] = await Promise.all([
-    getUserProfile(userId),
-    getUserFindings(userId)
-  ]);
+  try {
+    // Fetch the user profile and their findings
+    const [userProfile, userFindings] = await Promise.all([
+      getUserProfile(userId),
+      getUserFindings(userId)
+    ]);
 
-  // If user doesn't exist, show 404
-  if (!userProfile) {
-    console.log(`❌ User not found for ID: ${userId}`);
+    // If user doesn't exist, show 404
+    if (!userProfile) {
+      console.log(`❌ User not found for ID: ${userId}`);
+      notFound();
+    }
+
+    console.log(`✅ User profile found for ID: ${userId}, findings: ${userFindings.length}`);
+
+    // Render the Client Component with the fetched data
+    return (
+      <UserProfileClient 
+        userProfile={userProfile} 
+        userFindings={userFindings} 
+      />
+    );
+  } catch (error) {
+    console.error(`💥 Error in UserProfilePage for userId ${userId}:`, error);
     notFound();
   }
-
-  console.log(`✅ User profile found for ID: ${userId}, findings: ${userFindings.length}`);
-
-  // Render the Client Component with the fetched data
-  return (
-    <UserProfileClient 
-      userProfile={userProfile} 
-      userFindings={userFindings} 
-    />
-  );
 }
