@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Track if we're currently fetching a profile to prevent concurrent requests
   const fetchingProfileRef = useRef<string | null>(null);
   const profileCacheRef = useRef<Map<string, any>>(new Map());
-  const initializationRef = useRef<boolean>(false);
+  const initializedRef = useRef<boolean>(false);
 
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
     // Prevent concurrent fetches for the same user
@@ -114,57 +114,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    console.log("AuthProvider: Main useEffect starting up");
+    console.log("AuthProvider: Setting up auth state listener");
 
     const supabase = createClient();
 
-    // Get initial session with timeout
-    const initializeAuth = async () => {
-      try {
-        console.log('AuthProvider: Getting initial session...');
-        
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Session fetch timeout')), 3000);
-        });
-        
-        const sessionPromise = supabase.auth.getSession();
-        
-        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
-        
-        if (error) {
-          console.error('AuthProvider: Error getting initial session:', error);
-        } else {
-          console.log('AuthProvider: Initial session retrieved:', !!session);
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            console.log('AuthProvider: Fetching profile for authenticated user...');
-            const profile = await fetchUserProfile(session.user.id);
-            setUserProfile(profile);
-          }
-        }
-        
-        initializationRef.current = true;
-      } catch (error) {
-        console.error('AuthProvider: Failed to initialize auth:', error);
-        initializationRef.current = true;
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeAuth();
-
-    // Listen for auth changes
+    // Listen for auth changes - this will fire immediately with current session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log(`AuthProvider: Auth event received: ${event}`, session ? 'with session.' : 'without session.');
 
-        // Skip processing if we haven't finished initialization
-        if (!initializationRef.current) {
-          console.log('AuthProvider: Skipping auth state change - not yet initialized');
-          return;
+        // Handle the initial session load
+        if (!initializedRef.current) {
+          console.log('AuthProvider: Initial auth state received');
+          initializedRef.current = true;
+          setLoading(false);
         }
 
         // Handle specific events that should trigger profile updates
@@ -203,7 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("AuthProvider: Cleaning up auth subscription.");
       subscription?.unsubscribe();
     };
-  }, [fetchUserProfile, router]);
+  }, [fetchUserProfile, router, userProfile]);
 
   
   const refreshUserProfile = useCallback(async () => {
