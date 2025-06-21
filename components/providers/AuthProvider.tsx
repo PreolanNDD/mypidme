@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -29,15 +29,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  
+  // Track if we're currently fetching a profile to prevent concurrent requests
+  const fetchingProfileRef = useRef<string | null>(null);
+  const profileCacheRef = useRef<Map<string, any>>(new Map());
 
-  const fetchUserProfile = useCallback(async (userId: string) => {
+  const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
+    // Prevent concurrent fetches for the same user
+    if (fetchingProfileRef.current === userId && !forceRefresh) {
+      console.log('AuthProvider: Profile fetch already in progress for user:', userId);
+      return profileCacheRef.current.get(userId) || null;
+    }
+
+    // Return cached profile if available and not forcing refresh
+    if (!forceRefresh && profileCacheRef.current.has(userId)) {
+      console.log('AuthProvider: Returning cached profile for user:', userId);
+      return profileCacheRef.current.get(userId);
+    }
+
+    fetchingProfileRef.current = userId;
+
     try {
       console.log('AuthProvider: Fetching user profile for:', userId);
       const supabase = createClient();
       
-      // Add a timeout to prevent hanging
+      // Add a shorter timeout for better UX
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000); // 10 second timeout
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000); // Reduced to 5 seconds
       });
       
       const fetchPromise = supabase
@@ -71,6 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
             
             console.log('AuthProvider: User profile created successfully');
+            // Cache the new profile
+            profileCacheRef.current.set(userId, newProfile);
             return newProfile;
           } catch (createErr) {
             console.error('AuthProvider: Failed to create user profile:', createErr);
@@ -81,11 +101,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       console.log('AuthProvider: User profile fetched successfully');
+      // Cache the profile
+      profileCacheRef.current.set(userId, data);
       return data;
     } catch (error) {
       console.error('AuthProvider: Error fetching user profile:', error);
       // Don't throw the error, just return null and continue
       return null;
+    } finally {
+      fetchingProfileRef.current = null;
     }
   }, []);
 
@@ -93,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log("AuthProvider: Main useEffect starting up");
 
     const supabase = createClient();
+    let isInitialized = false;
 
     // Get initial session with timeout
     const initializeAuth = async () => {
@@ -100,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('AuthProvider: Getting initial session...');
         
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Session fetch timeout')), 5000); // 5 second timeout
+          setTimeout(() => reject(new Error('Session fetch timeout')), 3000); // Reduced timeout
         });
         
         const sessionPromise = supabase.auth.getSession();
@@ -120,8 +145,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUserProfile(profile);
           }
         }
+        
+        isInitialized = true;
       } catch (error) {
         console.error('AuthProvider: Failed to initialize auth:', error);
+        isInitialized = true;
       } finally {
         setLoading(false);
       }
@@ -134,18 +162,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         console.log(`AuthProvider: Auth event received: ${event}`, session ? 'with session.' : 'without session.');
 
+        // Skip processing if we haven't finished initialization
+        if (!isInitialized) {
+          console.log('AuthProvider: Skipping auth state change - not yet initialized');
+          return;
+        }
+
+        // Handle specific events that should trigger profile updates
+        const shouldUpdateProfile = [
+          'SIGNED_IN',
+          'TOKEN_REFRESHED',
+          'USER_UPDATED'
+        ].includes(event);
+
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Only fetch profile if we don't have one or it's for a different user
-          if (!userProfile || userProfile.id !== session.user.id) {
-            console.log("AuthProvider: Fetching profile for new or changed user...");
+          // Only fetch profile in specific cases to avoid unnecessary requests
+          if (shouldUpdateProfile || !userProfile || userProfile.id !== session.user.id) {
+            console.log(`AuthProvider: Fetching profile due to event: ${event}`);
             const profile = await fetchUserProfile(session.user.id);
             setUserProfile(profile);
+          } else {
+            console.log(`AuthProvider: Skipping profile fetch for event: ${event} (profile already exists)`);
           }
         } else {
           setUserProfile(null);
+          // Clear profile cache when user logs out
+          profileCacheRef.current.clear();
         }
 
         if (event === 'PASSWORD_RECOVERY') {
@@ -164,8 +209,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const refreshUserProfile = useCallback(async () => {
     if (user) {
-      console.log('AuthProvider: Refreshing user profile.');
-      const profile = await fetchUserProfile(user.id);
+      console.log('AuthProvider: Refreshing user profile (forced).');
+      const profile = await fetchUserProfile(user.id, true); // Force refresh
       setUserProfile(profile);
     }
   }, [user, fetchUserProfile]);
