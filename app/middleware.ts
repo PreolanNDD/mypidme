@@ -87,7 +87,22 @@ export async function middleware(request: NextRequest) {
     const { data: { user }, error } = await supabase.auth.getUser();
     
     if (error) {
-      console.log('⚠️ [Middleware] Auth check returned error (this is normal for logged out users):', error.message);
+      console.log('⚠️ [Middleware] Auth check returned error:', error.message);
+      
+      // Check for invalid refresh token errors
+      if (error.message?.includes('Invalid Refresh Token') || 
+          error.message?.includes('refresh_token_not_found') ||
+          error.message?.includes('Refresh Token Not Found')) {
+        console.log('🧹 [Middleware] Invalid refresh token detected, clearing session...');
+        
+        try {
+          // Clear the session to remove invalid tokens
+          await supabase.auth.signOut();
+          console.log('✅ [Middleware] Session cleared successfully');
+        } catch (signOutError) {
+          console.log('⚠️ [Middleware] Error during session cleanup:', signOutError);
+        }
+      }
     } else if (user) {
       console.log('✅ [Middleware] User authenticated:', { 
         userId: user.id, 
@@ -97,8 +112,22 @@ export async function middleware(request: NextRequest) {
     } else {
       console.log('👤 [Middleware] No authenticated user found');
     }
-  } catch (error) {
-    console.log('💥 [Middleware] Auth check failed (this is normal for logged out users):', error);
+  } catch (error: any) {
+    console.log('💥 [Middleware] Auth check failed:', error);
+    
+    // Check for invalid refresh token errors in catch block as well
+    if (error?.message?.includes('Invalid Refresh Token') || 
+        error?.message?.includes('refresh_token_not_found') ||
+        error?.message?.includes('Refresh Token Not Found')) {
+      console.log('🧹 [Middleware] Invalid refresh token detected in catch, clearing session...');
+      
+      try {
+        await supabase.auth.signOut();
+        console.log('✅ [Middleware] Session cleared successfully in catch');
+      } catch (signOutError) {
+        console.log('⚠️ [Middleware] Error during session cleanup in catch:', signOutError);
+      }
+    }
   }
 
   console.log('🔧 [Middleware] Request processing complete, forwarding to app');

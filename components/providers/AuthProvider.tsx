@@ -118,6 +118,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const supabase = createClient();
 
+    // Check for existing session and handle invalid tokens
+    const initializeAuth = async () => {
+      try {
+        console.log('AuthProvider: Checking initial session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.log('AuthProvider: Initial session check error:', error.message);
+          
+          // Check for invalid refresh token errors
+          if (error.message?.includes('Invalid Refresh Token') || 
+              error.message?.includes('refresh_token_not_found') ||
+              error.message?.includes('Refresh Token Not Found')) {
+            console.log('🧹 AuthProvider: Invalid refresh token detected, clearing session...');
+            
+            try {
+              await supabase.auth.signOut();
+              console.log('✅ AuthProvider: Session cleared successfully');
+            } catch (signOutError) {
+              console.log('⚠️ AuthProvider: Error during session cleanup:', signOutError);
+            }
+          }
+        } else if (session) {
+          console.log('AuthProvider: Valid initial session found');
+          setSession(session);
+          setUser(session.user);
+          
+          // Fetch user profile for valid session
+          const profile = await fetchUserProfile(session.user.id);
+          setUserProfile(profile);
+        } else {
+          console.log('AuthProvider: No initial session found');
+        }
+      } catch (error: any) {
+        console.log('AuthProvider: Error during initial auth check:', error);
+        
+        // Handle invalid refresh token errors in catch block
+        if (error?.message?.includes('Invalid Refresh Token') || 
+            error?.message?.includes('refresh_token_not_found') ||
+            error?.message?.includes('Refresh Token Not Found')) {
+          console.log('🧹 AuthProvider: Invalid refresh token detected in catch, clearing session...');
+          
+          try {
+            await supabase.auth.signOut();
+            console.log('✅ AuthProvider: Session cleared successfully in catch');
+          } catch (signOutError) {
+            console.log('⚠️ AuthProvider: Error during session cleanup in catch:', signOutError);
+          }
+        }
+      } finally {
+        if (!initializedRef.current) {
+          initializedRef.current = true;
+          setLoading(false);
+        }
+      }
+    };
+
+    // Initialize auth state
+    initializeAuth();
+
     // Listen for auth changes - this will fire immediately with current session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
