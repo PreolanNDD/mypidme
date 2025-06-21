@@ -226,7 +226,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("AuthProvider: Cleaning up auth subscription.");
       subscription?.unsubscribe();
     };
-  }, [fetchUserProfile, router, userProfile]);
+  }, [fetchUserProfile, router]); // Removed userProfile from dependency array
 
   
   const refreshUserProfile = useCallback(async () => {
