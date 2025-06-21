@@ -7,12 +7,15 @@ import { createFindingAction } from '@/lib/actions/community-actions';
 import { getTrackableItems } from '@/lib/trackable-items';
 import { getDualMetricChartData } from '@/lib/chart-data';
 import { getExperiments, analyzeExperimentResults } from '@/lib/experiments';
+import { calculatePearsonCorrelation } from '@/lib/correlation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
+import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Edit3, Eye, ArrowLeft, Send, Calendar, User, BarChart3, FlaskConical } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useFormState, useFormStatus } from 'react-dom';
@@ -140,13 +143,113 @@ export default function CreateFindingPage() {
 
   const experiment = experiments.find(exp => exp.id === context?.experimentId);
 
+  // Get metric details
+  const primaryMetric = trackableItems.find(item => item.id === context?.primaryMetricId);
+  const comparisonMetric = trackableItems.find(item => item.id === context?.comparisonMetricId);
+
+  // Calculate correlation score for preview
+  const correlationScore = useMemo(() => {
+    if (!primaryMetric || !comparisonMetric || !chartData.length) {
+      return null;
+    }
+
+    const primaryValues: number[] = [];
+    const comparisonValues: number[] = [];
+
+    chartData.forEach(dataPoint => {
+      if (dataPoint.primaryValue !== null && dataPoint.primaryValue !== undefined &&
+          dataPoint.comparisonValue !== null && dataPoint.comparisonValue !== undefined) {
+        primaryValues.push(dataPoint.primaryValue);
+        comparisonValues.push(dataPoint.comparisonValue);
+      }
+    });
+
+    if (primaryValues.length >= 2) {
+      return calculatePearsonCorrelation(primaryValues, comparisonValues);
+    }
+
+    return null;
+  }, [chartData, primaryMetric, comparisonMetric]);
+
+  // Advanced Axis Synchronization Processing (same as /data page)
+  const { processedChartData, axisConfig } = useMemo(() => {
+    if (!primaryMetric || !chartData.length) {
+      return { processedChartData: chartData, axisConfig: null };
+    }
+
+    const primaryValues = chartData
+      .map(d => d.primaryValue)
+      .filter(v => v !== null && v !== undefined) as number[];
+    const comparisonValues = chartData
+      .map(d => d.comparisonValue)
+      .filter(v => v !== null && v !== undefined) as number[];
+    
+    const primaryMax = primaryValues.length > 0 ? Math.max(...primaryValues) : 10;
+    const comparisonMax = comparisonValues.length > 0 ? Math.max(...comparisonValues) : 10;
+
+    let config: any;
+    let processedData = [...chartData];
+
+    if (!comparisonMetric) {
+      config = {
+        leftDomain: primaryMetric.type === 'SCALE_1_10' ? [1, 10] : [0, Math.max(primaryMax * 1.1, 1)],
+        rightDomain: [0, 10],
+        normalizeComparison: false
+      };
+    } else if (primaryMetric.type === 'NUMERIC' && comparisonMetric.type === 'SCALE_1_10') {
+      const scaledMax = Math.max(primaryMax * 1.1, 1);
+      config = {
+        leftDomain: [0, scaledMax],
+        rightDomain: [0, scaledMax],
+        rightTickFormatter: (value: number) => {
+          const scaleValue = Math.round((value / scaledMax) * 10);
+          return scaleValue >= 1 && scaleValue <= 10 ? scaleValue.toString() : '';
+        },
+        rightTicks: Array.from({ length: 10 }, (_, i) => ((i + 1) / 10) * scaledMax),
+        normalizeComparison: false
+      };
+    } else if (primaryMetric.type === 'SCALE_1_10' && comparisonMetric.type === 'NUMERIC') {
+      config = {
+        leftDomain: [1, 10],
+        rightDomain: [0, Math.max(comparisonMax * 1.1, 1)],
+        normalizeComparison: false
+      };
+    } else if (primaryMetric.type === 'SCALE_1_10' && comparisonMetric.type === 'BOOLEAN') {
+      processedData = chartData.map(d => ({
+        ...d,
+        normalizedComparisonValue: d.comparisonValue === 1 ? 7.5 : 
+                                   d.comparisonValue === 0 ? 2.5 : null
+      }));
+
+      config = {
+        leftDomain: [1, 10],
+        rightDomain: [1, 10],
+        rightTickFormatter: (value: number) => {
+          if (Math.abs(value - 7.5) < 0.5) return 'Yes';
+          if (Math.abs(value - 2.5) < 0.5) return 'No';
+          return '';
+        },
+        rightTicks: [2.5, 7.5],
+        normalizeComparison: true
+      };
+    } else {
+      const leftMax = primaryMetric.type === 'SCALE_1_10' ? 10 : Math.max(primaryMax * 1.1, 1);
+      const rightMax = comparisonMetric.type === 'SCALE_1_10' ? 10 : Math.max(comparisonMax * 1.1, 1);
+      
+      config = {
+        leftDomain: primaryMetric.type === 'SCALE_1_10' ? [1, 10] : [0, leftMax],
+        rightDomain: comparisonMetric.type === 'SCALE_1_10' ? [1, 10] : [0, rightMax],
+        normalizeComparison: false
+      };
+    }
+
+    return { processedChartData: processedData, axisConfig: config };
+  }, [chartData, primaryMetric, comparisonMetric]);
+
   const getContextDescription = () => {
     if (!context) return '';
     
     if (context.type === 'chart') {
-      const primaryMetric = trackableItems.find(item => item.id === context.primaryMetricId);
-      const comparisonMetric = trackableItems.find(item => item.id === context.comparisonMetricId);
-      
       return `Chart analysis: ${primaryMetric?.name || 'Unknown metric'}${
         comparisonMetric ? ` vs ${comparisonMetric.name}` : ''
       } over ${context.dateRange || 30} days`;
@@ -156,9 +259,6 @@ export default function CreateFindingPage() {
     
     return '';
   };
-
-  const primaryMetric = trackableItems.find(item => item.id === context?.primaryMetricId);
-  const comparisonMetric = trackableItems.find(item => item.id === context?.comparisonMetricId);
 
   // Enhanced form action wrapper with detailed logging
   const enhancedFormAction = async (formData: FormData) => {
@@ -207,6 +307,56 @@ export default function CreateFindingPage() {
       timestamp: new Date().toISOString()
     });
   }, [state]);
+
+  // Custom Tooltip Component (same as /data page)
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-primary-text">{label}</p>
+          {(data.primaryValue !== null && data.primaryValue !== undefined) && (
+            <p className="text-sm">
+              <span className="font-medium">{primaryMetric?.name}:</span> {data.primaryValue}
+            </p>
+          )}
+          {comparisonMetric && (data.comparisonValue !== null && data.comparisonValue !== undefined) && (
+            <p className="text-sm">
+              <span className="font-medium">{comparisonMetric.name}:</span>{' '}
+              {comparisonMetric.type === 'BOOLEAN' 
+                ? (data.comparisonValue === 1 ? 'Yes' : 'No')
+                : data.comparisonValue
+              }
+            </p>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom Legend Component (same as /data page)
+  const CustomLegend = (props: any) => {
+    const { payload } = props;
+    if (!payload || payload.length === 0) return null;
+
+    return (
+      <div className="flex justify-center items-center space-x-8 mt-4">
+        {payload.map((entry: any, index: number) => (
+          <div key={index} className="flex items-center space-x-3 px-4 py-2">
+            <div 
+              className="w-4 h-0.5" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm font-medium text-black">
+              {entry.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -386,73 +536,125 @@ export default function CreateFindingPage() {
                       </div>
                     </div>
 
-                    {/* Preview Data Visualization */}
-                    {context && (
+                    {/* Preview Data Visualization - Chart Analysis */}
+                    {context && context.type === 'chart' && primaryMetric && (
                       <div className="space-y-4">
                         <div className="border-t border-gray-200 pt-4">
-                          <h3 className="font-medium text-primary-text mb-3">Shared Data</h3>
+                          <h3 className="font-medium text-primary-text mb-3">
+                            Data Analysis: {primaryMetric.name}
+                            {comparisonMetric && ` vs ${comparisonMetric.name}`}
+                          </h3>
                           
-                          {context.type === 'chart' && chartData.length > 0 && (
-                            <div className="space-y-3">
-                              <div className="text-sm text-secondary-text">
-                                Chart: {primaryMetric?.name}
-                                {comparisonMetric && ` vs ${comparisonMetric.name}`}
-                                {context.dateRange && ` (${context.dateRange} days)`}
-                              </div>
+                          {processedChartData.length > 0 ? (
+                            <div className="space-y-4">
+                              {/* Chart */}
                               <div className="h-64 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                  <LineChart data={chartData}>
+                                  <LineChart data={processedChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                                     <XAxis 
                                       dataKey="formattedDate" 
                                       stroke="#708090"
                                       fontSize={12}
+                                      tickLine={false}
                                     />
-                                    <YAxis stroke="#708090" fontSize={12} />
-                                    <Tooltip />
+                                    
+                                    {/* Left Y-Axis */}
+                                    <YAxis 
+                                      yAxisId="left"
+                                      stroke="#7ed984"
+                                      fontSize={12}
+                                      tickLine={false}
+                                      domain={axisConfig?.leftDomain || ['auto', 'auto']}
+                                    />
+                                    
+                                    {/* Right Y-Axis (only if comparison metric exists) */}
+                                    {comparisonMetric && axisConfig && (
+                                      <YAxis 
+                                        yAxisId="right"
+                                        orientation="right"
+                                        stroke="#FFA500"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        domain={axisConfig.rightDomain}
+                                        tickFormatter={axisConfig.rightTickFormatter}
+                                        ticks={axisConfig.rightTicks}
+                                      />
+                                    )}
+                                    
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend content={<CustomLegend />} />
+                                    
+                                    {/* Primary metric line */}
                                     <Line 
+                                      yAxisId="left"
                                       type="monotone" 
                                       dataKey="primaryValue"
                                       stroke="#7ed984"
                                       strokeWidth={2}
-                                      name={primaryMetric?.name}
+                                      connectNulls={false}
+                                      name={primaryMetric.name}
+                                      dot={{ fill: '#7ed984', strokeWidth: 2, r: 3 }}
+                                      activeDot={{ r: 5, stroke: '#7ed984', strokeWidth: 2 }}
                                     />
-                                    {comparisonMetric && (
+                                    
+                                    {/* Comparison metric line */}
+                                    {comparisonMetric && axisConfig && (
                                       <Line 
+                                        yAxisId={axisConfig.normalizeComparison ? "left" : "right"}
                                         type="monotone" 
-                                        dataKey="comparisonValue"
+                                        dataKey={axisConfig.normalizeComparison ? "normalizedComparisonValue" : "comparisonValue"}
                                         stroke="#FFA500"
                                         strokeWidth={2}
+                                        strokeDasharray={comparisonMetric.type === 'BOOLEAN' ? "5 5" : "0"}
+                                        connectNulls={false}
                                         name={comparisonMetric.name}
+                                        dot={{ fill: '#FFA500', strokeWidth: 2, r: 3 }}
+                                        activeDot={{ r: 5, stroke: '#FFA500', strokeWidth: 2 }}
                                       />
                                     )}
                                   </LineChart>
                                 </ResponsiveContainer>
                               </div>
-                            </div>
-                          )}
 
-                          {context.type === 'experiment' && experiment && (
-                            <div className="space-y-3">
-                              <div className="text-sm text-secondary-text">
-                                Experiment: {experiment.title}
-                              </div>
-                              <div className="p-3 bg-gray-50 rounded-lg">
-                                <p className="text-sm text-primary-text">
-                                  <strong>Hypothesis:</strong> {experiment.hypothesis}
-                                </p>
-                                <div className="mt-2 text-xs text-secondary-text">
-                                  {experiment.start_date} to {experiment.end_date}
+                              {/* At a Glance - Correlation Analysis Preview */}
+                              {correlationScore !== null && primaryMetric && comparisonMetric && (
+                                <div className="p-3 bg-gray-50 rounded-lg">
+                                  <h4 className="font-medium text-primary-text mb-2">At a Glance Preview</h4>
+                                  <p className="text-sm text-secondary-text">
+                                    Correlation analysis and detailed metric breakdown will be shown here
+                                  </p>
                                 </div>
-                              </div>
+                              )}
                             </div>
-                          )}
-
-                          {context.type === 'chart' && chartData.length === 0 && (
+                          ) : (
                             <div className="p-3 bg-gray-50 rounded-lg text-sm text-secondary-text">
                               Chart data will be displayed here when available
                             </div>
                           )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Preview Data Visualization - Experiment */}
+                    {context && context.type === 'experiment' && experiment && (
+                      <div className="space-y-4">
+                        <div className="border-t border-gray-200 pt-4">
+                          <h3 className="font-medium text-primary-text mb-3">Experiment Results</h3>
+                          
+                          <div className="space-y-3">
+                            <div className="text-sm text-secondary-text">
+                              Experiment: {experiment.title}
+                            </div>
+                            <div className="p-3 bg-gray-50 rounded-lg">
+                              <p className="text-sm text-primary-text">
+                                <strong>Hypothesis:</strong> {experiment.hypothesis}
+                              </p>
+                              <div className="mt-2 text-xs text-secondary-text">
+                                {experiment.start_date} to {experiment.end_date}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
