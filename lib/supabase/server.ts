@@ -1,5 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies, type ReadonlyRequestCookies } from 'next/headers'
+import { cookies } from 'next/headers'
 
 export const createClient = () => {
   console.log('🔧 [Supabase Server Client] Creating server client...');
@@ -31,7 +31,7 @@ export const createClient = () => {
   
   console.log('✅ [Supabase Server Client] Environment variables validated successfully');
   
-  let cookieStore: ReadonlyRequestCookies;
+  let cookieStore: ReturnType<typeof cookies>;
   try {
     cookieStore = cookies();
   } catch (cookieError) {
