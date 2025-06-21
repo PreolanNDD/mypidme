@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { getCommunityFindingById, getUserVotes } from '@/lib/community';
-import { castVoteAction, reportFindingAction } from '@/lib/actions/community-actions';
+import { castVoteAction, reportFindingAction, fetchCommunityFindingByIdAction, fetchUserVotesAction } from '@/lib/actions/community-actions';
 import { CommunityFinding, FindingVote } from '@/lib/community';
 import { getTrackableItems } from '@/lib/trackable-items';
 import { getDualMetricChartData } from '@/lib/chart-data';
@@ -101,7 +100,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   // Use the initial finding data and set up TanStack Query for future updates
   const { data: findingData = initialFinding } = useQuery<CommunityFinding | null>({
     queryKey: ['communityFinding', initialFinding.id],
-    queryFn: () => getCommunityFindingById(initialFinding.id),
+    queryFn: () => fetchCommunityFindingByIdAction(initialFinding.id),
     initialData: initialFinding,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -251,10 +250,10 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     return { processedChartData: processedData, axisConfig: config };
   }, [chartData, primaryMetric, comparisonMetric]);
 
-  // Fetch user votes for this finding
+  // Fetch user votes for this finding using Server Action
   const { data: userVotes = [] } = useQuery<FindingVote[]>({
     queryKey: ['userVotes', user?.id, finding.id],
-    queryFn: () => getUserVotes(user!.id, [finding.id]),
+    queryFn: () => fetchUserVotesAction(user!.id, [finding.id]),
     enabled: !!user?.id,
   });
 

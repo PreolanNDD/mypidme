@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getCommunityFindingById, getUserVotes } from '@/lib/community';
 
 export interface CreateFindingData {
   title: string;
@@ -321,6 +322,34 @@ export async function shareFindingAction(data: ShareFindingData) {
   } catch (error) {
     console.error('❌ [shareFindingAction] Server action failed:', error);
     throw error; // Re-throw to be handled by the client
+  }
+}
+
+// --- NEW SERVER ACTIONS FOR CLIENT COMPONENT DATA FETCHING ---
+
+export async function fetchCommunityFindingByIdAction(findingId: string) {
+  console.log('🔍 [fetchCommunityFindingByIdAction] Fetching finding:', findingId);
+  
+  try {
+    const finding = await getCommunityFindingById(findingId);
+    console.log('✅ [fetchCommunityFindingByIdAction] Finding fetched successfully');
+    return finding;
+  } catch (error) {
+    console.error('❌ [fetchCommunityFindingByIdAction] Error fetching finding:', error);
+    throw error;
+  }
+}
+
+export async function fetchUserVotesAction(userId: string, findingIds: string[]) {
+  console.log('🗳️ [fetchUserVotesAction] Fetching user votes:', { userId, findingIds });
+  
+  try {
+    const votes = await getUserVotes(userId, findingIds);
+    console.log('✅ [fetchUserVotesAction] User votes fetched successfully');
+    return votes;
+  } catch (error) {
+    console.error('❌ [fetchUserVotesAction] Error fetching user votes:', error);
+    throw error;
   }
 }
 
