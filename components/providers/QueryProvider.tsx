@@ -7,14 +7,14 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        // Completely disable all automatic refetching
+        // Optimize for better performance and user experience
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         refetchOnMount: true,
         retry: 1,
-        staleTime: 15 * 60 * 1000, // 15 minutes - longer stale time
-        gcTime: 20 * 60 * 1000, // 20 minutes - longer garbage collection time
-        // Disable all background refetching
+        staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh longer
+        gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache longer
+        // Disable all background refetching for better performance
         refetchInterval: false,
         refetchIntervalInBackground: false,
       },

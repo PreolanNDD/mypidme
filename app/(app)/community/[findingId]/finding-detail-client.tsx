@@ -103,7 +103,8 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     queryKey: ['communityFinding', initialFinding.id],
     queryFn: () => getCommunityFindingById(initialFinding.id),
     initialData: initialFinding,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes - longer stale time for better performance
+    gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache longer
   });
 
   // Handle case where finding might be null (e.g., deleted after initial load)
@@ -124,14 +125,16 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
 
   const finding = findingData;
 
-  // Fetch trackable items for chart context
+  // Fetch trackable items for chart context with better caching
   const { data: trackableItems = [] } = useQuery({
     queryKey: ['trackableItems', user?.id],
     queryFn: () => getTrackableItems(user!.id),
     enabled: !!user?.id && finding.share_data && !!finding.chart_config,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
   });
 
-  // Fetch chart data if there's chart config
+  // Fetch chart data if there's chart config with better caching
   const { data: chartData = [] } = useQuery({
     queryKey: ['findingChartData', finding.id, finding.chart_config],
     queryFn: () => {
@@ -146,6 +149,8 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
       );
     },
     enabled: !!user?.id && finding.share_data && !!finding.chart_config,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Get metric details
@@ -251,11 +256,13 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     return { processedChartData: processedData, axisConfig: config };
   }, [chartData, primaryMetric, comparisonMetric]);
 
-  // Fetch user votes for this finding
+  // Fetch user votes for this finding with better caching
   const { data: userVotes = [] } = useQuery<FindingVote[]>({
     queryKey: ['userVotes', user?.id, finding.id],
     queryFn: () => getUserVotes(user!.id, [finding.id]),
     enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Get user's vote for this finding

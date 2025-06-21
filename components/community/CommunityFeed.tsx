@@ -98,6 +98,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     queryKey: ['communityFindings'],
     queryFn: () => getCommunityFindings(),
     enabled: activeTab === 'community',
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
   // Fetch user's personal findings (all statuses)
@@ -105,6 +106,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     queryKey: ['userFindings', user?.id],
     queryFn: () => getUserFindings(user!.id),
     enabled: activeTab === 'my-findings' && !!user?.id,
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
   // Determine which findings to display
@@ -117,6 +119,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     queryKey: ['userVotes', user?.id, findingIds],
     queryFn: () => getUserVotes(user!.id, findingIds),
     enabled: !!user?.id && findingIds.length > 0 && activeTab === 'community',
+    staleTime: 1 * 60 * 1000, // 1 minute
   });
 
   // Create a map of finding ID to user's vote
@@ -236,7 +239,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     },
   });
 
-  // Report mutation
+  // Report mutation using Server Action
   const reportMutation = useMutation({
     mutationFn: ({ findingId, reason }: { findingId: string; reason: string }) =>
       reportFindingAction(user!.id, findingId, reason),
@@ -250,7 +253,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   });
 
   const handleVote = (findingId: string, voteType: 'upvote' | 'downvote') => {
-    if (!user || voteMutation.isPending || activeTab !== 'community') {
+    if (!user || activeTab !== 'community') {
       return;
     }
     
@@ -270,6 +273,32 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     e.preventDefault();
     e.stopPropagation();
     router.push(`/community/user/${authorId}`);
+  };
+
+  // Prefetch finding details on hover for faster navigation
+  const handleFindingHover = (findingId: string) => {
+    // Prefetch the finding detail data
+    queryClient.prefetchQuery({
+      queryKey: ['communityFinding', findingId],
+      queryFn: async () => {
+        // Import the function dynamically to avoid circular dependencies
+        const { getCommunityFindingById } = await import('@/lib/community');
+        return getCommunityFindingById(findingId);
+      },
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+  };
+
+  // Optimistic navigation with immediate UI feedback
+  const handleFindingClick = (findingId: string) => {
+    // Pre-populate the cache with the current finding data for instant loading
+    const currentFinding = findings.find(f => f.id === findingId);
+    if (currentFinding) {
+      queryClient.setQueryData(['communityFinding', findingId], currentFinding);
+    }
+    
+    // Navigate immediately
+    router.push(`/community/${findingId}`);
   };
 
   const formatDate = (dateStr: string) => {
@@ -360,18 +389,21 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
           const authorName = getAuthorName(finding);
 
           return (
-            <Card key={finding.id} className="hover:shadow-md transition-shadow">
+            <Card 
+              key={finding.id} 
+              className="hover:shadow-md transition-all duration-200 cursor-pointer"
+              onMouseEnter={() => handleFindingHover(finding.id)}
+              onClick={() => handleFindingClick(finding.id)}
+            >
               <CardContent className="p-6">
                 <div className="space-y-4">
                   {/* Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <Link href={`/community/${finding.id}`} className="flex-1">
-                          <h3 className="font-heading text-xl text-primary-text hover:text-primary transition-colors">
-                            {finding.title}
-                          </h3>
-                        </Link>
+                        <h3 className="font-heading text-xl text-primary-text hover:text-primary transition-colors flex-1">
+                          {finding.title}
+                        </h3>
                         {/* Status badge - only show in My Findings view */}
                         {activeTab === 'my-findings' && getStatusBadge(finding.status)}
                       </div>
@@ -399,19 +431,15 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                         )}
                       </div>
                     </div>
-                    <Link href={`/community/${finding.id}`}>
-                      <ArrowRight className="w-5 h-5 text-secondary-text hover:text-primary transition-colors flex-shrink-0 ml-4" />
-                    </Link>
+                    <ArrowRight className="w-5 h-5 text-secondary-text hover:text-primary transition-colors flex-shrink-0 ml-4" />
                   </div>
 
                   {/* Content Preview */}
-                  <Link href={`/community/${finding.id}`}>
-                    <div className="prose prose-sm max-w-none">
-                      <p className="text-primary-text leading-relaxed">
-                        {truncateContent(finding.content)}
-                      </p>
-                    </div>
-                  </Link>
+                  <div className="prose prose-sm max-w-none">
+                    <p className="text-primary-text leading-relaxed">
+                      {truncateContent(finding.content)}
+                    </p>
+                  </div>
 
                   {/* Actions - Outside the link to prevent nested interactive elements */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
