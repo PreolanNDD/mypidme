@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
@@ -12,16 +12,26 @@ export function AuthDebug() {
   const [loading, setLoading] = useState(false);
 
   const runDebugTests = async () => {
-    if (!user) {
-      setDebugResults({ error: 'No user found' });
-      return;
-    }
-
     setLoading(true);
     const results: any = {};
 
     try {
-      // Test 1: Check auth.uid()
+      // Create a fresh Supabase client
+      const supabase = createClient();
+
+      // Test 1: Check current session
+      console.log('🔍 Testing current session...');
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      results.session = {
+        hasSession: !!sessionData.session,
+        hasUser: !!sessionData.session?.user,
+        userId: sessionData.session?.user?.id,
+        userEmail: sessionData.session?.user?.email,
+        error: sessionError
+      };
+      console.log('Session result:', results.session);
+
+      // Test 2: Check auth.uid() function
       console.log('🔍 Testing auth.uid()...');
       const { data: authUid, error: authError } = await supabase
         .rpc('debug_auth_uid');
@@ -29,7 +39,7 @@ export function AuthDebug() {
       results.authUid = { data: authUid, error: authError };
       console.log('Auth UID result:', results.authUid);
 
-      // Test 2: Try to fetch trackable items
+      // Test 3: Try to fetch trackable items
       console.log('🔍 Testing trackable_items access...');
       const { data: trackableItems, error: trackableError } = await supabase
         .from('trackable_items')
@@ -43,7 +53,7 @@ export function AuthDebug() {
       };
       console.log('Trackable items result:', results.trackableItems);
 
-      // Test 3: Try to fetch logged entries
+      // Test 4: Try to fetch logged entries
       console.log('🔍 Testing logged_entries access...');
       const { data: loggedEntries, error: entriesError } = await supabase
         .from('logged_entries')
@@ -57,7 +67,7 @@ export function AuthDebug() {
       };
       console.log('Logged entries result:', results.loggedEntries);
 
-      // Test 4: Try to fetch experiments
+      // Test 5: Try to fetch experiments
       console.log('🔍 Testing experiments access...');
       const { data: experiments, error: experimentsError } = await supabase
         .from('experiments')
@@ -71,7 +81,7 @@ export function AuthDebug() {
       };
       console.log('Experiments result:', results.experiments);
 
-      // Test 5: Try to fetch community findings
+      // Test 6: Try to fetch community findings
       console.log('🔍 Testing community_findings access...');
       const { data: findings, error: findingsError } = await supabase
         .from('community_findings')
@@ -85,16 +95,33 @@ export function AuthDebug() {
       };
       console.log('Community findings result:', results.communityFindings);
 
-      // Test 6: Check current session
-      console.log('🔍 Testing session...');
-      const { data: session, error: sessionError } = await supabase.auth.getSession();
-      results.session = {
-        hasSession: !!session.session,
-        hasUser: !!session.session?.user,
-        userId: session.session?.user?.id,
-        error: sessionError
+      // Test 7: Try to create a test trackable item
+      console.log('🔍 Testing trackable_items creation...');
+      const { data: createResult, error: createError } = await supabase
+        .from('trackable_items')
+        .insert({
+          name: 'Debug Test Item',
+          category: 'INPUT',
+          type: 'SCALE_1_10',
+          is_active: true
+        })
+        .select()
+        .single();
+      
+      results.createTest = { 
+        data: createResult, 
+        error: createError,
+        success: !createError
       };
-      console.log('Session result:', results.session);
+      console.log('Create test result:', results.createTest);
+
+      // Clean up test item if created successfully
+      if (createResult?.id) {
+        await supabase
+          .from('trackable_items')
+          .delete()
+          .eq('id', createResult.id);
+      }
 
     } catch (error) {
       console.error('Debug test error:', error);
@@ -127,7 +154,6 @@ export function AuthDebug() {
         <Button 
           onClick={runDebugTests} 
           loading={loading}
-          disabled={!user}
           className="w-full"
         >
           Run Database Access Tests

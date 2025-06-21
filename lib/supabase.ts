@@ -38,13 +38,18 @@ if (!isBuildTime) {
   }
 }
 
-export const supabase = createClient(clientUrl, clientKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
+// CRITICAL: Use the new client creation method for consistency
+import { createClient as createBrowserClient } from './supabase/client';
+
+// Create the singleton client
+let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null;
+
+export const supabase = (() => {
+  if (!supabaseInstance) {
+    supabaseInstance = createBrowserClient();
   }
-});
+  return supabaseInstance;
+})();
 
 export type Database = {
   public: {
