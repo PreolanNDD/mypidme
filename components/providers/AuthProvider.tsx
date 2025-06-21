@@ -34,45 +34,100 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('AuthProvider: Fetching user profile for:', userId);
       const supabase = createClient();
-      const { data, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+      
+      // Add a timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000); // 10 second timeout
+      });
+      
+      const fetchPromise = supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+      
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
       
       if (error) {
         // Check if it's the specific "no rows returned" error
         if (error.code === 'PGRST116') {
-          console.log('AuthProvider: User profile not found, returning null');
-          return null;
+          console.log('AuthProvider: User profile not found, this might be a new user');
+          // For new users, we might need to create a profile
+          try {
+            console.log('AuthProvider: Attempting to create user profile...');
+            const { data: newProfile, error: createError } = await supabase
+              .from('users')
+              .insert({
+                id: userId,
+                first_name: null,
+                last_name: null
+              })
+              .select()
+              .single();
+            
+            if (createError) {
+              console.error('AuthProvider: Error creating user profile:', createError);
+              return null;
+            }
+            
+            console.log('AuthProvider: User profile created successfully');
+            return newProfile;
+          } catch (createErr) {
+            console.error('AuthProvider: Failed to create user profile:', createErr);
+            return null;
+          }
         }
         throw error;
       }
       
-      console.log('AuthProvider: User profile fetched successfully.');
+      console.log('AuthProvider: User profile fetched successfully');
       return data;
     } catch (error) {
       console.error('AuthProvider: Error fetching user profile:', error);
+      // Don't throw the error, just return null and continue
       return null;
     }
   }, []);
 
   useEffect(() => {
-    console.log("AuthProvider: Main useEffect starting up (should run only once).");
+    console.log("AuthProvider: Main useEffect starting up");
 
     const supabase = createClient();
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('AuthProvider: Error getting initial session:', error);
-      } else {
-        console.log('AuthProvider: Initial session retrieved:', !!session);
-        setSession(session);
-        setUser(session?.user ?? null);
+    // Get initial session with timeout
+    const initializeAuth = async () => {
+      try {
+        console.log('AuthProvider: Getting initial session...');
         
-        if (session?.user) {
-          fetchUserProfile(session.user.id).then(setUserProfile);
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Session fetch timeout')), 5000); // 5 second timeout
+        });
+        
+        const sessionPromise = supabase.auth.getSession();
+        
+        const { data: { session }, error } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        
+        if (error) {
+          console.error('AuthProvider: Error getting initial session:', error);
+        } else {
+          console.log('AuthProvider: Initial session retrieved:', !!session);
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            console.log('AuthProvider: Fetching profile for authenticated user...');
+            const profile = await fetchUserProfile(session.user.id);
+            setUserProfile(profile);
+          }
         }
+      } catch (error) {
+        console.error('AuthProvider: Failed to initialize auth:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -83,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile for new or changed user
+          // Only fetch profile if we don't have one or it's for a different user
           if (!userProfile || userProfile.id !== session.user.id) {
             console.log("AuthProvider: Fetching profile for new or changed user...");
             const profile = await fetchUserProfile(session.user.id);
@@ -104,7 +159,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("AuthProvider: Cleaning up auth subscription.");
       subscription?.unsubscribe();
     };
-  }, [fetchUserProfile, router, userProfile]);
+  }, [fetchUserProfile, router]);
 
   
   const refreshUserProfile = useCallback(async () => {
