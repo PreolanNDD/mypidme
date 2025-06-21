@@ -24,36 +24,48 @@ export async function createFindingAction(
 
   try {
     console.log('🔧 [createFindingAction] Step 1: Creating Supabase client...');
-    // Create authenticated Supabase client
-    const supabase = createClient();
-    console.log('✅ [createFindingAction] Supabase client created successfully');
+    
+    // Create authenticated Supabase client with error handling
+    let supabase;
+    try {
+      supabase = createClient();
+      console.log('✅ [createFindingAction] Supabase client created successfully');
+    } catch (clientError) {
+      console.error('❌ [createFindingAction] Failed to create Supabase client:', clientError);
+      return { message: 'Authentication service unavailable. Please try again.' };
+    }
     
     console.log('🔐 [createFindingAction] Step 2: Getting authenticated user...');
-    // Get the current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    if (userError) {
-      console.error('❌ [createFindingAction] Authentication error:', {
-        error: userError,
-        code: userError.code,
-        message: userError.message
+    // Get the current user with error handling
+    let user;
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error('❌ [createFindingAction] Authentication error:', {
+          error: userError,
+          code: userError.code,
+          message: userError.message
+        });
+        return { message: 'You must be logged in to create a finding' };
+      }
+
+      if (!userData?.user) {
+        console.error('❌ [createFindingAction] No user found in session');
+        return { message: 'You must be logged in to create a finding' };
+      }
+      
+      user = userData.user;
+      console.log('✅ [createFindingAction] User authenticated successfully:', {
+        userId: user.id,
+        email: user.email,
+        lastSignIn: user.last_sign_in_at
       });
-      return { message: 'You must be logged in to create a finding' };
+    } catch (authError) {
+      console.error('❌ [createFindingAction] Authentication check failed:', authError);
+      return { message: 'Authentication failed. Please try logging in again.' };
     }
-
-    if (!user) {
-      console.error('❌ [createFindingAction] No user found in session');
-      return { message: 'You must be logged in to create a finding' };
-    }
-
-    console.log('✅ [createFindingAction] User authenticated successfully:', {
-      userId: user.id,
-      email: user.email,
-      lastSignIn: user.last_sign_in_at,
-      role: user.role,
-      appMetadata: user.app_metadata,
-      userMetadata: user.user_metadata
-    });
 
     console.log('📝 [createFindingAction] Step 3: Extracting form data...');
     // Extract data from FormData
@@ -241,18 +253,31 @@ export async function shareFindingAction(data: ShareFindingData) {
   });
 
   try {
-    // Create authenticated Supabase client
-    const supabase = createClient();
-    
-    // Get the current user
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      console.error('❌ [shareFindingAction] Authentication failed:', userError);
-      throw new Error('You must be logged in to share a finding');
+    // Create authenticated Supabase client with error handling
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch (clientError) {
+      console.error('❌ [shareFindingAction] Failed to create Supabase client:', clientError);
+      throw new Error('Authentication service unavailable. Please try again.');
     }
-
-    console.log('✅ [shareFindingAction] User authenticated:', user.id);
+    
+    // Get the current user with error handling
+    let user;
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !userData?.user) {
+        console.error('❌ [shareFindingAction] Authentication failed:', userError);
+        throw new Error('You must be logged in to share a finding');
+      }
+      
+      user = userData.user;
+      console.log('✅ [shareFindingAction] User authenticated:', user.id);
+    } catch (authError) {
+      console.error('❌ [shareFindingAction] Authentication check failed:', authError);
+      throw new Error('Authentication failed. Please try logging in again.');
+    }
 
     // Prepare the finding data based on context type
     const insertData = {
@@ -337,18 +362,31 @@ export async function castVoteAction(
   }
 
   try {
-    // Create authenticated Supabase client
-    const supabase = createClient();
+    // Create authenticated Supabase client with error handling
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch (clientError) {
+      console.error('❌ [castVoteAction] Failed to create Supabase client:', clientError);
+      return { error: 'Authentication service unavailable. Please try again.' };
+    }
     
     // Get the current user to verify authentication
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user || user.id !== userId) {
-      console.error('❌ [castVoteAction] Authentication failed:', userError);
-      return { error: 'You must be logged in to vote.' };
+    let user;
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !userData?.user || userData.user.id !== userId) {
+        console.error('❌ [castVoteAction] Authentication failed:', userError);
+        return { error: 'You must be logged in to vote.' };
+      }
+      
+      user = userData.user;
+      console.log('✅ [castVoteAction] User authenticated:', user.id);
+    } catch (authError) {
+      console.error('❌ [castVoteAction] Authentication check failed:', authError);
+      return { error: 'Authentication failed. Please try logging in again.' };
     }
-
-    console.log('✅ [castVoteAction] User authenticated:', user.id);
 
     // First, check if user has already voted
     console.log('🔍 [castVoteAction] Checking for existing vote...');
@@ -462,18 +500,31 @@ export async function reportFindingAction(
   }
 
   try {
-    // Create authenticated Supabase client
-    const supabase = createClient();
+    // Create authenticated Supabase client with error handling
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch (clientError) {
+      console.error('❌ [reportFindingAction] Failed to create Supabase client:', clientError);
+      return { error: 'Authentication service unavailable. Please try again.' };
+    }
     
     // Get the current user to verify authentication
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user || user.id !== userId) {
-      console.error('❌ [reportFindingAction] Authentication failed:', userError);
-      return { error: 'You must be logged in to report a finding.' };
+    let user;
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !userData?.user || userData.user.id !== userId) {
+        console.error('❌ [reportFindingAction] Authentication failed:', userError);
+        return { error: 'You must be logged in to report a finding.' };
+      }
+      
+      user = userData.user;
+      console.log('✅ [reportFindingAction] User authenticated:', user.id);
+    } catch (authError) {
+      console.error('❌ [reportFindingAction] Authentication check failed:', authError);
+      return { error: 'Authentication failed. Please try logging in again.' };
     }
-
-    console.log('✅ [reportFindingAction] User authenticated:', user.id);
 
     // Insert the report into the database
     console.log('📝 [reportFindingAction] Creating report in database...');

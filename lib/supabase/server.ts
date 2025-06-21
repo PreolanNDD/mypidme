@@ -6,11 +6,23 @@ import { cookies } from 'next/headers'
 export const createClient = () => {
   console.log('🔧 [Supabase Server Client] Creating server client...');
   
+  // Validate environment variables
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('❌ [Supabase Server Client] Missing environment variables:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseAnonKey
+    });
+    throw new Error('Missing Supabase environment variables');
+  }
+  
   const cookieStore = cookies()
 
   const client = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       auth: {
         autoRefreshToken: true,
@@ -20,11 +32,16 @@ export const createClient = () => {
       },
       cookies: {
         get(name: string) {
-          const value = cookieStore.get(name)?.value;
-          if (name.includes('supabase') || name.includes('auth')) {
-            console.log('🍪 [Supabase Server Client] Getting cookie:', { name, hasValue: !!value });
+          try {
+            const value = cookieStore.get(name)?.value;
+            if (name.includes('supabase') || name.includes('auth')) {
+              console.log('🍪 [Supabase Server Client] Getting cookie:', { name, hasValue: !!value });
+            }
+            return value;
+          } catch (error) {
+            console.error('❌ [Supabase Server Client] Error getting cookie:', { name, error });
+            return undefined;
           }
-          return value;
         },
         set(name: string, value: string, options: CookieOptions) {
           if (name.includes('supabase') || name.includes('auth')) {
