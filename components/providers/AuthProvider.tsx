@@ -31,40 +31,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   
   // Track if we're currently fetching a profile to prevent concurrent requests
-  const fetchingProfileRef = useRef<string | null>(null);
-  const profileCacheRef = useRef<Map<string, any>>(new Map());
+  const fetchingProfileRef = useRef<boolean>(false);
 
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
-    // Prevent concurrent fetches for the same user
-    if (fetchingProfileRef.current === userId && !forceRefresh) {
+    // Prevent concurrent fetches
+    if (fetchingProfileRef.current && !forceRefresh) {
       console.log('AuthProvider: Profile fetch already in progress for user:', userId);
-      return profileCacheRef.current.get(userId) || null;
+      return null;
     }
 
-    // Return cached profile if available and not forcing refresh
-    if (!forceRefresh && profileCacheRef.current.has(userId)) {
-      console.log('AuthProvider: Returning cached profile for user:', userId);
-      return profileCacheRef.current.get(userId);
-    }
-
-    fetchingProfileRef.current = userId;
+    fetchingProfileRef.current = true;
 
     try {
       console.log('AuthProvider: Fetching user profile for:', userId);
       const supabase = createClient();
       
-      // Add a shorter timeout for better UX
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000);
-      });
-      
-      const fetchPromise = supabase
+      const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
-      
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
       
       if (error) {
         // Check if it's the specific "no rows returned" error
@@ -87,43 +73,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               return null;
             }
             
-            console.log('AuthProvider: User profile created successfully');
-            // Cache the new profile
-            profileCacheRef.current.set(userId, newProfile);
+            console.log('AuthProvider: User profile created successfully:', newProfile);
             return newProfile;
           } catch (createErr) {
             console.error('AuthProvider: Failed to create user profile:', createErr);
             return null;
           }
         }
-        throw error;
+        console.error('AuthProvider: Error fetching user profile:', error);
+        return null;
       }
       
-      console.log('AuthProvider: User profile fetched successfully');
-      // Cache the profile
-      profileCacheRef.current.set(userId, data);
+      console.log('AuthProvider: User profile fetched successfully:', data);
       return data;
     } catch (error) {
       console.error('AuthProvider: Error fetching user profile:', error);
-      // Don't throw the error, just return null and continue
       return null;
     } finally {
-      fetchingProfileRef.current = null;
+      fetchingProfileRef.current = false;
     }
   }, []);
 
   useEffect(() => {
-    console.log("AuthProvider: Setting up auth state listener (modern approach)");
+    console.log("AuthProvider: Setting up auth state listener");
 
     const supabase = createClient();
 
     // Set up the auth state change listener - this is our single source of truth
-    // It will fire immediately with the current session (INITIAL_SESSION event)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log(`AuthProvider: Auth event received: ${event}`, session ? 'with session.' : 'without session.');
 
-        // Handle the initial session load - this replaces the manual getSession() call
+        // Handle the initial session load
         if (event === 'INITIAL_SESSION') {
           console.log('AuthProvider: Processing initial session');
           setLoading(false); // We can stop loading after the initial session is processed
@@ -144,30 +125,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // Handle specific events that should trigger profile updates
-        const shouldUpdateProfile = [
-          'INITIAL_SESSION',
-          'SIGNED_IN',
-          'TOKEN_REFRESHED',
-          'USER_UPDATED'
-        ].includes(event);
-
+        // Update session and user state
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Only fetch profile in specific cases to avoid unnecessary requests
-          if (shouldUpdateProfile || !userProfile || userProfile.id !== session.user.id) {
-            console.log(`AuthProvider: Fetching profile due to event: ${event}`);
-            const profile = await fetchUserProfile(session.user.id);
-            setUserProfile(profile);
-          } else {
-            console.log(`AuthProvider: Skipping profile fetch for event: ${event} (profile already exists)`);
-          }
+          // Fetch profile for authenticated user
+          console.log(`AuthProvider: Fetching profile for authenticated user: ${session.user.id}`);
+          const profile = await fetchUserProfile(session.user.id);
+          setUserProfile(profile);
         } else {
+          // Clear profile when user logs out
+          console.log('AuthProvider: Clearing user profile (no session)');
           setUserProfile(null);
-          // Clear profile cache when user logs out
-          profileCacheRef.current.clear();
         }
 
         if (event === 'PASSWORD_RECOVERY') {
@@ -181,7 +151,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("AuthProvider: Cleaning up auth subscription.");
       subscription?.unsubscribe();
     };
-  }, [fetchUserProfile, router]); // Removed userProfile from dependency array
+  }, [fetchUserProfile, router]);
 
   
   const refreshUserProfile = useCallback(async () => {
@@ -191,7 +161,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserProfile(profile);
     }
   }, [user, fetchUserProfile]);
-
 
   const value = useMemo(() => ({
     user,
