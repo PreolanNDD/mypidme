@@ -19,6 +19,12 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      },
       cookies: {
         get(name: string) {
           const value = request.cookies.get(name)?.value;
@@ -45,6 +51,10 @@ export async function middleware(request: NextRequest) {
             name,
             value,
             ...options,
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/'
           })
         },
         remove(name: string, options: CookieOptions) {
@@ -63,6 +73,8 @@ export async function middleware(request: NextRequest) {
             name,
             value: '',
             ...options,
+            maxAge: 0,
+            expires: new Date(0)
           })
         },
       },
@@ -75,7 +87,7 @@ export async function middleware(request: NextRequest) {
     const { data: { user }, error } = await supabase.auth.getUser();
     
     if (error) {
-      console.error('❌ [Middleware] Auth error:', error);
+      console.log('⚠️ [Middleware] Auth check returned error (this is normal for logged out users):', error.message);
     } else if (user) {
       console.log('✅ [Middleware] User authenticated:', { 
         userId: user.id, 
@@ -86,7 +98,7 @@ export async function middleware(request: NextRequest) {
       console.log('👤 [Middleware] No authenticated user found');
     }
   } catch (error) {
-    console.error('💥 [Middleware] Critical auth check error:', error);
+    console.log('💥 [Middleware] Auth check failed (this is normal for logged out users):', error);
   }
 
   console.log('🔧 [Middleware] Request processing complete, forwarding to app');

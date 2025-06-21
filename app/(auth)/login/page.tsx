@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -24,18 +24,31 @@ export default function Login() {
     setError('');
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const supabase = createClient();
+      
+      console.log('🔐 [Login] Attempting sign in for:', formData.email);
+      
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
       if (signInError) {
+        console.error('❌ [Login] Sign in error:', signInError);
         setError(signInError.message);
         return;
       }
 
-      router.push('/dashboard');
+      console.log('✅ [Login] Sign in successful:', {
+        userId: data.user?.id,
+        email: data.user?.email,
+        hasSession: !!data.session
+      });
+
+      // Force a page refresh to ensure the auth state is properly updated
+      window.location.href = '/dashboard';
     } catch (err) {
+      console.error('💥 [Login] Unexpected error:', err);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);

@@ -58,8 +58,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const supabase = createClient();
 
-    // We rely solely on onAuthStateChange as the single source of truth.
-    // It fires with the initial session ('INITIAL_SESSION') right away.
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('AuthProvider: Error getting initial session:', error);
+      } else {
+        console.log('AuthProvider: Initial session retrieved:', !!session);
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          fetchUserProfile(session.user.id).then(setUserProfile);
+        }
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log(`AuthProvider: Auth event received: ${event}`, session ? 'with session.' : 'without session.');
@@ -68,20 +83,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // This will run on INITIAL_SESSION and SIGNED_IN
-          // We can add a check to prevent re-fetching if the profile already exists for this user
+          // Fetch profile for new or changed user
           if (!userProfile || userProfile.id !== session.user.id) {
             console.log("AuthProvider: Fetching profile for new or changed user...");
             const profile = await fetchUserProfile(session.user.id);
             setUserProfile(profile);
           }
         } else {
-          // This will run on SIGNED_OUT or if the initial session is null
           setUserProfile(null);
         }
-        
-        // The initial loading is finished after the first event is handled.
-        setLoading(false);
 
         if (event === 'PASSWORD_RECOVERY') {
           console.log("AuthProvider: Password recovery detected, redirecting...");
@@ -94,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("AuthProvider: Cleaning up auth subscription.");
       subscription?.unsubscribe();
     };
-  }, [fetchUserProfile, router, userProfile]); // Dependencies are stable or controlled
+  }, [fetchUserProfile, router, userProfile]);
 
   
   const refreshUserProfile = useCallback(async () => {

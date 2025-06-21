@@ -10,6 +10,12 @@ export const createClient = () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      },
       cookies: {
         get(name: string) {
           const value = cookieStore.get(name)?.value;
@@ -23,7 +29,14 @@ export const createClient = () => {
             console.log('🍪 [Supabase Server Client] Setting cookie:', { name, hasValue: !!value, options });
           }
           try {
-            cookieStore.set({ name, value, ...options })
+            cookieStore.set({ 
+              name, 
+              value, 
+              ...options,
+              httpOnly: false,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax'
+            })
           } catch (error) { 
             console.error('❌ [Supabase Server Client] Error setting cookie:', { name, error });
           }
@@ -31,7 +44,13 @@ export const createClient = () => {
         remove(name: string, options: CookieOptions) {
           console.log('🗑️ [Supabase Server Client] Removing cookie:', { name, options });
           try {
-            cookieStore.set({ name, value: '', ...options })
+            cookieStore.set({ 
+              name, 
+              value: '', 
+              ...options,
+              maxAge: 0,
+              expires: new Date(0)
+            })
           } catch (error) { 
             console.error('❌ [Supabase Server Client] Error removing cookie:', { name, error });
           }

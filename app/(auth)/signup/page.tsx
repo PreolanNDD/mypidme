@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -28,6 +28,10 @@ const handleSubmit = async (e: React.FormEvent) => {
   setSuccess('');
 
   try {
+    const supabase = createClient();
+    
+    console.log('🔐 [SignUp] Attempting sign up for:', formData.email);
+
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
@@ -40,35 +44,40 @@ const handleSubmit = async (e: React.FormEvent) => {
     });
 
     if (signUpError) {
-      // This will catch password strength errors, invalid emails, etc.
+      console.error('❌ [SignUp] Sign up error:', signUpError);
       setError(signUpError.message);
       return; 
     }
     
-    // --- The Final, Correct Logic ---
+    console.log('📊 [SignUp] Sign up response:', {
+      hasUser: !!data.user,
+      hasSession: !!data.session,
+      identitiesCount: data.user?.identities?.length || 0
+    });
 
     // Case 1: User already exists.
-    // Supabase indicates this by returning a user object with an empty identities array.
     if (data.user && data.user.identities && data.user.identities.length === 0) {
+      console.log('⚠️ [SignUp] User already exists');
       setError('This email is already registered. Please log in instead.');
       return;
     }
 
     // Case 2: Successful sign-up with immediate login (email confirmation is OFF)
     if (data.user && data.session) {
-      router.push('/dashboard');
+      console.log('✅ [SignUp] Sign up successful with immediate login');
+      // Force a page refresh to ensure the auth state is properly updated
+      window.location.href = '/dashboard';
       return;
     }
     
     // Case 3: Successful sign-up, but email confirmation is required
-    // This is the default case if a user object exists.
     if (data.user) {
+      console.log('📧 [SignUp] Sign up successful, email confirmation required');
       setSuccess('Account created! Please check your email to confirm your account.');
     }
 
   } catch (err: any) {
-    // This will catch any other unexpected errors, like network issues.
-    console.error('A critical error occurred during signup:', err);
+    console.error('💥 [SignUp] Unexpected error:', err);
     setError('An unexpected error occurred. Please try again.');
   } finally {
     setLoading(false);
