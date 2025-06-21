@@ -16,6 +16,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     // The core logic: if the initial auth check is done and there is still no user,
     // redirect them to the login page.
     if (!loading && !user) {
+      console.log('ProtectedRoute: No authenticated user found, redirecting to login');
       router.push('/login');
     }
     // This effect runs whenever the loading or user state changes.

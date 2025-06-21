@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Add a shorter timeout for better UX
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000); // Reduced to 5 seconds
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000);
       });
       
       const fetchPromise = supabase
@@ -69,10 +69,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         // Check if it's the specific "no rows returned" error
         if (error.code === 'PGRST116') {
-          console.log('AuthProvider: User profile not found, this might be a new user');
-          // For new users, we might need to create a profile
+          console.log('AuthProvider: User profile not found, creating new profile...');
+          // For new users, create a profile
           try {
-            console.log('AuthProvider: Attempting to create user profile...');
             const { data: newProfile, error: createError } = await supabase
               .from('users')
               .insert({
@@ -125,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('AuthProvider: Getting initial session...');
         
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Session fetch timeout')), 3000); // Reduced timeout
+          setTimeout(() => reject(new Error('Session fetch timeout')), 3000);
         });
         
         const sessionPromise = supabase.auth.getSession();
