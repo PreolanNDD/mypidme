@@ -1,97 +1,45 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
-export async function middleware(request: NextRequest) {
+export async function middleware(req: NextRequest) {
   console.log('🔧 [Middleware] Request intercepted:', {
-    url: request.url,
-    method: request.method,
-    pathname: request.nextUrl.pathname,
-    timestamp: new Date().toISOString()
-  });
-
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    url: req.url,
+    method: req.method,
+    pathname: req.nextUrl.pathname,
+    timestamp: new Date().toISOString(),
   })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          const value = request.cookies.get(name)?.value;
-          if (name.includes('supabase') || name.includes('auth')) {
-            console.log('🍪 [Middleware] Getting cookie:', { name, hasValue: !!value });
-          }
-          return value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          if (name.includes('supabase') || name.includes('auth')) {
-            console.log('🍪 [Middleware] Setting cookie:', { name, hasValue: !!value, options });
-          }
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: CookieOptions) {
-          console.log('🗑️ [Middleware] Removing cookie:', { name, options });
-          request.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value: '',
-            ...options,
-          })
-        },
-      },
-    }
-  )
+  const res = NextResponse.next()
+
+  const supabase = createMiddlewareClient({ req, res })
 
   try {
-    console.log('🔐 [Middleware] Checking user authentication...');
-    // This will refresh the user's session cookie if it's expired
-    const { data: { user }, error } = await supabase.auth.getUser();
-    
+    console.log('🔐 [Middleware] Checking user authentication...')
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+
     if (error) {
-      console.error('❌ [Middleware] Auth error:', error);
+      console.error('❌ [Middleware] Auth error:', error)
     } else if (user) {
-      console.log('✅ [Middleware] User authenticated:', { 
-        userId: user.id, 
+      console.log('✅ [Middleware] User authenticated:', {
+        userId: user.id,
         email: user.email,
-        lastSignIn: user.last_sign_in_at 
-      });
+        lastSignIn: user.last_sign_in_at,
+      })
     } else {
-      console.log('👤 [Middleware] No authenticated user found');
+      console.log('👤 [Middleware] No authenticated user found')
     }
   } catch (error) {
-    console.error('💥 [Middleware] Critical auth check error:', error);
+    console.error('💥 [Middleware] Critical auth check error:', error)
   }
 
-  console.log('🔧 [Middleware] Request processing complete, forwarding to app');
-  return response;
+  console.log('🔧 [Middleware] Request processing complete, forwarding to app')
+  return res
 }
+
 
 // Ensure the middleware is only called for relevant paths.
 export const config = {
