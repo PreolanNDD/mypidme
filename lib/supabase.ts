@@ -38,7 +38,7 @@ if (!isBuildTime) {
   }
 }
 
-// CRITICAL: Use the new client creation method for consistency
+// Use the new client creation method for consistency
 import { createClient as createBrowserClient } from './supabase/client';
 
 // Create the singleton client
