@@ -214,23 +214,30 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   console.log('Fetching user profile for:', userId);
   
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('id, first_name, last_name, created_at')
-    .eq('id', userId)
-    .single();
+  try {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, first_name, last_name, created_at')
+      .eq('id', userId)
+      .single();
 
-  if (error) {
-    if (error.code === 'PGRST116') {
-      console.log('User not found:', userId);
+    if (error) {
+      if (error.code === 'PGRST116') {
+        console.log('User not found:', userId);
+        return null;
+      }
+      console.error('Error fetching user profile:', error);
+      // Return null instead of throwing to prevent terminal error logging
       return null;
     }
-    console.error('Error fetching user profile:', error);
-    throw new Error(`Failed to fetch user profile: ${error.message}`);
-  }
 
-  console.log('Fetched user profile:', user);
-  return user;
+    console.log('Fetched user profile:', user);
+    return user;
+  } catch (error) {
+    console.error('Unexpected error fetching user profile:', error);
+    // Return null instead of throwing to prevent terminal error logging
+    return null;
+  }
 }
 
 export async function getUserVotes(userId: string, findingIds: string[]): Promise<FindingVote[]> {

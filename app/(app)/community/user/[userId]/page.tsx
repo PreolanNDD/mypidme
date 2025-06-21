@@ -23,30 +23,25 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
     notFound();
   }
 
-  try {
-    // Fetch the user profile and their findings
-    const [userProfile, userFindings] = await Promise.all([
-      getUserProfile(userId),
-      getUserFindings(userId)
-    ]);
+  // Fetch the user profile and their findings
+  const [userProfile, userFindings] = await Promise.all([
+    getUserProfile(userId),
+    getUserFindings(userId)
+  ]);
 
-    // If user doesn't exist, show 404
-    if (!userProfile) {
-      console.log(`❌ User not found for ID: ${userId}`);
-      notFound();
-    }
-
-    console.log(`✅ User profile found for ID: ${userId}, findings: ${userFindings.length}`);
-
-    // Render the Client Component with the fetched data
-    return (
-      <UserProfileClient 
-        userProfile={userProfile} 
-        userFindings={userFindings} 
-      />
-    );
-  } catch (error) {
-    console.error(`❌ Error fetching user profile for ID: ${userId}`, error);
+  // If user doesn't exist, show 404
+  if (!userProfile) {
+    console.log(`❌ User not found for ID: ${userId}`);
     notFound();
   }
+
+  console.log(`✅ User profile found for ID: ${userId}, findings: ${userFindings.length}`);
+
+  // Render the Client Component with the fetched data
+  return (
+    <UserProfileClient 
+      userProfile={userProfile} 
+      userFindings={userFindings} 
+    />
+  );
 }
