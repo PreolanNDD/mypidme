@@ -6,6 +6,7 @@ import { getDashboardStats, getTodaysEntries } from '@/lib/dashboard-stats';
 import { TodaysLogWidget } from '@/components/dashboard/TodaysLogWidget';
 import { StreaksStatsWidget } from '@/components/dashboard/StreaksStatsWidget';
 import { AnalyzeDataWidget } from '@/components/dashboard/AnalyzeDataWidget';
+import { ExperimentProgressWidget } from '@/components/dashboard/ExperimentProgressWidget';
 import { Settings2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -67,12 +68,15 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Main Today's Log Widget */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-8">
               <TodaysLogWidget
                 trackableItems={trackableItems}
                 todaysEntries={todaysEntries}
                 loading={isLoading}
               />
+
+              {/* Experiment Progress Widget */}
+              <ExperimentProgressWidget />
             </div>
 
             {/* Right Column - Supporting Widgets */}
