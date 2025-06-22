@@ -50,7 +50,7 @@ export function Sidebar() {
               alt="PIDMe Logo"
               width={320}
               height={120}
-              className="h-24 w-auto rounded-3xl"
+              className="h-24 w-auto rounded-5xl"
             />
           )}
         </div>
