@@ -47,9 +47,9 @@ export default function AuthLayout({
   // Render all auth pages with responsive layout
   return (
     <div className="min-h-screen w-full flex overflow-hidden relative">
-      {/* Left Side - Auth Form with Background (Desktop: 5/13 of screen, Mobile: Full screen) */}
+      {/* Left Side - Auth Form with Background (Desktop: 7/12 of screen, Mobile: Full screen) */}
       <div 
-        className="flex-shrink-0 h-screen relative flex items-center justify-center w-full lg:w-5/13"
+        className="flex-shrink-0 h-screen relative flex items-center justify-center w-full lg:w-7/12"
         style={{
           backgroundImage: 'url(/images/login_form_background.webp)',
           backgroundSize: 'cover',
@@ -68,9 +68,9 @@ export default function AuthLayout({
         </div>
       </div>
 
-      {/* Right Side - Background Image (Desktop only: 8/13 of screen, Hidden on tablet and mobile) */}
+      {/* Right Side - Background Image (Desktop only: 5/12 of screen, Hidden on tablet and mobile) */}
       <div 
-        className="hidden lg:flex flex-1 h-screen relative w-8/13"
+        className="hidden lg:flex flex-1 h-screen relative w-5/12"
         style={{
           backgroundImage: 'url(/images/login_background.webp)',
           backgroundSize: 'cover',
