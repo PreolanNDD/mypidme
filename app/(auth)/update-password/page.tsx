@@ -67,9 +67,9 @@ export default function UpdatePassword() {
             <Image
               src="/images/logo.svg"
               alt="PIDMe Logo"
-              width={120}
-              height={40}
-              className="h-10 w-auto"
+              width={0}
+              height={0}
+              className="w-auto h-auto"
             />
           </div>
           <div className="flex justify-center mb-4">
@@ -101,9 +101,9 @@ export default function UpdatePassword() {
           <Image
             src="/images/logo.svg"
             alt="PIDMe Logo"
-            width={120}
-            height={40}
-            className="h-10 w-auto"
+            width={0}
+            height={0}
+            className="w-auto h-auto"
           />
         </div>
         <h1 className="font-heading text-2xl text-primary-text mb-2">

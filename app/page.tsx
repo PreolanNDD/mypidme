@@ -59,9 +59,9 @@ export default function Home() {
               <Image
                 src="/images/logo.svg"
                 alt="PIDMe Logo"
-                width={120}
-                height={40}
-                className="h-10 w-auto"
+                width={0}
+                height={0}
+                className="w-auto h-auto"
               />
             </div>
 
