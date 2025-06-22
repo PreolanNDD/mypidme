@@ -48,9 +48,9 @@ export function Sidebar() {
             <Image
               src="/images/logo.svg"
               alt="PIDMe Logo"
-              width={120}
-              height={40}
-              className="h-8 w-auto"
+              width={160}
+              height={60}
+              className="h-12 w-auto"
             />
           )}
         </div>
@@ -64,9 +64,9 @@ export function Sidebar() {
             <Image
               src="/images/logo_closed.svg"
               alt="PIDMe"
-              width={32}
-              height={32}
-              className="h-8 w-8"
+              width={48}
+              height={48}
+              className="h-12 w-12"
             />
           )}
         </div>
