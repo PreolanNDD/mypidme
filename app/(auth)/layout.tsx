@@ -34,6 +34,21 @@ export default function AuthLayout({
     );
   }
 
+  // For login and signup pages, render without any container - FULL SCREEN
+  if (pathname === '/login' || pathname === '/signup') {
+    // Don't render if user is authenticated (will redirect)
+    if (user) {
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      );
+    }
+    
+    // Render children directly without any wrapper for full screen layout
+    return children;
+  }
+
   // Allow access to update-password page regardless of auth state
   if (pathname === '/update-password') {
     return (
@@ -54,12 +69,7 @@ export default function AuthLayout({
     );
   }
 
-  // For login and signup pages, render without any container
-  if (pathname === '/login' || pathname === '/signup') {
-    return <>{children}</>;
-  }
-
-  // For other auth pages (like forgot-password), keep the centered container
+  // For other auth pages (like forgot-password), use centered container
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full">
