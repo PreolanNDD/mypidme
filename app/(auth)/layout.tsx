@@ -54,6 +54,12 @@ export default function AuthLayout({
     );
   }
 
+  // For login and signup pages, render without any container
+  if (pathname === '/login' || pathname === '/signup') {
+    return <>{children}</>;
+  }
+
+  // For other auth pages (like forgot-password), keep the centered container
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full">
