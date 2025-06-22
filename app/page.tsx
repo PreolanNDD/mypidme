@@ -38,9 +38,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full flex overflow-hidden relative">
-      {/* Left Side - Welcome Content with Background (5/13 of screen) */}
+      {/* Left Side - Welcome Content with Background (Desktop: 5/13 of screen, Mobile: Full screen) */}
       <div 
-        className="flex-shrink-0 h-screen relative flex items-center justify-center w-5/13"
+        className="flex-shrink-0 h-screen relative flex items-center justify-center w-full lg:w-5/13"
         style={{
           backgroundImage: 'url(/images/login_form_background.webp)',
           backgroundSize: 'cover',
@@ -116,9 +116,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Right Side - Background Image (8/13 of screen) */}
+      {/* Right Side - Background Image (Desktop only: 8/13 of screen, Hidden on tablet and mobile) */}
       <div 
-        className="flex-1 h-screen relative w-8/13"
+        className="hidden lg:flex flex-1 h-screen relative w-8/13"
         style={{
           backgroundImage: 'url(/images/login_background.webp)',
           backgroundSize: 'cover',
@@ -130,8 +130,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/5"></div>
       </div>
 
-      {/* Footer */}
-      <footer className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-black/10 backdrop-blur-sm border-t border-white/10">
+      {/* Footer - Only show on mobile/tablet when full screen */}
+      <footer className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-black/10 backdrop-blur-sm border-t border-white/10 lg:hidden">
         <p className="text-center text-sm text-white/80">
           © 2024 PIDMe. Engineering your personal optimization.
         </p>
