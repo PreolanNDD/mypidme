@@ -48,25 +48,9 @@ export function Sidebar() {
             <Image
               src="/images/logo.svg"
               alt="PIDMe Logo"
-              width={160}
-              height={60}
-              className="h-12 w-auto"
-            />
-          )}
-        </div>
-        
-        {/* Collapsed Logo */}
-        <div className={cn(
-          "transition-all duration-300 ease-in-out",
-          !isOpen ? "opacity-100" : "opacity-0 w-0 overflow-hidden absolute"
-        )}>
-          {!isOpen && (
-            <Image
-              src="/images/logo_closed.svg"
-              alt="PIDMe"
-              width={48}
-              height={48}
-              className="h-12 w-12"
+              width={320}
+              height={120}
+              className="h-24 w-auto rounded-xl"
             />
           )}
         </div>
