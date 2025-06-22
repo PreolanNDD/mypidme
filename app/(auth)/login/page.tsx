@@ -64,10 +64,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Login Form with Background */}
+    <div className="h-screen w-screen flex overflow-hidden">
+      {/* Left Side - Login Form with Background (5/13 of screen) */}
       <div 
-        className="w-5/13 relative flex items-center justify-center"
+        className="w-5/13 h-full relative flex items-center justify-center"
         style={{
           backgroundImage: 'url(/images/login_form_background.webp)',
           backgroundSize: 'cover',
@@ -75,11 +75,11 @@ export default function Login() {
           backgroundRepeat: 'no-repeat'
         }}
       >
-        {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/20"></div>
+        {/* Subtle overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/10"></div>
         
-        {/* Login Form Container */}
-        <div className="relative z-10 w-full max-w-md px-8 pt-32">
+        {/* Login Form Container - Positioned below center for logo */}
+        <div className="relative z-10 w-full max-w-sm px-8 mt-16">
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
             {/* Header */}
             <div className="text-center mb-8">
@@ -163,9 +163,9 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Side - Background Image */}
+      {/* Right Side - Background Image (8/13 of screen) */}
       <div 
-        className="w-8/13 relative"
+        className="w-8/13 h-full relative"
         style={{
           backgroundImage: 'url(/images/login_background.webp)',
           backgroundSize: 'cover',
@@ -173,15 +173,8 @@ export default function Login() {
           backgroundRepeat: 'no-repeat'
         }}
       >
-        {/* Optional overlay for aesthetic enhancement */}
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/10"></div>
-        
-        {/* Optional content overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white max-w-lg px-8">
-            {/* You can add inspirational content here if desired */}
-          </div>
-        </div>
+        {/* Subtle gradient overlay for visual enhancement */}
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/5"></div>
       </div>
     </div>
   );
