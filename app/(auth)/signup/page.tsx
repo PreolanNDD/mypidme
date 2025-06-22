@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Settings2 } from 'lucide-react';
 
 export default function SignUp() {
@@ -92,35 +91,37 @@ const handleSubmit = async (e: React.FormEvent) => {
   };
 
   return (
-    <Card>
-      <CardHeader className="text-center space-y-4">
-        <div className="flex justify-center">
-          <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+    <>
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg">
             <Settings2 className="w-6 h-6 text-white" />
           </div>
         </div>
-        <h1 className="font-heading text-2xl text-primary-text">
-          Create your PIDMe Account
+        <h1 className="font-heading text-2xl text-primary-text mb-2">
+          Create Your Account
         </h1>
-        <p className="text-secondary-text">
+        <p className="text-secondary-text text-sm">
           Start optimizing your life with precision
         </p>
-      </CardHeader>
+      </div>
       
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
 
-          {success && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-600">{success}</p>
-            </div>
-          )}
+        {success && (
+          <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+            <p className="text-sm text-green-600">{success}</p>
+          </div>
+        )}
 
+        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="First Name"
@@ -130,6 +131,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               onChange={handleInputChange}
               placeholder="First name"
               required
+              className="bg-white/80 border-gray-200 focus:border-primary focus:ring-primary/20"
             />
 
             <Input
@@ -140,6 +142,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               onChange={handleInputChange}
               placeholder="Last name"
               required
+              className="bg-white/80 border-gray-200 focus:border-primary focus:ring-primary/20"
             />
           </div>
 
@@ -151,6 +154,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             onChange={handleInputChange}
             placeholder="Enter your email address"
             required
+            className="bg-white/80 border-gray-200 focus:border-primary focus:ring-primary/20"
           />
 
           <Input
@@ -162,30 +166,32 @@ const handleSubmit = async (e: React.FormEvent) => {
             placeholder="Choose a secure password (min 6 characters)"
             required
             minLength={6}
+            className="bg-white/80 border-gray-200 focus:border-primary focus:ring-primary/20"
           />
-
-          <Button
-            type="submit"
-            className="w-full"
-            loading={loading}
-            disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.password}
-          >
-            Create Account
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center space-y-2">
-          <p className="text-secondary-text">
-            Already have an account?{' '}
-            <Link 
-              href="/login" 
-              className="text-primary hover:underline font-medium"
-            >
-              Log in
-            </Link>
-          </p>
         </div>
-      </CardContent>
-    </Card>
+
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+          loading={loading}
+          disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.password}
+        >
+          Create Account
+        </Button>
+      </form>
+
+      {/* Footer Links */}
+      <div className="mt-8 text-center">
+        <p className="text-sm text-secondary-text">
+          Already have an account?{' '}
+          <Link 
+            href="/login" 
+            className="text-primary hover:text-primary/80 font-medium transition-colors"
+          >
+            Log in
+          </Link>
+        </p>
+      </div>
+    </>
   );
 }

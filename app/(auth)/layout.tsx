@@ -34,34 +34,9 @@ export default function AuthLayout({
     );
   }
 
-  // For login and signup pages, render without any container - FULL SCREEN
-  if (pathname === '/login' || pathname === '/signup') {
-    // Don't render if user is authenticated (will redirect)
-    if (user) {
-      return (
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      );
-    }
-    
-    // Render children directly without any wrapper for full screen layout
-    return children;
-  }
-
-  // Allow access to update-password page regardless of auth state
-  if (pathname === '/update-password') {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
-        <div className="max-w-md w-full">
-          {children}
-        </div>
-      </div>
-    );
-  }
-
+  // For update-password page, allow access regardless of auth state
   // For other auth pages, don't render if user is authenticated (will redirect)
-  if (user) {
+  if (pathname !== '/update-password' && user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -69,11 +44,42 @@ export default function AuthLayout({
     );
   }
 
-  // For other auth pages (like forgot-password), use centered container
+  // Render all auth pages with the new full-screen layout
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
-      <div className="max-w-md w-full">
-        {children}
+    <div className="min-h-screen w-full flex overflow-hidden relative">
+      {/* Left Side - Auth Form with Background (5/13 of screen) */}
+      <div 
+        className="flex-shrink-0 h-screen relative flex items-center justify-center w-5/13"
+        style={{
+          backgroundImage: 'url(/images/login_form_background.webp)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Subtle overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/10"></div>
+        
+        {/* Form Container - Positioned below center for logo */}
+        <div className="relative z-10 w-full max-w-md px-8 mt-16">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+            {children}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Background Image (8/13 of screen) */}
+      <div 
+        className="flex-1 h-screen relative w-8/13"
+        style={{
+          backgroundImage: 'url(/images/login_background.webp)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Subtle gradient overlay for visual enhancement */}
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/5"></div>
       </div>
     </div>
   );

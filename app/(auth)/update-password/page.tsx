@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Settings2, CheckCircle, Lock } from 'lucide-react';
 
 export default function UpdatePassword() {
@@ -60,53 +59,56 @@ export default function UpdatePassword() {
 
   if (success) {
     return (
-      <Card>
-        <CardContent className="text-center space-y-6 py-8">
-          <div className="flex justify-center">
-            <div className="w-16 h-16 bg-accent-2 rounded-full flex items-center justify-center">
+      <>
+        {/* Success Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 bg-accent-2 rounded-full flex items-center justify-center shadow-lg">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <h1 className="font-heading text-2xl text-primary-text">
-              Password Updated Successfully
-            </h1>
-            <p className="text-secondary-text">
-              Your password has been updated. You will be redirected to your dashboard shortly.
-            </p>
-          </div>
+          <h1 className="font-heading text-2xl text-primary-text mb-2">
+            Password Updated Successfully
+          </h1>
+          <p className="text-secondary-text text-sm">
+            Your password has been updated. You will be redirected to your dashboard shortly.
+          </p>
+        </div>
 
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </CardContent>
-      </Card>
+        {/* Loading Indicator */}
+        <div className="flex justify-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="text-center space-y-4">
-        <div className="flex justify-center">
-          <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+    <>
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg">
             <Settings2 className="w-6 h-6 text-white" />
           </div>
         </div>
-        <h1 className="font-heading text-2xl text-primary-text">
+        <h1 className="font-heading text-2xl text-primary-text mb-2">
           Update Your Password
         </h1>
-        <p className="text-secondary-text">
+        <p className="text-secondary-text text-sm">
           Enter your new password below
         </p>
-      </CardHeader>
+      </div>
       
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
 
+        <div className="space-y-4">
           <Input
             label="New Password"
             name="password"
@@ -115,6 +117,7 @@ export default function UpdatePassword() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your new password"
             required
+            className="bg-white/80 border-gray-200 focus:border-primary focus:ring-primary/20"
           />
 
           <Input
@@ -125,21 +128,20 @@ export default function UpdatePassword() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm your new password"
             required
+            className="bg-white/80 border-gray-200 focus:border-primary focus:ring-primary/20"
           />
+        </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            loading={loading}
-            disabled={!password || !confirmPassword}
-          >
-            <span className="flex items-center">
-              <Lock className="w-4 h-4 mr-2" />
-              Update Password
-            </span>
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+          loading={loading}
+          disabled={!password || !confirmPassword}
+        >
+          <Lock className="w-4 h-4 mr-2" />
+          Update Password
+        </Button>
+      </form>
+    </>
   );
 }
