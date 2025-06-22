@@ -7,6 +7,7 @@ import { TodaysLogWidget } from '@/components/dashboard/TodaysLogWidget';
 import { StreaksStatsWidget } from '@/components/dashboard/StreaksStatsWidget';
 import { AnalyzeDataWidget } from '@/components/dashboard/AnalyzeDataWidget';
 import { ExperimentProgressWidget } from '@/components/dashboard/ExperimentProgressWidget';
+import { CommunityFeedWidget } from '@/components/dashboard/CommunityFeedWidget';
 import { Settings2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -77,6 +78,9 @@ export default function Dashboard() {
 
               {/* Experiment Progress Widget */}
               <ExperimentProgressWidget />
+
+              {/* Community Feed Widget */}
+              <CommunityFeedWidget />
             </div>
 
             {/* Right Column - Supporting Widgets */}
