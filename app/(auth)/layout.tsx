@@ -3,7 +3,6 @@
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import Image from 'next/image';
 
 export default function AuthLayout({
   children,
@@ -50,7 +49,7 @@ export default function AuthLayout({
     <div className="min-h-screen w-full flex overflow-hidden relative">
       {/* Left Side - Auth Form with Background (5/13 of screen) */}
       <div 
-        className="flex-shrink-0 h-screen relative flex flex-col w-5/13"
+        className="flex-shrink-0 h-screen relative flex items-center justify-center w-5/13"
         style={{
           backgroundImage: 'url(/images/login_form_background.webp)',
           backgroundSize: 'cover',
@@ -61,25 +60,10 @@ export default function AuthLayout({
         {/* Subtle overlay for better text readability */}
         <div className="absolute inset-0 bg-black/10"></div>
         
-        {/* Logo at the top */}
-        <div className="relative z-10 flex justify-center pt-12 pb-8">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20">
-            <Image
-              src="/images/logo.svg"
-              alt="PIDMe Logo"
-              width={120}
-              height={40}
-              className="h-10 w-auto"
-            />
-          </div>
-        </div>
-        
-        {/* Form Container - Vertically centered in remaining space */}
-        <div className="relative z-10 flex-1 flex items-center justify-center px-8 pb-12">
-          <div className="w-full max-w-md">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
-              {children}
-            </div>
+        {/* Form Container - Vertically centered */}
+        <div className="relative z-10 w-full max-w-md px-8">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+            {children}
           </div>
         </div>
       </div>

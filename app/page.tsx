@@ -40,7 +40,7 @@ export default function Home() {
     <div className="min-h-screen w-full flex overflow-hidden relative">
       {/* Left Side - Welcome Content with Background (5/13 of screen) */}
       <div 
-        className="flex-shrink-0 h-screen relative flex flex-col w-5/13"
+        className="flex-shrink-0 h-screen relative flex items-center justify-center w-5/13"
         style={{
           backgroundImage: 'url(/images/login_form_background.webp)',
           backgroundSize: 'cover',
@@ -51,67 +51,63 @@ export default function Home() {
         {/* Subtle overlay for better text readability */}
         <div className="absolute inset-0 bg-black/20"></div>
         
-        {/* Logo at the top */}
-        <div className="relative z-10 flex justify-center pt-12 pb-8">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20">
-            <Image
-              src="/images/logo.svg"
-              alt="PIDMe Logo"
-              width={120}
-              height={40}
-              className="h-10 w-auto"
-            />
-          </div>
-        </div>
-        
-        {/* Content Container - Vertically centered in remaining space */}
-        <div className="relative z-10 flex-1 flex items-center justify-center px-8 pb-12">
-          <div className="w-full max-w-md text-center">
-            {/* Main Description - Large White Text */}
-            <div className="mb-12">
-              <h1 className="text-4xl md:text-5xl font-heading text-white leading-tight mb-6">
+        {/* Content Container - Vertically centered */}
+        <div className="relative z-10 w-full max-w-md px-8">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+            {/* Logo */}
+            <div className="flex justify-center mb-6">
+              <Image
+                src="/images/logo.svg"
+                alt="PIDMe Logo"
+                width={120}
+                height={40}
+                className="h-10 w-auto"
+              />
+            </div>
+
+            {/* Main Description - Large Text */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-heading text-primary-text leading-tight mb-4">
                 Tune your lifestyle with precision engineering
               </h1>
             </div>
 
-            {/* Value Proposition Card */}
-            <Card className="bg-white/95 backdrop-blur-sm border border-white/20 shadow-2xl">
-              <CardContent className="p-8 space-y-6">
-                <div className="flex items-start space-x-4">
-                  <Target className="w-6 h-6 text-accent-1 mt-1 flex-shrink-0" />
-                  <div className="text-left">
-                    <h3 className="font-medium text-primary-text mb-1">Proportional Control</h3>
-                    <p className="text-sm text-secondary-text">Set targets and track your inputs</p>
-                  </div>
+            {/* Value Proposition */}
+            <div className="space-y-4 mb-8">
+              <div className="flex items-start space-x-3">
+                <Target className="w-5 h-5 text-accent-1 mt-1 flex-shrink-0" />
+                <div className="text-left">
+                  <h3 className="font-medium text-primary-text text-sm mb-1">Proportional Control</h3>
+                  <p className="text-xs text-secondary-text">Set targets and track your inputs</p>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <TrendingUp className="w-6 h-6 text-accent-2 mt-1 flex-shrink-0" />
-                  <div className="text-left">
-                    <h3 className="font-medium text-primary-text mb-1">Integral Analysis</h3>
-                    <p className="text-sm text-secondary-text">Learn from accumulated trends</p>
-                  </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <TrendingUp className="w-5 h-5 text-accent-2 mt-1 flex-shrink-0" />
+                <div className="text-left">
+                  <h3 className="font-medium text-primary-text text-sm mb-1">Integral Analysis</h3>
+                  <p className="text-xs text-secondary-text">Learn from accumulated trends</p>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-soft-accent rounded-full flex items-center justify-center mt-1 flex-shrink-0">
-                    <div className="w-3 h-3 bg-white rounded-full"></div>
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-medium text-primary-text mb-1">Derivative Response</h3>
-                    <p className="text-sm text-secondary-text">React quickly to changes</p>
-                  </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-5 h-5 bg-soft-accent rounded-full flex items-center justify-center mt-1 flex-shrink-0">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="text-left">
+                  <h3 className="font-medium text-primary-text text-sm mb-1">Derivative Response</h3>
+                  <p className="text-xs text-secondary-text">React quickly to changes</p>
+                </div>
+              </div>
+            </div>
 
             {/* CTA Buttons */}
-            <div className="space-y-4 mt-8">
+            <div className="space-y-3">
               <Link href="/signup" className="block w-full">
                 <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-200">
                   Sign up
                 </Button>
               </Link>
               <Link href="/login" className="block w-full">
-                <Button variant="outline" className="w-full bg-white/90 hover:bg-white border-white/50 text-primary-text shadow-lg hover:shadow-xl transition-all duration-200">
+                <Button variant="outline" className="w-full bg-white/90 hover:bg-white border-gray-200 text-primary-text shadow-lg hover:shadow-xl transition-all duration-200">
                   Log In
                 </Button>
               </Link>

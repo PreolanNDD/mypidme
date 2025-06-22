@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Settings2 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -65,12 +65,16 @@ export default function Login() {
 
   return (
     <>
-      {/* Header */}
+      {/* Header with Logo */}
       <div className="text-center mb-8">
         <div className="flex justify-center mb-4">
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg">
-            <Settings2 className="w-6 h-6 text-white" />
-          </div>
+          <Image
+            src="/images/logo.svg"
+            alt="PIDMe Logo"
+            width={120}
+            height={40}
+            className="h-10 w-auto"
+          />
         </div>
         <h1 className="font-heading text-2xl text-primary-text mb-2">
           Welcome Back
