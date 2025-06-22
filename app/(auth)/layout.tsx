@@ -44,7 +44,7 @@ export default function AuthLayout({
     );
   }
 
-  // Render all auth pages with responsive layout
+  // Render all auth pages with responsive layout and safety margins
   return (
     <div className="min-h-screen w-full flex overflow-hidden relative">
       {/* Left Side - Auth Form with Background (Desktop: 40% of screen, Mobile: Full screen) */}
@@ -60,9 +60,9 @@ export default function AuthLayout({
         {/* Subtle overlay for better text readability */}
         <div className="absolute inset-0 bg-black/10"></div>
         
-        {/* Form Container - Much wider to use available space */}
-        <div className="relative z-10 w-full max-w-lg px-6">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+        {/* Form Container with Safety Margins */}
+        <div className="relative z-10 w-full max-w-lg px-6 py-8 sm:px-8 sm:py-12 lg:px-12 lg:py-16">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/20">
             {children}
           </div>
         </div>
