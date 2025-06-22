@@ -64,11 +64,12 @@ export default function Login() {
   };
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden">
+    <div className="min-h-screen w-full flex overflow-hidden relative">
       {/* Left Side - Login Form with Background (5/13 of screen) */}
       <div 
-        className="w-5/13 h-full relative flex items-center justify-center"
+        className="flex-shrink-0 h-screen relative flex items-center justify-center"
         style={{
+          width: '38.461538%', // 5/13 as percentage
           backgroundImage: 'url(/images/login_form_background.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -165,7 +166,7 @@ export default function Login() {
 
       {/* Right Side - Background Image (8/13 of screen) */}
       <div 
-        className="w-8/13 h-full relative"
+        className="flex-1 h-screen relative"
         style={{
           backgroundImage: 'url(/images/login_background.webp)',
           backgroundSize: 'cover',
