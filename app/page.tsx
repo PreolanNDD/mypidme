@@ -51,11 +51,11 @@ export default function Home() {
         {/* Subtle overlay for better text readability */}
         <div className="absolute inset-0 bg-black/20"></div>
         
-        {/* Content Container - Vertically centered */}
+        {/* Content Container - Vertically centered with increased padding */}
         <div className="relative z-10 w-full max-w-md px-8">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-12 border border-white/20">
             {/* Logo */}
-            <div className="flex justify-center mb-6">
+            <div className="flex justify-center mb-8">
               <Image
                 src="/images/logo.svg"
                 alt="PIDMe Logo"
@@ -66,8 +66,8 @@ export default function Home() {
             </div>
 
             {/* Main Headline */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-heading text-primary-text leading-tight mb-3">
+            <div className="text-center mb-10">
+              <h1 className="text-3xl font-heading text-primary-text leading-tight mb-4">
                 Stop Guessing. Start Knowing.
               </h1>
               <p className="text-lg text-secondary-text font-medium">
@@ -76,7 +76,7 @@ export default function Home() {
             </div>
 
             {/* Value Proposition Features */}
-            <div className="space-y-5 mb-8">
+            <div className="space-y-6 mb-10">
               <div className="flex items-start space-x-4">
                 <div className="w-10 h-10 bg-accent-1 rounded-lg flex items-center justify-center flex-shrink-0">
                   <BarChart3 className="w-5 h-5 text-white" />
@@ -109,7 +109,7 @@ export default function Home() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               <Link href="/signup" className="block w-full">
                 <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-200">
                   Start Your Lab
