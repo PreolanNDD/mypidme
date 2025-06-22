@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { TrendingUp, Target } from 'lucide-react';
+import { BarChart3, Eye, Settings } from 'lucide-react';
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -65,36 +65,45 @@ export default function Home() {
               />
             </div>
 
-            {/* Main Description - Large Text */}
+            {/* Main Headline */}
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-heading text-primary-text leading-tight mb-4">
-                Tune your lifestyle with precision engineering
+              <h1 className="text-3xl font-heading text-primary-text leading-tight mb-3">
+                Stop Guessing. Start Knowing.
               </h1>
+              <p className="text-lg text-secondary-text font-medium">
+                Your personal science lab that helps you prove what works.
+              </p>
             </div>
 
-            {/* Value Proposition */}
-            <div className="space-y-4 mb-8">
-              <div className="flex items-start space-x-3">
-                <Target className="w-5 h-5 text-accent-1 mt-1 flex-shrink-0" />
+            {/* Value Proposition Features */}
+            <div className="space-y-5 mb-8">
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 bg-accent-1 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <BarChart3 className="w-5 h-5 text-white" />
+                </div>
                 <div className="text-left">
-                  <h3 className="font-medium text-primary-text text-sm mb-1">Proportional Control</h3>
-                  <p className="text-xs text-secondary-text">Set targets and track your inputs</p>
+                  <h3 className="font-semibold text-primary-text text-base mb-1">Track Your Life</h3>
+                  <p className="text-sm text-secondary-text leading-relaxed">Log your key inputs and outputs in less than a minute a day.</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3">
-                <TrendingUp className="w-5 h-5 text-accent-2 mt-1 flex-shrink-0" />
+              
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 bg-accent-2 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Eye className="w-5 h-5 text-white" />
+                </div>
                 <div className="text-left">
-                  <h3 className="font-medium text-primary-text text-sm mb-1">Integral Analysis</h3>
-                  <p className="text-xs text-secondary-text">Learn from accumulated trends</p>
+                  <h3 className="font-semibold text-primary-text text-base mb-1">See What's Working</h3>
+                  <p className="text-sm text-secondary-text leading-relaxed">Instantly visualize the connections between your habits and your ambitions.</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-5 h-5 bg-soft-accent rounded-full flex items-center justify-center mt-1 flex-shrink-0">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
+              
+              <div className="flex items-start space-x-4">
+                <div className="w-10 h-10 bg-soft-accent rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Settings className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-medium text-primary-text text-sm mb-1">Derivative Response</h3>
-                  <p className="text-xs text-secondary-text">React quickly to changes</p>
+                  <h3 className="font-semibold text-primary-text text-base mb-1">Master Your Routine</h3>
+                  <p className="text-sm text-secondary-text leading-relaxed">Use your data to adapt, improve, and build a lifestyle that's precisely tuned to your goals.</p>
                 </div>
               </div>
             </div>
@@ -103,7 +112,7 @@ export default function Home() {
             <div className="space-y-3">
               <Link href="/signup" className="block w-full">
                 <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-200">
-                  Sign up
+                  Start Your Lab
                 </Button>
               </Link>
               <Link href="/login" className="block w-full">
