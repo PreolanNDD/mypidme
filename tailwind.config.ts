@@ -67,6 +67,10 @@ const config: Config = {
         heading: ['"DM Serif Display"', 'serif'],
         sans: ['Inter', 'sans-serif'],
       },
+      width: {
+        '5/13': '38.461538%',
+        '8/13': '61.538462%',
+      },
       keyframes: {
         'accordion-down': {
           from: {
