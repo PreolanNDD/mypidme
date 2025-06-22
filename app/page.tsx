@@ -61,7 +61,7 @@ export default function Home() {
                 alt="PIDMe Logo"
                 width={0}
                 height={0}
-                className="w-auto h-auto"
+                className="w-auto h-auto rounded-xl"
               />
             </div>
 

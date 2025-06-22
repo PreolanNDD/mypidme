@@ -100,7 +100,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             alt="PIDMe Logo"
             width={0}
             height={0}
-            className="w-auto h-auto"
+            className="w-auto h-auto rounded-xl"
           />
         </div>
         <h1 className="font-heading text-2xl text-primary-text mb-2">
