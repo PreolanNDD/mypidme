@@ -148,7 +148,11 @@ export function ExperimentProgressWidget() {
               const progress = getExperimentProgress(experiment.start_date, experiment.end_date);
               
               return (
-                <div key={experiment.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={handleViewAllExperiments}>
+                <div 
+                  key={experiment.id} 
+                  className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-[#8245b5]" 
+                  onClick={handleViewAllExperiments}
+                >
                   <div className="space-y-3">
                     {/* Header */}
                     <div className="flex items-start justify-between">

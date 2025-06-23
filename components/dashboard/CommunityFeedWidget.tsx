@@ -137,7 +137,7 @@ export function CommunityFeedWidget() {
             {topFindings.map((finding, index) => (
               <div 
                 key={finding.id} 
-                className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group border border-[#8245b5]"
                 onClick={() => handleFindingClick(finding.id)}
               >
                 <div className="space-y-3">
