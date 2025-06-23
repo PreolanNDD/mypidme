@@ -394,34 +394,16 @@ export default function DataPage() {
                     <RefreshCw className={`w-4 h-4 mr-2 ${loadingChart ? 'animate-spin' : ''}`} />
                     {loadingChart ? 'Loading...' : 'Update Chart'}
                   </Button>
-
-                  {/* Axis Synchronization Info */}
-                  {axisConfig && comparisonMetric && (
-                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <h4 className="text-sm font-medium text-blue-900 mb-2">Axis Synchronization</h4>
-                      <div className="text-xs text-blue-700 space-y-1">
-                        {primaryMetric?.type === 'NUMERIC' && comparisonMetric.type === 'SCALE_1_10' && (
-                          <p>✓ Scales synchronized: Right axis shows 1-10 labels aligned to left axis range</p>
-                        )}
-                        {primaryMetric?.type === 'SCALE_1_10' && comparisonMetric.type === 'BOOLEAN' && (
-                          <p>✓ Boolean normalized: Yes=7.5, No=2.5 on 1-10 scale</p>
-                        )}
-                        {primaryMetric?.type === 'SCALE_1_10' && comparisonMetric.type === 'NUMERIC' && (
-                          <p>→ Independent scales: Different ranges maintained</p>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
 
-              {/* 2. Metric Analysis Section */}
+              {/* 2. Visual Analysis Section */}
               <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                 <CardHeader>
                   <div className="flex items-center space-x-3">
                     <Calendar className="w-5 h-5 text-primary" />
                     <h3 className="font-heading text-lg text-primary-text">
-                      {primaryMetric ? `${primaryMetric.name} Analysis` : 'Metric Analysis'}
+                      Visual Analysis
                     </h3>
                   </div>
                 </CardHeader>
@@ -541,7 +523,7 @@ export default function DataPage() {
                 </div>
               )}
 
-              {/* 4. Metric Relationship Breakdown Section */}
+              {/* 4. Relationship Breakdown Section */}
               {shouldFetchChart && primaryMetric && comparisonMetric && comparisonMetricId !== 'none' && (
                 <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                   <MetricRelationshipBreakdown

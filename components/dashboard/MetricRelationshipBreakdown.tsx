@@ -446,7 +446,7 @@ export function MetricRelationshipBreakdown({
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Zap className="w-4 h-4 text-white" />
           </div>
-          <h3 className="font-heading text-lg text-primary-text">Metric Relationship Breakdown</h3>
+          <h3 className="font-heading text-lg text-primary-text">Relationship Breakdown</h3>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
