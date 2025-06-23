@@ -359,7 +359,8 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
               handleSave();
             }} 
             loading={saving} 
-            className="w-full bg-white text-[#8245b5] hover:bg-gray-50 border border-[#8245b5]" 
+            className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200" 
+            style={{ color: '#4a2a6d' }}
             size="lg"
             disabled={saving}
           >

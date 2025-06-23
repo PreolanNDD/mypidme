@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ReactivateMetricDialog } from '@/components/trackable-items/ReactivateMetricDialog';
-import { Edit2, Trash2, Target, TrendingUp, Plus, Loader2, RotateCw, X, Save, Check, AlertTriangle } from 'lucide-react';
+import { Edit2, Trash2, Plus, Loader2, RotateCw, X, Save, Check, AlertTriangle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const DATA_TYPE_LABELS: Record<DataType, string> = {
@@ -709,7 +709,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
       </Card>
 
       {/* Tabs */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex space-x-1 p-1 rounded-lg" style={{ backgroundColor: '#cdc1db' }}>
         <button
           onClick={() => {
             setActiveTab('active');
@@ -718,9 +718,12 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           }}
           className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
             activeTab === 'active'
-              ? 'bg-white text-primary-text shadow-sm'
-              : 'text-secondary-text hover:text-primary-text'
+              ? 'bg-white shadow-sm'
+              : 'hover:bg-white/50'
           }`}
+          style={{ 
+            color: activeTab === 'active' ? '#4a2a6d' : '#9992a2'
+          }}
         >
           Active ({activeItems.length})
         </button>
@@ -732,9 +735,12 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           }}
           className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
             activeTab === 'archived'
-              ? 'bg-white text-primary-text shadow-sm'
-              : 'text-secondary-text hover:text-primary-text'
+              ? 'bg-white shadow-sm'
+              : 'hover:bg-white/50'
           }`}
+          style={{ 
+            color: activeTab === 'archived' ? '#4a2a6d' : '#9992a2'
+          }}
         >
           Archived ({archivedItems.length})
         </button>
@@ -754,13 +760,10 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           {inputItems.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
-                  <Target className="w-4 h-4 text-white" />
-                </div>
                 <h3 className="font-heading text-lg text-white">Habits</h3>
                 <Badge variant="secondary" className="text-xs">{inputItems.length}</Badge>
               </div>
-              <div className="space-y-2 pl-11">
+              <div className="space-y-2">
                 {inputItems.map(renderMetricCard)}
               </div>
             </div>
@@ -770,13 +773,10 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           {outputItems.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-white" />
-                </div>
                 <h3 className="font-heading text-lg text-white">Goals</h3>
                 <Badge variant="secondary" className="text-xs">{outputItems.length}</Badge>
               </div>
-              <div className="space-y-2 pl-11">
+              <div className="space-y-2">
                 {outputItems.map(renderMetricCard)}
               </div>
             </div>
@@ -786,13 +786,10 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           {inputItems.length === 0 && outputItems.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <Target className="w-4 h-4 text-gray-400" />
-                </div>
                 <h3 className="font-heading text-lg text-gray-400">Habits</h3>
                 <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
               </div>
-              <div className="pl-11">
+              <div>
                 <p className="text-sm" style={{ color: '#e6e2eb' }}>No habits yet.</p>
               </div>
             </div>
@@ -801,13 +798,10 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           {outputItems.length === 0 && inputItems.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-gray-400" />
-                </div>
                 <h3 className="font-heading text-lg text-gray-400">Goals</h3>
                 <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
               </div>
-              <div className="pl-11">
+              <div>
                 <p className="text-sm" style={{ color: '#e6e2eb' }}>No goals yet.</p>
               </div>
             </div>
