@@ -4,7 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Experiment } from '@/lib/experiments';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface DeleteExperimentDialogProps {
   isOpen: boolean;
@@ -25,24 +25,13 @@ export function DeleteExperimentDialog({
     <Dialog open={isOpen && !!experiment} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-md">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-white" />
-              </div>
-              <DialogTitle className="font-heading text-xl text-primary-text">
-                Delete Experiment?
-              </DialogTitle>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-white" />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-              disabled={loading}
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            <DialogTitle className="font-heading text-xl text-primary-text">
+              Delete Experiment?
+            </DialogTitle>
           </div>
         </DialogHeader>
         <div className="space-y-4">

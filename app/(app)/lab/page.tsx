@@ -255,7 +255,7 @@ export default function LabPage() {
                     color: activeTab === 'active' ? '#4a2a6d' : '#9992a2'
                   }}
                 >
-                  <span style={{ color: 'white' }}>Active</span> ({activeExperiments.length})
+                  Active ({activeExperiments.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('completed')}
@@ -300,9 +300,15 @@ export default function LabPage() {
                                 {experiment.title}
                               </h4>
                               <div className="flex items-center space-x-2 mb-3">
-                                <Badge variant={experiment.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                                  <span style={{ color: 'white' }}>{experiment.status}</span>
-                                </Badge>
+                                {experiment.status === 'ACTIVE' ? (
+                                  <Badge className="bg-primary text-white">
+                                    ACTIVE
+                                  </Badge>
+                                ) : (
+                                  <Badge className="bg-green-500 text-black">
+                                    COMPLETED
+                                  </Badge>
+                                )}
                                 <span className="text-sm text-secondary-text">
                                   {getExperimentDuration(experiment.start_date, experiment.end_date)}
                                 </span>
@@ -414,14 +420,17 @@ export default function LabPage() {
                               )}
                             </div>
                             <div className="flex space-x-1">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleEditExperiment(experiment)}
-                                className="text-primary hover:text-primary hover:bg-primary/10"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </Button>
+                              {/* Only show edit button for active experiments */}
+                              {experiment.status === 'ACTIVE' && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handleEditExperiment(experiment)}
+                                  className="text-primary hover:text-primary hover:bg-primary/10"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </Button>
+                              )}
                               <Button
                                 size="sm"
                                 variant="ghost"
