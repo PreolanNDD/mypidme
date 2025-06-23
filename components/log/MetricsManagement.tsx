@@ -30,8 +30,8 @@ const DATA_TYPE_LABELS: Record<DataType, string> = {
 };
 
 const CATEGORY_LABELS: Record<Category, string> = {
-  'INPUT': 'Input',
-  'OUTPUT': 'Output'
+  'INPUT': 'Habits',
+  'OUTPUT': 'Goals'
 };
 
 export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
@@ -410,14 +410,16 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
 
   if (loading || !allTrackableItems) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="font-heading text-2xl text-primary-text">Manage Metrics</h2>
-        </div>
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
-          ))}
+      <div className="p-8">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-2xl text-primary-text">Manage Metrics</h2>
+          </div>
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -615,214 +617,216 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
   const isAddFormLoading = createMutation.isPending || reactivateMutation.isPending;
 
   return (
-    <div className="space-y-6">
-      {/* Manage Metrics Header */}
-      <div className="mb-6">
-        <h2 className="font-heading text-2xl text-primary-text">Manage Metrics</h2>
-        <p className="text-secondary-text">Create and organize your trackable metrics</p>
-      </div>
+    <div className="p-8">
+      <div className="space-y-6">
+        {/* Manage Metrics Header */}
+        <div className="mb-6">
+          <h2 className="font-heading text-2xl text-primary-text">Manage Metrics</h2>
+          <p className="text-secondary-text">Create and organize your trackable metrics</p>
+        </div>
 
-      {/* Add Metric Container */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Plus className="w-4 h-4 text-white" />
+        {/* Add Metric Container */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Plus className="w-4 h-4 text-white" />
+              </div>
+              <h3 className="font-heading text-lg text-primary-text">Add New Metric</h3>
             </div>
-            <h3 className="font-heading text-lg text-primary-text">Add New Metric</h3>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddSubmit} className="space-y-4">
-            {addFormError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{addFormError}</p>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAddSubmit} className="space-y-4">
+              {addFormError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600">{addFormError}</p>
+                </div>
+              )}
+
+              <Input
+                label="Metric Name"
+                value={addFormData.name}
+                onChange={handleAddNameChange}
+                placeholder="e.g., Sleep Quality, Caffeine Intake"
+                required
+                disabled={isAddFormLoading}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-primary-text">
+                    Category
+                  </label>
+                  <Select
+                    value={addFormData.category}
+                    onValueChange={(value: Category) => setAddFormData({ ...addFormData, category: value })}
+                    disabled={isAddFormLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-primary-text">
+                    Data Type
+                  </label>
+                  <Select
+                    value={addFormData.type}
+                    onValueChange={(value: DataType) => setAddFormData({ ...addFormData, type: value })}
+                    disabled={isAddFormLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select data type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(DATA_TYPE_LABELS).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                loading={isAddFormLoading}
+                disabled={!addFormData.name || !addFormData.category || !addFormData.type || isAddFormLoading}
+                className="w-full"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Metric
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Tabs */}
+        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+          <button
+            onClick={() => {
+              setActiveTab('active');
+              handleCancelEdit(); // Cancel any ongoing edits when switching tabs
+              handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
+            }}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'active'
+                ? 'bg-white text-primary-text shadow-sm'
+                : 'text-secondary-text hover:text-primary-text'
+            }`}
+          >
+            Active ({activeItems.length})
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('archived');
+              handleCancelEdit(); // Cancel any ongoing edits when switching tabs
+              handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
+            }}
+            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'archived'
+                ? 'bg-white text-primary-text shadow-sm'
+                : 'text-secondary-text hover:text-primary-text'
+            }`}
+          >
+            Archived ({archivedItems.length})
+          </button>
+        </div>
+
+        {itemsToDisplay.length === 0 ? (
+          <Card>
+            <CardContent className="text-center py-8">
+              <p className="text-secondary-text text-sm">
+                {activeTab === 'archived' ? "No archived metrics." : "No active metrics created yet."}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {/* Habits Section */}
+            {inputItems.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
+                    <Target className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="font-heading text-lg text-primary-text">Habits</h3>
+                  <Badge variant="secondary" className="text-xs">{inputItems.length}</Badge>
+                </div>
+                <div className="space-y-2 pl-11">
+                  {inputItems.map(renderMetricCard)}
+                </div>
               </div>
             )}
 
-            <Input
-              label="Metric Name"
-              value={addFormData.name}
-              onChange={handleAddNameChange}
-              placeholder="e.g., Sleep Quality, Caffeine Intake"
-              required
-              disabled={isAddFormLoading}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-primary-text">
-                  Category
-                </label>
-                <Select
-                  value={addFormData.category}
-                  onValueChange={(value: Category) => setAddFormData({ ...addFormData, category: value })}
-                  disabled={isAddFormLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* Goals Section */}
+            {outputItems.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="font-heading text-lg text-primary-text">Goals</h3>
+                  <Badge variant="secondary" className="text-xs">{outputItems.length}</Badge>
+                </div>
+                <div className="space-y-2 pl-11">
+                  {outputItems.map(renderMetricCard)}
+                </div>
               </div>
+            )}
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-primary-text">
-                  Data Type
-                </label>
-                <Select
-                  value={addFormData.type}
-                  onValueChange={(value: DataType) => setAddFormData({ ...addFormData, type: value })}
-                  disabled={isAddFormLoading}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select data type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(DATA_TYPE_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* Show message if only one category has items */}
+            {inputItems.length === 0 && outputItems.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <Target className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <h3 className="font-heading text-lg text-gray-400">Habits</h3>
+                  <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
+                </div>
+                <div className="pl-11">
+                  <p className="text-sm text-secondary-text">No habits yet.</p>
+                </div>
               </div>
-            </div>
+            )}
 
-            <Button
-              type="submit"
-              loading={isAddFormLoading}
-              disabled={!addFormData.name || !addFormData.category || !addFormData.type || isAddFormLoading}
-              className="w-full"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Metric
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+            {outputItems.length === 0 && inputItems.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <h3 className="font-heading text-lg text-gray-400">Goals</h3>
+                  <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
+                </div>
+                <div className="pl-11">
+                  <p className="text-sm text-secondary-text">No goals yet.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
-      {/* Tabs */}
-      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-        <button
-          onClick={() => {
-            setActiveTab('active');
-            handleCancelEdit(); // Cancel any ongoing edits when switching tabs
-            handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
-          }}
-          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-            activeTab === 'active'
-              ? 'bg-white text-primary-text shadow-sm'
-              : 'text-secondary-text hover:text-primary-text'
-          }`}
-        >
-          Active ({activeItems.length})
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab('archived');
-            handleCancelEdit(); // Cancel any ongoing edits when switching tabs
-            handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
-          }}
-          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-            activeTab === 'archived'
-              ? 'bg-white text-primary-text shadow-sm'
-              : 'text-secondary-text hover:text-primary-text'
-          }`}
-        >
-          Archived ({archivedItems.length})
-        </button>
+        {/* Reactivate Metric Dialog */}
+        <ReactivateMetricDialog
+          isOpen={showReactivateDialog}
+          onClose={handleReactivateClose}
+          onConfirm={handleReactivateConfirm}
+          metric={metricToReactivate}
+          loading={reactivateMutation.isPending}
+        />
       </div>
-
-      {itemsToDisplay.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-secondary-text text-sm">
-              {activeTab === 'archived' ? "No archived metrics." : "No active metrics created yet."}
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-6">
-          {/* Input Metrics Section */}
-          {inputItems.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
-                  <Target className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-heading text-lg text-primary-text">Input Metrics</h3>
-                <Badge variant="secondary" className="text-xs">{inputItems.length}</Badge>
-              </div>
-              <div className="space-y-2 pl-11">
-                {inputItems.map(renderMetricCard)}
-              </div>
-            </div>
-          )}
-
-          {/* Output Metrics Section */}
-          {outputItems.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-white" />
-                </div>
-                <h3 className="font-heading text-lg text-primary-text">Output Metrics</h3>
-                <Badge variant="secondary" className="text-xs">{outputItems.length}</Badge>
-              </div>
-              <div className="space-y-2 pl-11">
-                {outputItems.map(renderMetricCard)}
-              </div>
-            </div>
-          )}
-
-          {/* Show message if only one category has items */}
-          {inputItems.length === 0 && outputItems.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <Target className="w-4 h-4 text-gray-400" />
-                </div>
-                <h3 className="font-heading text-lg text-gray-400">Input Metrics</h3>
-                <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
-              </div>
-              <div className="pl-11">
-                <p className="text-sm text-secondary-text">No input metrics yet.</p>
-              </div>
-            </div>
-          )}
-
-          {outputItems.length === 0 && inputItems.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-gray-400" />
-                </div>
-                <h3 className="font-heading text-lg text-gray-400">Output Metrics</h3>
-                <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
-              </div>
-              <div className="pl-11">
-                <p className="text-sm text-secondary-text">No output metrics yet.</p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Reactivate Metric Dialog */}
-      <ReactivateMetricDialog
-        isOpen={showReactivateDialog}
-        onClose={handleReactivateClose}
-        onConfirm={handleReactivateConfirm}
-        metric={metricToReactivate}
-        loading={reactivateMutation.isPending}
-      />
     </div>
   );
 }
