@@ -342,7 +342,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <Card key={i}>
+          <Card key={i} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
             <CardContent className="p-6">
               <div className="animate-pulse space-y-3">
                 <div className="h-6 bg-gray-200 rounded w-3/4"></div>
@@ -363,7 +363,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
 
   if (findings.length === 0) {
     return (
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
         <CardContent className="text-center py-12">
           <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="font-heading text-xl text-primary-text mb-2">
@@ -391,7 +391,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
           return (
             <Card 
               key={finding.id} 
-              className="hover:shadow-md transition-all duration-200 cursor-pointer"
+              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-200 cursor-pointer"
               onMouseEnter={() => handleFindingHover(finding.id)}
               onClick={() => handleFindingClick(finding.id)}
             >

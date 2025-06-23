@@ -18,7 +18,7 @@ export default function CommunityPage() {
           <div className="mb-8">
             <h1 className="font-heading text-3xl text-white mb-2">Community Findings</h1>
             <p style={{ color: '#e6e2eb' }}>
-              Discover insights and patterns shared by the PIDMe community
+              Discover insights and patterns shared by the myPID.me community
             </p>
           </div>
 
@@ -73,12 +73,8 @@ export default function CommunityPage() {
             )}
           </div>
 
-          {/* Community Feed */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-            <div className="p-6">
-              <CommunityFeed activeTab={activeTab} />
-            </div>
-          </div>
+          {/* Community Feed - Remove white container, let findings sit on gradient */}
+          <CommunityFeed activeTab={activeTab} />
         </div>
       </div>
     </div>
