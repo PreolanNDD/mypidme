@@ -46,7 +46,7 @@ export function Sidebar() {
         )}>
           {isOpen && (
             <Image
-              src="/images/logo.svg"
+              src="/images/logo_closed.svg"
               alt="PIDMe Logo"
               width={320}
               height={120}
