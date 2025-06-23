@@ -10,10 +10,10 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { BarChart3, Calendar, TrendingUp, Target, RefreshCw } from 'lucide-react';
+import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2 } from 'lucide-react';
 import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
-import { PageActions } from '@/components/ui/PageActions';
+import { ShareFindingDialog } from '@/components/community/ShareFindingDialog';
 import { useQuery } from '@tanstack/react-query';
 
 const DATE_RANGES = [
@@ -44,6 +44,7 @@ export default function DataPage() {
   const [comparisonMetricId, setComparisonMetricId] = useState<string>('none');
   const [selectedDateRange, setSelectedDateRange] = useState<string>('30');
   const [shouldFetchChart, setShouldFetchChart] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const { data: allItems = [], isLoading: loadingItems } = useQuery<TrackableItem[]>({
     queryKey: ['trackableItems', user?.id],
@@ -205,6 +206,8 @@ export default function DataPage() {
     };
   };
 
+  const canShare = shouldFetchChart && primaryMetricId && chartData.length > 0;
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -268,17 +271,23 @@ export default function DataPage() {
       {/* Content */}
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
-          {/* Main Page Header */}
-          <div className="mb-8">
-            <h1 className="font-heading text-3xl text-white mb-2">Data Analysis</h1>
-            <p style={{ color: '#e6e2eb' }}>Advanced dual-axis visualization with synchronized scaling</p>
+          {/* Main Page Header with Share Button */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="font-heading text-3xl text-white mb-2">Data Analysis</h1>
+              <p style={{ color: '#e6e2eb' }}>Advanced dual-axis visualization with synchronized scaling</p>
+            </div>
+            {canShare && (
+              <Button
+                onClick={() => setShowShareDialog(true)}
+                className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+                style={{ color: '#4a2a6d' }}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share Finding
+              </Button>
+            )}
           </div>
-
-          {/* Page Actions */}
-          <PageActions
-            shareDisabled={!shouldFetchChart || !primaryMetricId || chartData.length === 0}
-            shareContext={getShareContext()}
-          />
 
           {outputMetrics.length === 0 ? (
             <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
@@ -305,79 +314,82 @@ export default function DataPage() {
                     <h3 className="font-heading text-lg text-primary-text">Chart Controls</h3>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Output Metric Selector */}
-                  <div className="space-y-2">
-                    <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
-                      <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
-                        <TrendingUp className="w-3 h-3 text-white" />
-                      </div>
-                      <span>Output Metric</span>
-                    </label>
-                    <Select value={primaryMetricId} onValueChange={setPrimaryMetricId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an output metric" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {outputMetrics.map((metric) => (
-                          <SelectItem key={metric.id} value={metric.id}>
-                            {metric.name} ({metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <CardContent className="space-y-6">
+                  {/* Form Fields in a Grid Layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Output Metric Selector */}
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
+                        <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
+                          <TrendingUp className="w-3 h-3 text-white" />
+                        </div>
+                        <span>Output Metric</span>
+                      </label>
+                      <Select value={primaryMetricId} onValueChange={setPrimaryMetricId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an output metric" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {outputMetrics.map((metric) => (
+                            <SelectItem key={metric.id} value={metric.id}>
+                              {metric.name} ({metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Input Metric Selector */}
-                  <div className="space-y-2">
-                    <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
-                      <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
-                        <Target className="w-3 h-3 text-white" />
-                      </div>
-                      <span>Input Metric</span>
-                    </label>
-                    <Select value={comparisonMetricId} onValueChange={setComparisonMetricId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an input metric" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        {inputMetrics.map((metric) => (
-                          <SelectItem key={metric.id} value={metric.id}>
-                            {metric.name} ({
-                              metric.type === 'BOOLEAN' ? 'Yes/No' : 
-                              metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'
-                            })
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    {/* Input Metric Selector */}
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
+                        <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
+                          <Target className="w-3 h-3 text-white" />
+                        </div>
+                        <span>Input Metric</span>
+                      </label>
+                      <Select value={comparisonMetricId} onValueChange={setComparisonMetricId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an input metric" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">None</SelectItem>
+                          {inputMetrics.map((metric) => (
+                            <SelectItem key={metric.id} value={metric.id}>
+                              {metric.name} ({
+                                metric.type === 'BOOLEAN' ? 'Yes/No' : 
+                                metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'
+                              })
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Date Range Selector */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-primary-text">
-                      Time Period
-                    </label>
-                    <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {DATE_RANGES.map((range) => (
-                          <SelectItem key={range.value} value={range.value}>
-                            {range.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {/* Date Range Selector */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-primary-text">
+                        Time Period
+                      </label>
+                      <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {DATE_RANGES.map((range) => (
+                            <SelectItem key={range.value} value={range.value}>
+                              {range.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   {/* Update Chart Button */}
                   <Button 
                     onClick={handleUpdateChart}
                     disabled={!primaryMetricId || loadingChart}
-                    className="w-full"
+                    className="w-full bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
                   >
                     <RefreshCw className={`w-4 h-4 mr-2 ${loadingChart ? 'animate-spin' : ''}`} />
                     {loadingChart ? 'Loading...' : 'Update Chart'}
@@ -543,6 +555,13 @@ export default function DataPage() {
           )}
         </div>
       </div>
+
+      {/* Share Finding Dialog */}
+      <ShareFindingDialog
+        isOpen={showShareDialog}
+        onClose={() => setShowShareDialog(false)}
+        context={getShareContext()}
+      />
     </div>
   );
 }
