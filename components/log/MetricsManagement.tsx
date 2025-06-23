@@ -699,7 +699,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
               type="submit"
               loading={isAddFormLoading}
               disabled={!addFormData.name || !addFormData.category || !addFormData.type || isAddFormLoading}
-              className="w-full"
+              className="w-full bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Metric
