@@ -255,57 +255,25 @@ export default function DataPage() {
     );
   };
 
-  const getMetricStats = (values: (number | null)[]) => {
-    // FIXED: Include 0 values in statistics
-    const validValues = values.filter(v => v !== null && v !== undefined) as number[];
-    if (validValues.length === 0) return { avg: 0, min: 0, max: 0, count: 0 };
-    
-    return {
-      avg: Math.round((validValues.reduce((sum, val) => sum + val, 0) / validValues.length) * 10) / 10,
-      min: Math.min(...validValues),
-      max: Math.max(...validValues),
-      count: validValues.length
-    };
-  };
-
-  const primaryStats = getMetricStats(chartData.map(d => d.primaryValue));
-  const comparisonStats = comparisonMetric?.type !== 'BOOLEAN' 
-    ? getMetricStats(chartData.map(d => d.comparisonValue))
-    : {
-        // FIXED: Count false values (0) properly
-        trueCount: chartData.filter(d => d.comparisonValue === 1).length,
-        falseCount: chartData.filter(d => d.comparisonValue === 0).length,
-        totalCount: chartData.filter(d => d.comparisonValue !== null && d.comparisonValue !== undefined).length
-      };
-
   if (loadingItems) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-heading text-3xl text-primary-text">Data Analysis</h1>
-              <p className="text-secondary-text">Advanced dual-axis visualization with synchronized scaling</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
       <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Main Page Header */}
+          <div className="mb-8">
+            <h1 className="font-heading text-3xl text-white mb-2">Data Analysis</h1>
+            <p style={{ color: '#e6e2eb' }}>Advanced dual-axis visualization with synchronized scaling</p>
+          </div>
+
           {/* Page Actions */}
           <PageActions
             shareDisabled={!shouldFetchChart || !primaryMetricId || chartData.length === 0}
@@ -313,7 +281,7 @@ export default function DataPage() {
           />
 
           {outputMetrics.length === 0 ? (
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
               <CardContent className="text-center py-12">
                 <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="font-heading text-xl text-primary-text mb-2">No Output Metrics Available</h3>
@@ -326,342 +294,252 @@ export default function DataPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Left Column - Chart Controls */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-8 space-y-6">
-                  {/* Chart Controls */}
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                          <BarChart3 className="w-4 h-4 text-white" />
-                        </div>
-                        <h3 className="font-heading text-lg text-primary-text">Chart Controls</h3>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {/* Output Metric Selector */}
-                      <div className="space-y-2">
-                        <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
-                          <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
-                            <TrendingUp className="w-3 h-3 text-white" />
-                          </div>
-                          <span>Output Metric</span>
-                        </label>
-                        <Select value={primaryMetricId} onValueChange={setPrimaryMetricId}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an output metric" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {outputMetrics.map((metric) => (
-                              <SelectItem key={metric.id} value={metric.id}>
-                                {metric.name} ({metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Input Metric Selector */}
-                      <div className="space-y-2">
-                        <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
-                          <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
-                            <Target className="w-3 h-3 text-white" />
-                          </div>
-                          <span>Input Metric</span>
-                        </label>
-                        <Select value={comparisonMetricId} onValueChange={setComparisonMetricId}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an input metric" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            {inputMetrics.map((metric) => (
-                              <SelectItem key={metric.id} value={metric.id}>
-                                {metric.name} ({
-                                  metric.type === 'BOOLEAN' ? 'Yes/No' : 
-                                  metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'
-                                })
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Date Range Selector */}
-                      <div className="space-y-2">
-                        <label className="block text-sm font-medium text-primary-text">
-                          Time Period
-                        </label>
-                        <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {DATE_RANGES.map((range) => (
-                              <SelectItem key={range.value} value={range.value}>
-                                {range.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Update Chart Button */}
-                      <Button 
-                        onClick={handleUpdateChart}
-                        disabled={!primaryMetricId || loadingChart}
-                        className="w-full"
-                      >
-                        <RefreshCw className={`w-4 h-4 mr-2 ${loadingChart ? 'animate-spin' : ''}`} />
-                        {loadingChart ? 'Loading...' : 'Update Chart'}
-                      </Button>
-
-                      {/* Axis Synchronization Info */}
-                      {axisConfig && comparisonMetric && (
-                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <h4 className="text-sm font-medium text-blue-900 mb-2">Axis Synchronization</h4>
-                          <div className="text-xs text-blue-700 space-y-1">
-                            {primaryMetric?.type === 'NUMERIC' && comparisonMetric.type === 'SCALE_1_10' && (
-                              <p>✓ Scales synchronized: Right axis shows 1-10 labels aligned to left axis range</p>
-                            )}
-                            {primaryMetric?.type === 'SCALE_1_10' && comparisonMetric.type === 'BOOLEAN' && (
-                              <p>✓ Boolean normalized: Yes=7.5, No=2.5 on 1-10 scale</p>
-                            )}
-                            {primaryMetric?.type === 'SCALE_1_10' && comparisonMetric.type === 'NUMERIC' && (
-                              <p>→ Independent scales: Different ranges maintained</p>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Statistics */}
-                  {shouldFetchChart && chartData.length > 0 && (
-                    <Card>
-                      <CardHeader>
-                        <h3 className="font-heading text-lg text-primary-text">Statistics</h3>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {/* Primary Metric Stats */}
-                        {primaryMetric && (
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
-                                <TrendingUp className="w-3 h-3 text-white" />
-                              </div>
-                              <h4 className="font-medium text-primary-text">{primaryMetric.name}</h4>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              <div>
-                                <span className="text-secondary-text">Average:</span>
-                                <span className="ml-1 font-medium">{primaryStats.avg}</span>
-                              </div>
-                              <div>
-                                <span className="text-secondary-text">Count:</span>
-                                <span className="ml-1 font-medium">{primaryStats.count}</span>
-                              </div>
-                              <div>
-                                <span className="text-secondary-text">Min:</span>
-                                <span className="ml-1 font-medium">{primaryStats.min}</span>
-                              </div>
-                              <div>
-                                <span className="text-secondary-text">Max:</span>
-                                <span className="ml-1 font-medium">{primaryStats.max}</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Comparison Metric Stats */}
-                        {comparisonMetric && (
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
-                                <Target className="w-3 h-3 text-white" />
-                              </div>
-                              <h4 className="font-medium text-primary-text">{comparisonMetric.name}</h4>
-                            </div>
-                            {comparisonMetric.type === 'BOOLEAN' ? (
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div>
-                                  <span className="text-secondary-text">Yes:</span>
-                                  <span className="ml-1 font-medium">{(comparisonStats as any).trueCount}</span>
-                                </div>
-                                <div>
-                                  <span className="text-secondary-text">No:</span>
-                                  <span className="ml-1 font-medium">{(comparisonStats as any).falseCount}</span>
-                                </div>
-                                <div className="col-span-2">
-                                  <span className="text-secondary-text">Total:</span>
-                                  <span className="ml-1 font-medium">{(comparisonStats as any).totalCount}</span>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div>
-                                  <span className="text-secondary-text">Average:</span>
-                                  <span className="ml-1 font-medium">{(comparisonStats as any).avg}</span>
-                                </div>
-                                <div>
-                                  <span className="text-secondary-text">Count:</span>
-                                  <span className="ml-1 font-medium">{(comparisonStats as any).count}</span>
-                                </div>
-                                <div>
-                                  <span className="text-secondary-text">Min:</span>
-                                  <span className="ml-1 font-medium">{(comparisonStats as any).min}</span>
-                                </div>
-                                <div>
-                                  <span className="text-secondary-text">Max:</span>
-                                  <span className="ml-1 font-medium">{(comparisonStats as any).max}</span>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </div>
-
-              {/* Right Column - Chart Display */}
-              <div className="lg:col-span-2 space-y-6">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center space-x-3">
-                      <Calendar className="w-5 h-5 text-primary" />
-                      <h3 className="font-heading text-lg text-primary-text">
-                        {primaryMetric ? `${primaryMetric.name} Analysis` : 'Metric Analysis'}
-                      </h3>
+            <>
+              {/* 1. Chart Controls Section */}
+              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                <CardHeader>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                      <BarChart3 className="w-4 h-4 text-white" />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    {!shouldFetchChart ? (
-                      <div className="h-96 flex items-center justify-center">
-                        <div className="text-center">
-                          <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                          <p className="text-secondary-text">Select a metric and click "Update Chart" to begin</p>
-                        </div>
+                    <h3 className="font-heading text-lg text-primary-text">Chart Controls</h3>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Output Metric Selector */}
+                  <div className="space-y-2">
+                    <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
+                      <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
+                        <TrendingUp className="w-3 h-3 text-white" />
                       </div>
-                    ) : loadingChart ? (
-                      <div className="h-96 flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                          <p className="text-secondary-text">Loading chart data...</p>
-                        </div>
-                      </div>
-                    ) : error ? (
-                      <div className="h-96 flex items-center justify-center">
-                        <div className="text-center">
-                          <p className="text-red-600 mb-2">Error loading chart data</p>
-                          <Button onClick={handleUpdateChart} variant="outline" size="sm">
-                            Try Again
-                          </Button>
-                        </div>
-                      </div>
-                    ) : chartData.length === 0 ? (
-                      <div className="h-96 flex items-center justify-center">
-                        <div className="text-center">
-                          <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                          <p className="text-secondary-text">No data available for the selected time period</p>
-                          <p className="text-sm text-secondary-text mt-2">Try selecting a different date range or log some data first</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="h-96">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis 
-                              dataKey="formattedDate" 
-                              stroke="#708090"
-                              fontSize={12}
-                              tickLine={false}
-                            />
-                            
-                            {/* Left Y-Axis */}
-                            <YAxis 
-                              yAxisId="left"
-                              stroke="#7ed984"
-                              fontSize={12}
-                              tickLine={false}
-                              domain={axisConfig?.leftDomain || ['auto', 'auto']}
-                            />
-                            
-                            {/* Right Y-Axis (only if comparison metric exists) */}
-                            {comparisonMetric && axisConfig && (
-                              <YAxis 
-                                yAxisId="right"
-                                orientation="right"
-                                stroke="#FFA500"
-                                fontSize={12}
-                                tickLine={false}
-                                domain={axisConfig.rightDomain}
-                                tickFormatter={axisConfig.rightTickFormatter}
-                                ticks={axisConfig.rightTicks}
-                              />
-                            )}
-                            
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend content={<CustomLegend />} />
-                            
-                            {/* Primary metric line (always on left axis) - OUTPUT = accent-2 */}
-                            <Line 
-                              yAxisId="left"
-                              type="monotone" 
-                              dataKey="primaryValue"
-                              stroke="#7ed984"
-                              strokeWidth={2}
-                              connectNulls={false}
-                              name={primaryMetric?.name}
-                              dot={{ fill: '#7ed984', strokeWidth: 2, r: 3 }}
-                              activeDot={{ r: 5, stroke: '#7ed984', strokeWidth: 2 }}
-                            />
-                            
-                            {/* Comparison metric line - INPUT = accent-1 */}
-                            {comparisonMetric && comparisonMetricId !== 'none' && axisConfig && (
-                              <Line 
-                                yAxisId={axisConfig.normalizeComparison ? "left" : "right"}
-                                type="monotone" 
-                                dataKey={axisConfig.normalizeComparison ? "normalizedComparisonValue" : "comparisonValue"}
-                                stroke="#FFA500"
-                                strokeWidth={2}
-                                strokeDasharray={comparisonMetric.type === 'BOOLEAN' ? "5 5" : "0"}
-                                connectNulls={false}
-                                name={comparisonMetric.name}
-                                dot={{ fill: '#FFA500', strokeWidth: 2, r: 3 }}
-                                activeDot={{ r: 5, stroke: '#FFA500', strokeWidth: 2 }}
-                              />
-                            )}
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                      <span>Output Metric</span>
+                    </label>
+                    <Select value={primaryMetricId} onValueChange={setPrimaryMetricId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an output metric" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {outputMetrics.map((metric) => (
+                          <SelectItem key={metric.id} value={metric.id}>
+                            {metric.name} ({metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Correlation Analysis Card - At a Glance */}
-                {shouldFetchChart && correlationScore !== null && primaryMetric && comparisonMetric && comparisonMetricId !== 'none' && (
+                  {/* Input Metric Selector */}
+                  <div className="space-y-2">
+                    <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
+                      <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
+                        <Target className="w-3 h-3 text-white" />
+                      </div>
+                      <span>Input Metric</span>
+                    </label>
+                    <Select value={comparisonMetricId} onValueChange={setComparisonMetricId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an input metric" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        {inputMetrics.map((metric) => (
+                          <SelectItem key={metric.id} value={metric.id}>
+                            {metric.name} ({
+                              metric.type === 'BOOLEAN' ? 'Yes/No' : 
+                              metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'
+                            })
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Date Range Selector */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-primary-text">
+                      Time Period
+                    </label>
+                    <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DATE_RANGES.map((range) => (
+                          <SelectItem key={range.value} value={range.value}>
+                            {range.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Update Chart Button */}
+                  <Button 
+                    onClick={handleUpdateChart}
+                    disabled={!primaryMetricId || loadingChart}
+                    className="w-full"
+                  >
+                    <RefreshCw className={`w-4 h-4 mr-2 ${loadingChart ? 'animate-spin' : ''}`} />
+                    {loadingChart ? 'Loading...' : 'Update Chart'}
+                  </Button>
+
+                  {/* Axis Synchronization Info */}
+                  {axisConfig && comparisonMetric && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">Axis Synchronization</h4>
+                      <div className="text-xs text-blue-700 space-y-1">
+                        {primaryMetric?.type === 'NUMERIC' && comparisonMetric.type === 'SCALE_1_10' && (
+                          <p>✓ Scales synchronized: Right axis shows 1-10 labels aligned to left axis range</p>
+                        )}
+                        {primaryMetric?.type === 'SCALE_1_10' && comparisonMetric.type === 'BOOLEAN' && (
+                          <p>✓ Boolean normalized: Yes=7.5, No=2.5 on 1-10 scale</p>
+                        )}
+                        {primaryMetric?.type === 'SCALE_1_10' && comparisonMetric.type === 'NUMERIC' && (
+                          <p>→ Independent scales: Different ranges maintained</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* 2. Metric Analysis Section */}
+              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                <CardHeader>
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    <h3 className="font-heading text-lg text-primary-text">
+                      {primaryMetric ? `${primaryMetric.name} Analysis` : 'Metric Analysis'}
+                    </h3>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {!shouldFetchChart ? (
+                    <div className="h-96 flex items-center justify-center">
+                      <div className="text-center">
+                        <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-secondary-text">Select a metric and click "Update Chart" to begin</p>
+                      </div>
+                    </div>
+                  ) : loadingChart ? (
+                    <div className="h-96 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="text-secondary-text">Loading chart data...</p>
+                      </div>
+                    </div>
+                  ) : error ? (
+                    <div className="h-96 flex items-center justify-center">
+                      <div className="text-center">
+                        <p className="text-red-600 mb-2">Error loading chart data</p>
+                        <Button onClick={handleUpdateChart} variant="outline" size="sm">
+                          Try Again
+                        </Button>
+                      </div>
+                    </div>
+                  ) : chartData.length === 0 ? (
+                    <div className="h-96 flex items-center justify-center">
+                      <div className="text-center">
+                        <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-secondary-text">No data available for the selected time period</p>
+                        <p className="text-sm text-secondary-text mt-2">Try selecting a different date range or log some data first</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="h-96">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                          <XAxis 
+                            dataKey="formattedDate" 
+                            stroke="#708090"
+                            fontSize={12}
+                            tickLine={false}
+                          />
+                          
+                          {/* Left Y-Axis */}
+                          <YAxis 
+                            yAxisId="left"
+                            stroke="#7ed984"
+                            fontSize={12}
+                            tickLine={false}
+                            domain={axisConfig?.leftDomain || ['auto', 'auto']}
+                          />
+                          
+                          {/* Right Y-Axis (only if comparison metric exists) */}
+                          {comparisonMetric && axisConfig && (
+                            <YAxis 
+                              yAxisId="right"
+                              orientation="right"
+                              stroke="#FFA500"
+                              fontSize={12}
+                              tickLine={false}
+                              domain={axisConfig.rightDomain}
+                              tickFormatter={axisConfig.rightTickFormatter}
+                              ticks={axisConfig.rightTicks}
+                            />
+                          )}
+                          
+                          <Tooltip content={<CustomTooltip />} />
+                          <Legend content={<CustomLegend />} />
+                          
+                          {/* Primary metric line (always on left axis) - OUTPUT = accent-2 */}
+                          <Line 
+                            yAxisId="left"
+                            type="monotone" 
+                            dataKey="primaryValue"
+                            stroke="#7ed984"
+                            strokeWidth={2}
+                            connectNulls={false}
+                            name={primaryMetric?.name}
+                            dot={{ fill: '#7ed984', strokeWidth: 2, r: 3 }}
+                            activeDot={{ r: 5, stroke: '#7ed984', strokeWidth: 2 }}
+                          />
+                          
+                          {/* Comparison metric line - INPUT = accent-1 */}
+                          {comparisonMetric && comparisonMetricId !== 'none' && axisConfig && (
+                            <Line 
+                              yAxisId={axisConfig.normalizeComparison ? "left" : "right"}
+                              type="monotone" 
+                              dataKey={axisConfig.normalizeComparison ? "normalizedComparisonValue" : "comparisonValue"}
+                              stroke="#FFA500"
+                              strokeWidth={2}
+                              strokeDasharray={comparisonMetric.type === 'BOOLEAN' ? "5 5" : "0"}
+                              connectNulls={false}
+                              name={comparisonMetric.name}
+                              dot={{ fill: '#FFA500', strokeWidth: 2, r: 3 }}
+                              activeDot={{ r: 5, stroke: '#FFA500', strokeWidth: 2 }}
+                            />
+                          )}
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* 3. At a Glance Section */}
+              {shouldFetchChart && correlationScore !== null && primaryMetric && comparisonMetric && comparisonMetricId !== 'none' && (
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                   <CorrelationCard
                     correlationScore={correlationScore}
                     primaryMetricName={primaryMetric.name}
                     comparisonMetricName={comparisonMetric.name}
                   />
-                )}
+                </div>
+              )}
 
-                {/* Metric Relationship Breakdown - Moved to right column */}
-                {shouldFetchChart && primaryMetric && comparisonMetric && comparisonMetricId !== 'none' && (
+              {/* 4. Metric Relationship Breakdown Section */}
+              {shouldFetchChart && primaryMetric && comparisonMetric && comparisonMetricId !== 'none' && (
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                   <MetricRelationshipBreakdown
                     chartData={chartData}
                     primaryMetric={primaryMetric}
                     comparisonMetric={comparisonMetric}
                   />
-                )}
-              </div>
-            </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
