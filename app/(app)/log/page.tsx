@@ -49,38 +49,23 @@ export default function LogPage() {
     <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
       <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          
-          {/* Page Title */}
-          <div className="text-center">
-            <h1 className="text-4xl font-heading mb-2 text-white">
-              Daily Log
-            </h1>
-            <p className="text-xl" style={{ color: '#e6e2eb' }}>
-              Manage your metrics and track your daily data
-            </p>
-          </div>
-
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
               <div className="sticky top-8">
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                  <MetricsManagement
-                    // We now pass the stable function as the onRefresh prop
-                    onRefresh={loadTrackableItems}
-                  />
-                </div>
+                <MetricsManagement
+                  // We now pass the stable function as the onRefresh prop
+                  onRefresh={loadTrackableItems}
+                />
               </div>
             </div>
             <div className="lg:col-span-2">
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                <DailyLogger
-                  // This component also needs the list of items
-                  // This will be stable because loadTrackableItems only runs once
-                  trackableItems={trackableItems}
-                  loading={loadingItems}
-                />
-              </div>
+              <DailyLogger
+                // This component also needs the list of items
+                // This will be stable because loadTrackableItems only runs once
+                trackableItems={trackableItems}
+                loading={loadingItems}
+              />
             </div>
           </div>
         </div>

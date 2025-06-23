@@ -247,125 +247,127 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
 
   if (loading || loadingEntries) {
     return (
-      <div className="p-8">
-        <div className="space-y-6">
-          <div className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse"></div>
-            ))}
-          </div>
+      <div className="space-y-6">
+        <div className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 bg-gray-100 rounded-lg animate-pulse"></div>
+          ))}
         </div>
       </div>
     );
   }
   
   return (
-    <div className="p-8">
-      <div className="space-y-6">
-        {/* Date Selection Card */}
-        <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <Calendar className="w-5 h-5 text-primary" />
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-primary-text mb-2">Select Date</label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  max={new Date().toISOString().split('T')[0]}
-                  className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  disabled={saving}
-                />
-              </div>
+    <div className="space-y-6">
+      {/* Daily Logger Header */}
+      <div className="mb-6">
+        <h2 className="font-heading text-2xl text-white">Daily Logger</h2>
+        <p style={{ color: '#e6e2eb' }}>Log your daily habits and goals</p>
+      </div>
+
+      {/* Date Selection Card */}
+      <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-3">
+            <Calendar className="w-5 h-5 text-primary" />
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-primary-text mb-2">Select Date</label>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={handleDateChange}
+                max={new Date().toISOString().split('T')[0]}
+                className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                disabled={saving}
+              />
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {(message || error) && (
+        <div className={`p-3 rounded-lg text-sm ${
+          message 
+            ? 'bg-green-50 border border-green-200 text-green-600' 
+            : 'bg-red-50 border border-red-200 text-red-600'
+        }`}>
+          <p>{message || error}</p>
+        </div>
+      )}
+
+      {trackableItems.length === 0 ? (
+        <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+          <CardContent className="text-center py-8">
+            <p className="text-secondary-text mb-4">No metrics to track yet. Create some metrics first!</p>
           </CardContent>
         </Card>
-
-        {(message || error) && (
-          <div className={`p-3 rounded-lg text-sm ${
-            message 
-              ? 'bg-green-50 border border-green-200 text-green-600' 
-              : 'bg-red-50 border border-red-200 text-red-600'
-          }`}>
-            <p>{message || error}</p>
-          </div>
-        )}
-
-        {trackableItems.length === 0 ? (
-          <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-            <CardContent className="text-center py-8">
-              <p className="text-secondary-text mb-4">No metrics to track yet. Create some metrics first!</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            {trackableItems.filter(item => item.category === 'INPUT').length > 0 && (
-              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                     <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
-                      <Target className="w-4 h-4 text-white" />
-                    </div>
-                    <h3 className="font-heading text-xl text-primary-text">Habits</h3>
+      ) : (
+        <>
+          {trackableItems.filter(item => item.category === 'INPUT').length > 0 && (
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                   <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
+                    <Target className="w-4 h-4 text-white" />
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {trackableItems.filter(item => item.category === 'INPUT').map(item => {
-                    return (
-                      <EnhancedLogEntryField 
-                        key={`${item.id}-${selectedDate}`} 
-                        item={item} 
-                        value={formData[item.id]} 
-                        onChange={handleFieldChange}
-                      />
-                    );
-                  })}
-                </CardContent>
-              </Card>
-            )}
+                  <h3 className="font-heading text-xl text-primary-text">Habits</h3>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {trackableItems.filter(item => item.category === 'INPUT').map(item => {
+                  return (
+                    <EnhancedLogEntryField 
+                      key={`${item.id}-${selectedDate}`} 
+                      item={item} 
+                      value={formData[item.id]} 
+                      onChange={handleFieldChange}
+                    />
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
 
-            {trackableItems.filter(item => item.category === 'OUTPUT').length > 0 && (
-              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-white" />
-                    </div>
-                    <h3 className="font-heading text-xl text-primary-text">Goals</h3>
+          {trackableItems.filter(item => item.category === 'OUTPUT').length > 0 && (
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-white" />
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {trackableItems.filter(item => item.category === 'OUTPUT').map(item => {
-                    return (
-                      <EnhancedLogEntryField 
-                        key={`${item.id}-${selectedDate}`} 
-                        item={item} 
-                        value={formData[item.id]} 
-                        onChange={handleFieldChange}
-                      />
-                    );
-                  })}
-                </CardContent>
-              </Card>
-            )}
-            
-            <Button 
-              onClick={() => {
-                handleSave();
-              }} 
-              loading={saving} 
-              className="w-full bg-white text-[#8245b5] hover:bg-gray-50 border border-[#8245b5]" 
-              size="lg"
-              disabled={saving}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Changes
-            </Button>
-          </>
-        )}
-      </div>
+                  <h3 className="font-heading text-xl text-primary-text">Goals</h3>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {trackableItems.filter(item => item.category === 'OUTPUT').map(item => {
+                  return (
+                    <EnhancedLogEntryField 
+                      key={`${item.id}-${selectedDate}`} 
+                      item={item} 
+                      value={formData[item.id]} 
+                      onChange={handleFieldChange}
+                    />
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
+          
+          <Button 
+            onClick={() => {
+              handleSave();
+            }} 
+            loading={saving} 
+            className="w-full bg-white text-[#8245b5] hover:bg-gray-50 border border-[#8245b5]" 
+            size="lg"
+            disabled={saving}
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </>
+      )}
     </div>
   );
 }
