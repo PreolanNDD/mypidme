@@ -47,19 +47,9 @@ export default function Dashboard() {
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
           
-          {/* Section 1: Welcome & Stats */}
+          {/* Section 1: Welcome & Stats - SWAPPED POSITIONS */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left: Welcome Message */}
-            <div className="flex flex-col justify-center">
-              <h1 className="text-4xl font-heading mb-2">
-                <span className="text-accent-1">Hello, {firstName}!</span>
-              </h1>
-              <p className="text-xl text-white">
-                Ready to optimize your day?
-              </p>
-            </div>
-
-            {/* Right: Streaks & Stats Widget */}
+            {/* Left: Streaks & Stats Widget */}
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_25px_50px_-12px_rgba(255,255,255,0.25)]">
               <StreaksStatsWidget
                 currentStreak={dashboardStats?.currentStreak || 0}
@@ -67,6 +57,16 @@ export default function Dashboard() {
                 totalEntries={dashboardStats?.totalEntries || 0}
                 loading={loadingStats}
               />
+            </div>
+
+            {/* Right: Welcome Message */}
+            <div className="flex flex-col justify-center">
+              <h1 className="text-4xl font-heading mb-2">
+                <span className="text-accent-1">Hello, {firstName}!</span>
+              </h1>
+              <p className="text-xl text-white">
+                Ready to optimize your day?
+              </p>
             </div>
           </div>
 
