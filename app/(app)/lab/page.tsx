@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getTrackableItems } from '@/lib/trackable-items';
 import { getExperiments, updateExperimentStatus, deleteExperiment, analyzeExperimentResults } from '@/lib/experiments';
@@ -13,19 +13,19 @@ import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog'
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
 import { DeleteExperimentDialog } from '@/components/lab/DeleteExperimentDialog';
-import { ShareFindingDialog } from '@/components/community/ShareFindingDialog';
-import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2 } from 'lucide-react';
+import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, Share2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 
 export default function LabPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showResultsDialog, setShowResultsDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedExperiment, setSelectedExperiment] = useState<Experiment | null>(null);
   const [selectedResults, setSelectedResults] = useState<ExperimentResults | null>(null);
   const [experimentToDelete, setExperimentToDelete] = useState<Experiment | null>(null);
@@ -64,20 +64,6 @@ export default function LabPage() {
     },
   });
 
-  // Auto-update experiment status when end date has passed
-  useEffect(() => {
-    if (!experiments.length) return;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const expiredExperiments = experiments.filter(exp => 
-      exp.status === 'ACTIVE' && exp.end_date < today
-    );
-    
-    expiredExperiments.forEach(exp => {
-      updateStatusMutation.mutate({ id: exp.id, status: 'COMPLETED' });
-    });
-  }, [experiments, updateStatusMutation]);
-
   // Separate metrics by category
   const inputMetrics = useMemo(() => 
     trackableItems.filter(item => item.category === 'INPUT'), 
@@ -90,10 +76,17 @@ export default function LabPage() {
   );
 
   // Separate experiments by status
-  const activeExperiments = useMemo(() => 
-    experiments.filter(exp => exp.status === 'ACTIVE'), 
-    [experiments]
-  );
+  const activeExperiments = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return experiments.filter(exp => {
+      // Auto-update status if end date has passed
+      if (exp.status === 'ACTIVE' && exp.end_date < today) {
+        updateStatusMutation.mutate({ id: exp.id, status: 'COMPLETED' });
+        return false; // Don't show in active until refetch
+      }
+      return exp.status === 'ACTIVE';
+    });
+  }, [experiments, updateStatusMutation]);
 
   const completedExperiments = useMemo(() => 
     experiments.filter(exp => exp.status === 'COMPLETED'), 
@@ -138,6 +131,20 @@ export default function LabPage() {
     if (experimentToDelete) {
       deleteMutation.mutate(experimentToDelete.id);
     }
+  };
+
+  const handleShareFinding = () => {
+    // Find a completed experiment to share
+    const completedExperiment = completedExperiments[0];
+    if (!completedExperiment) return;
+    
+    // Navigate to community/new with experiment context
+    const params = new URLSearchParams({
+      type: 'experiment',
+      experimentId: completedExperiment.id
+    });
+    
+    router.push(`/community/new?${params.toString()}`);
   };
 
   const formatDate = (dateStr: string) => {
@@ -187,16 +194,7 @@ export default function LabPage() {
     return { percentage, daysElapsed: Math.max(1, daysElapsed), totalDays, status: 'active' };
   };
 
-  const getShareContext = () => {
-    // Only allow sharing for completed experiments
-    const completedExperiment = experimentsToDisplay.find(exp => exp.status === 'COMPLETED');
-    if (!completedExperiment) return undefined;
-    
-    return {
-      type: 'experiment' as const,
-      experimentId: completedExperiment.id
-    };
-  };
+  const canShare = completedExperiments.length > 0;
 
   const isLoading = loadingItems || loadingExperiments;
 
@@ -219,14 +217,26 @@ export default function LabPage() {
               <h1 className="font-heading text-3xl text-white mb-2">Experimentation Lab</h1>
               <p style={{ color: '#e6e2eb' }}>Design and track personal experiments to optimize your life</p>
             </div>
-            <Button
-              onClick={() => setShowCreateDialog(true)}
-              className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
-              style={{ color: '#4a2a6d' }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Start New Experiment
-            </Button>
+            <div className="flex space-x-3">
+              {canShare && (
+                <Button
+                  onClick={handleShareFinding}
+                  className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+                  style={{ color: '#4a2a6d' }}
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share Finding
+                </Button>
+              )}
+              <Button
+                onClick={() => setShowCreateDialog(true)}
+                className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+                style={{ color: '#4a2a6d' }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Start New Experiment
+              </Button>
+            </div>
           </div>
 
           {/* Check if user has required metrics */}
@@ -483,7 +493,10 @@ export default function LabPage() {
         isOpen={showResultsDialog}
         onClose={() => setShowResultsDialog(false)}
         results={selectedResults}
-        onShare={() => setShowShareDialog(true)}
+        onShare={() => {
+          setShowResultsDialog(false);
+          handleShareFinding();
+        }}
       />
 
       <DeleteExperimentDialog
@@ -495,12 +508,6 @@ export default function LabPage() {
         onConfirm={handleConfirmDelete}
         experiment={experimentToDelete}
         loading={deleteMutation.isPending}
-      />
-
-      <ShareFindingDialog
-        isOpen={showShareDialog}
-        onClose={() => setShowShareDialog(false)}
-        context={getShareContext()}
       />
     </div>
   );

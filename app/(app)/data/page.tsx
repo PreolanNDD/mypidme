@@ -13,8 +13,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2 } from 'lucide-react';
 import { RelationshipStory } from '@/components/dashboard/RelationshipStory';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
-import { ShareFindingDialog } from '@/components/community/ShareFindingDialog';
 import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 
 const DATE_RANGES = [
   { value: '7', label: 'Last 7 Days' },
@@ -40,11 +40,11 @@ interface AxisConfig {
 
 export default function DataPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [primaryMetricId, setPrimaryMetricId] = useState<string>('');
   const [comparisonMetricId, setComparisonMetricId] = useState<string>('none');
   const [selectedDateRange, setSelectedDateRange] = useState<string>('30');
   const [shouldFetchChart, setShouldFetchChart] = useState(false);
-  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const { data: allItems = [], isLoading: loadingItems } = useQuery<TrackableItem[]>({
     queryKey: ['trackableItems', user?.id],
@@ -195,15 +195,18 @@ export default function DataPage() {
     }
   };
 
-  const getShareContext = () => {
-    if (!shouldFetchChart || !primaryMetricId) return undefined;
+  const handleShareFinding = () => {
+    if (!shouldFetchChart || !primaryMetricId) return;
     
-    return {
-      type: 'chart' as const,
+    // Navigate to community/new with chart context
+    const params = new URLSearchParams({
+      type: 'chart',
       primaryMetricId,
-      comparisonMetricId: comparisonMetricId === 'none' ? null : comparisonMetricId,
-      dateRange: parseInt(selectedDateRange)
-    };
+      ...(comparisonMetricId !== 'none' && { comparisonMetricId }),
+      dateRange: selectedDateRange
+    });
+    
+    router.push(`/community/new?${params.toString()}`);
   };
 
   const canShare = shouldFetchChart && primaryMetricId && chartData.length > 0;
@@ -279,7 +282,7 @@ export default function DataPage() {
             </div>
             {canShare && (
               <Button
-                onClick={() => setShowShareDialog(true)}
+                onClick={handleShareFinding}
                 className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
                 style={{ color: '#4a2a6d' }}
               >
@@ -537,13 +540,6 @@ export default function DataPage() {
           )}
         </div>
       </div>
-
-      {/* Share Finding Dialog */}
-      <ShareFindingDialog
-        isOpen={showShareDialog}
-        onClose={() => setShowShareDialog(false)}
-        context={getShareContext()}
-      />
     </div>
   );
 }

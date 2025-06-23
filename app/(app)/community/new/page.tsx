@@ -13,10 +13,11 @@ import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, Eye, ArrowLeft, Send, Calendar, User, BarChart3, FlaskConical } from 'lucide-react';
+import { Edit3, Eye, Send, Calendar, User, BarChart3, FlaskConical, Target, TrendingUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useFormState, useFormStatus } from 'react-dom';
 
@@ -54,6 +55,11 @@ export default function CreateFindingPage() {
   // Use useFormState for form handling
   const [state, formAction] = useFormState(createFindingAction, { message: '' });
 
+  // Form state for metric selection
+  const [selectedHabitId, setSelectedHabitId] = useState<string>('');
+  const [selectedGoalId, setSelectedGoalId] = useState<string>('');
+  const [selectedDateRange, setSelectedDateRange] = useState<string>('30');
+
   // Parse context from URL parameters
   const context = useMemo((): ShareContext | null => {
     const type = searchParams.get('type') as 'chart' | 'experiment' | null;
@@ -80,28 +86,52 @@ export default function CreateFindingPage() {
     return null;
   }, [searchParams]);
 
-  // Fetch trackable items for chart context
+  // Fetch trackable items
   const { data: trackableItems = [] } = useQuery({
     queryKey: ['trackableItems', user?.id],
     queryFn: () => getTrackableItems(user!.id),
-    enabled: !!user?.id && context?.type === 'chart',
+    enabled: !!user?.id,
   });
+
+  // Separate metrics by category
+  const inputMetrics = useMemo(() => 
+    trackableItems.filter(item => item.category === 'INPUT'), 
+    [trackableItems]
+  );
+  
+  const outputMetrics = useMemo(() => 
+    trackableItems.filter(item => item.category === 'OUTPUT' && (item.type === 'SCALE_1_10' || item.type === 'NUMERIC')), 
+    [trackableItems]
+  );
+
+  // Set initial values from context
+  useEffect(() => {
+    if (context && context.type === 'chart') {
+      if (context.primaryMetricId) {
+        setSelectedGoalId(context.primaryMetricId);
+      }
+      if (context.comparisonMetricId) {
+        setSelectedHabitId(context.comparisonMetricId);
+      }
+      if (context.dateRange) {
+        setSelectedDateRange(context.dateRange.toString());
+      }
+    }
+  }, [context]);
 
   // Fetch chart data for preview
   const { data: chartData = [] } = useQuery({
-    queryKey: ['chartData', context],
+    queryKey: ['chartData', selectedGoalId, selectedHabitId, selectedDateRange],
     queryFn: () => {
-      if (!context || context.type !== 'chart' || !context.primaryMetricId) {
-        return [];
-      }
+      if (!selectedGoalId) return [];
       return getDualMetricChartData(
         user!.id,
-        context.primaryMetricId,
-        context.comparisonMetricId ?? null,
-        context.dateRange || 30
+        selectedGoalId,
+        selectedHabitId || null,
+        parseInt(selectedDateRange)
       );
     },
-    enabled: !!user?.id && context?.type === 'chart' && !!context.primaryMetricId,
+    enabled: !!user?.id && !!selectedGoalId,
   });
 
   // Fetch experiment data for preview
@@ -114,8 +144,8 @@ export default function CreateFindingPage() {
   const experiment = experiments.find(exp => exp.id === context?.experimentId);
 
   // Get metric details
-  const primaryMetric = trackableItems.find(item => item.id === context?.primaryMetricId);
-  const comparisonMetric = trackableItems.find(item => item.id === context?.comparisonMetricId);
+  const primaryMetric = trackableItems.find(item => item.id === selectedGoalId);
+  const comparisonMetric = trackableItems.find(item => item.id === selectedHabitId);
 
   // Calculate correlation score for preview
   const correlationScore = useMemo(() => {
@@ -232,9 +262,25 @@ export default function CreateFindingPage() {
 
   // Enhanced form action wrapper
   const enhancedFormAction = async (formData: FormData) => {
-    // Automatically set shareData to 'on' if there's context (chart or experiment data)
-    if (context) {
+    // Set chart config based on selected metrics
+    if (selectedGoalId && selectedHabitId) {
       formData.set('shareData', 'on');
+      formData.set('chartConfig', JSON.stringify({
+        primaryMetricId: selectedGoalId,
+        comparisonMetricId: selectedHabitId,
+        dateRange: parseInt(selectedDateRange)
+      }));
+    } else if (context) {
+      formData.set('shareData', 'on');
+      if (context.type === 'chart') {
+        formData.set('chartConfig', JSON.stringify({
+          primaryMetricId: context.primaryMetricId,
+          comparisonMetricId: context.comparisonMetricId,
+          dateRange: context.dateRange
+        }));
+      } else if (context.type === 'experiment') {
+        formData.set('experimentId', context.experimentId || '');
+      }
     }
 
     try {
@@ -301,24 +347,13 @@ export default function CreateFindingPage() {
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Main Page Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.back()}
-                className="mr-2 text-white hover:bg-white/10"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                <Edit3 className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="font-heading text-3xl text-white">Create Finding</h1>
-                <p style={{ color: '#e6e2eb' }}>Share your insights with the community</p>
-              </div>
+          <div className="flex items-center space-x-3 mb-8">
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+              <Edit3 className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="font-heading text-3xl text-white">Create Finding</h1>
+              <p style={{ color: '#e6e2eb' }}>Share your insights with the community</p>
             </div>
           </div>
 
@@ -365,28 +400,78 @@ export default function CreateFindingPage() {
                       </div>
                     )}
 
-                    {/* Hidden fields for context data */}
-                    {context && (
-                      <>
-                        {context.type === 'chart' && (
-                          <input
-                            type="hidden"
-                            name="chartConfig"
-                            value={JSON.stringify({
-                              primaryMetricId: context.primaryMetricId,
-                              comparisonMetricId: context.comparisonMetricId,
-                              dateRange: context.dateRange
-                            })}
-                          />
-                        )}
-                        {context.type === 'experiment' && (
-                          <input
-                            type="hidden"
-                            name="experimentId"
-                            value={context.experimentId || ''}
-                          />
-                        )}
-                      </>
+                    {/* Metric Selection - Only show if no context */}
+                    {!context && (
+                      <div className="space-y-4">
+                        <h3 className="font-medium text-primary-text">Select Metrics to Feature</h3>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Goal (Output) Selector */}
+                          <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
+                              <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
+                                <TrendingUp className="w-3 h-3 text-white" />
+                              </div>
+                              <span>Goal (Output)</span>
+                            </label>
+                            <Select value={selectedGoalId} onValueChange={setSelectedGoalId}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a goal metric" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {outputMetrics.map((metric) => (
+                                  <SelectItem key={metric.id} value={metric.id}>
+                                    {metric.name} ({metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Habit (Input) Selector */}
+                          <div className="space-y-2">
+                            <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
+                              <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
+                                <Target className="w-3 h-3 text-white" />
+                              </div>
+                              <span>Habit (Input)</span>
+                            </label>
+                            <Select value={selectedHabitId} onValueChange={setSelectedHabitId}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a habit metric" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="">None</SelectItem>
+                                {inputMetrics.map((metric) => (
+                                  <SelectItem key={metric.id} value={metric.id}>
+                                    {metric.name} ({
+                                      metric.type === 'BOOLEAN' ? 'Yes/No' : 
+                                      metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'
+                                    })
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        {/* Date Range Selector */}
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-primary-text">
+                            Time Period
+                          </label>
+                          <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="7">Last 7 Days</SelectItem>
+                              <SelectItem value="30">Last 30 Days</SelectItem>
+                              <SelectItem value="90">Last 90 Days</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     )}
 
                     {/* Title */}
@@ -447,7 +532,7 @@ export default function CreateFindingPage() {
 
                       <div className="flex items-center space-x-2">
                         <Badge className="bg-green-100 text-green-800 border-green-300">Published</Badge>
-                        {context && (
+                        {(context || (selectedGoalId && selectedHabitId)) && (
                           <Badge variant="outline" className="text-blue-700 border-blue-300">
                             Data Shared
                           </Badge>
@@ -463,7 +548,7 @@ export default function CreateFindingPage() {
                     </div>
 
                     {/* Preview Data Visualization - Chart Analysis */}
-                    {context && context.type === 'chart' && primaryMetric && (
+                    {((context && context.type === 'chart') || (selectedGoalId && selectedHabitId)) && primaryMetric && (
                       <div className="space-y-4">
                         <div className="border-t border-gray-200 pt-4">
                           <h3 className="font-medium text-primary-text mb-3">
