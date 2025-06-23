@@ -460,7 +460,7 @@ export default function CreateFindingPage() {
                             </label>
                             <Select value={selectedHabitId} onValueChange={setSelectedHabitId}>
                               <SelectTrigger className="bg-white">
-                                <SelectValue placeholder="Select a habit metric" />
+                                <SelectValue placeholder="Select a habit" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="none">None</SelectItem>
