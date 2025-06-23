@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2 } from 'lucide-react';
-import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
+import { RelationshipStory } from '@/components/dashboard/RelationshipStory';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { ShareFindingDialog } from '@/components/community/ShareFindingDialog';
 import { useQuery } from '@tanstack/react-query';
@@ -530,10 +530,10 @@ export default function DataPage() {
                 </CardContent>
               </Card>
 
-              {/* 3. At a Glance Section */}
+              {/* 3. Relationship Story Section */}
               {shouldFetchChart && correlationScore !== null && primaryMetric && comparisonMetric && comparisonMetricId !== 'none' && (
                 <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                  <CorrelationCard
+                  <RelationshipStory
                     correlationScore={correlationScore}
                     primaryMetricName={primaryMetric.name}
                     comparisonMetricName={comparisonMetric.name}
