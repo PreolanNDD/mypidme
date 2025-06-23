@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getTrackableItems } from '@/lib/trackable-items';
 import { getExperiments, updateExperimentStatus, deleteExperiment, analyzeExperimentResults } from '@/lib/experiments';
@@ -64,6 +64,20 @@ export default function LabPage() {
     },
   });
 
+  // Auto-update experiment status when end date has passed
+  useEffect(() => {
+    if (!experiments.length) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const expiredExperiments = experiments.filter(exp => 
+      exp.status === 'ACTIVE' && exp.end_date < today
+    );
+    
+    expiredExperiments.forEach(exp => {
+      updateStatusMutation.mutate({ id: exp.id, status: 'COMPLETED' });
+    });
+  }, [experiments, updateStatusMutation]);
+
   // Separate metrics by category
   const inputMetrics = useMemo(() => 
     trackableItems.filter(item => item.category === 'INPUT'), 
@@ -76,17 +90,10 @@ export default function LabPage() {
   );
 
   // Separate experiments by status
-  const activeExperiments = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0];
-    return experiments.filter(exp => {
-      // Auto-update status if end date has passed
-      if (exp.status === 'ACTIVE' && exp.end_date < today) {
-        updateStatusMutation.mutate({ id: exp.id, status: 'COMPLETED' });
-        return false; // Don't show in active until refetch
-      }
-      return exp.status === 'ACTIVE';
-    });
-  }, [experiments, updateStatusMutation]);
+  const activeExperiments = useMemo(() => 
+    experiments.filter(exp => exp.status === 'ACTIVE'), 
+    [experiments]
+  );
 
   const completedExperiments = useMemo(() => 
     experiments.filter(exp => exp.status === 'COMPLETED'), 
