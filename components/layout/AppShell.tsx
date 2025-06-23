@@ -13,8 +13,8 @@ export function AppShell({ children }: AppShellProps) {
       {/* Sidebar */}
       <Sidebar />
       
-      {/* Main Content */}
-      <main className="flex-1 ml-16 lg:ml-64 transition-all duration-300">
+      {/* Main Content - Remove fixed margins and use responsive classes */}
+      <main className="flex-1 transition-all duration-300 ease-in-out ml-16 lg:ml-64">
         {children}
       </main>
     </div>

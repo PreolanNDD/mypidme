@@ -50,7 +50,7 @@ export default function Dashboard() {
           {/* Section 1: Welcome & Stats - SWAPPED POSITIONS */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left: Streaks & Stats Widget */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)]">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[8px_8px_20px_0px_rgba(255,255,255,0.4)]">
               <StreaksStatsWidget
                 currentStreak={dashboardStats?.currentStreak || 0}
                 totalMetrics={dashboardStats?.totalMetrics || 0}
@@ -71,7 +71,7 @@ export default function Dashboard() {
           </div>
 
           {/* Section 2: Interactive "Today's Log" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)]">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[8px_8px_20px_0px_rgba(255,255,255,0.4)]">
             <TodaysLogWidget
               trackableItems={trackableItems}
               todaysEntries={todaysEntries}
@@ -80,12 +80,12 @@ export default function Dashboard() {
           </div>
 
           {/* Section 3: "Active Experiments" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)]">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[8px_8px_20px_0px_rgba(255,255,255,0.4)]">
             <ExperimentProgressWidget />
           </div>
 
           {/* Section 4: "Community Insights" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[8px_8px_0px_0px_rgba(255,255,255,0.3)]">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[8px_8px_20px_0px_rgba(255,255,255,0.4)]">
             <CommunityFeedWidget />
           </div>
 
