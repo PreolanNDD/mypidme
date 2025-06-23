@@ -5,49 +5,50 @@ export const createClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
+  // Check if we're in a build environment
+  const isBuildTime = process.env.NODE_ENV === 'production' && !supabaseUrl;
+  
+  // During build time, provide fallback values to prevent build failures
+  const fallbackUrl = 'https://placeholder.supabase.co';
+  const fallbackKey = 'placeholder-anon-key';
+  
+  // Use actual values if available, otherwise use fallbacks during build
+  const clientUrl = supabaseUrl || (isBuildTime ? fallbackUrl : '');
+  const clientKey = supabaseAnonKey || (isBuildTime ? fallbackKey : '');
+  
+  // Only validate environment variables at runtime, not during build
+  if (!isBuildTime) {
+    // Validate environment variables
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error(
+        'Missing Supabase environment variables. Please check your .env.local file and ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.'
+      );
+    }
+
+    // Validate URL format
+    if (!supabaseUrl.startsWith('https://') || supabaseUrl.includes('your-project-id')) {
+      throw new Error(
+        'Invalid Supabase URL. Please replace the placeholder in .env.local with your actual Supabase project URL.'
+      );
+    }
+
+    // Validate anon key format
+    if (supabaseAnonKey.includes('your-anon-key-here')) {
+      throw new Error(
+        'Invalid Supabase anon key. Please replace the placeholder in .env.local with your actual Supabase anon key.'
+      );
+    }
   }
   
   const client = createBrowserClient(
-    supabaseUrl,
-    supabaseAnonKey,
+    clientUrl,
+    clientKey,
     {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: true,
-        flowType: 'pkce',
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-        storageKey: 'supabase.auth.token'
-      },
-      cookies: {
-        get(key: string) {
-          if (typeof document === 'undefined') return undefined;
-          const cookies = document.cookie.split(';');
-          for (const cookie of cookies) {
-            const [name, value] = cookie.trim().split('=');
-            if (name === key) return decodeURIComponent(value);
-          }
-          return undefined;
-        },
-        set(key: string, value: string, options: any) {
-          if (typeof document === 'undefined') return;
-          let cookieString = `${key}=${encodeURIComponent(value)}`;
-          if (options?.maxAge) cookieString += `; max-age=${options.maxAge}`;
-          if (options?.path) cookieString += `; path=${options.path}`;
-          if (options?.domain) cookieString += `; domain=${options.domain}`;
-          if (options?.secure) cookieString += '; secure';
-          if (options?.sameSite) cookieString += `; samesite=${options.sameSite}`;
-          document.cookie = cookieString;
-        },
-        remove(key: string, options: any) {
-          if (typeof document === 'undefined') return;
-          let cookieString = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-          if (options?.path) cookieString += `; path=${options.path}`;
-          if (options?.domain) cookieString += `; domain=${options.domain}`;
-          document.cookie = cookieString;
-        }
+        flowType: 'pkce'
       }
     }
   );

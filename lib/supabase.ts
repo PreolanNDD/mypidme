@@ -1,52 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-// Check if we're in a build environment
-const isBuildTime = process.env.NODE_ENV === 'production' && !supabaseUrl;
-
-// During build time, provide fallback values to prevent build failures
-const fallbackUrl = 'https://placeholder.supabase.co';
-const fallbackKey = 'placeholder-anon-key';
-
-// Use actual values if available, otherwise use fallbacks during build
-const clientUrl = supabaseUrl || (isBuildTime ? fallbackUrl : '');
-const clientKey = supabaseAnonKey || (isBuildTime ? fallbackKey : '');
-
-// Only validate environment variables at runtime, not during build
-if (!isBuildTime) {
-  // Validate environment variables
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Missing Supabase environment variables. Please check your .env.local file and ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.'
-    );
-  }
-
-  // Validate URL format
-  if (!supabaseUrl.startsWith('https://') || supabaseUrl.includes('your-project-id')) {
-    throw new Error(
-      'Invalid Supabase URL. Please replace the placeholder in .env.local with your actual Supabase project URL.'
-    );
-  }
-
-  // Validate anon key format
-  if (supabaseAnonKey.includes('your-anon-key-here')) {
-    throw new Error(
-      'Invalid Supabase anon key. Please replace the placeholder in .env.local with your actual Supabase anon key.'
-    );
-  }
-}
-
-// Use the new client creation method for consistency
-import { createClient as createBrowserClient } from './supabase/client';
+import { createClient } from './supabase/client';
 
 // Create the singleton client
-let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null;
+let supabaseInstance: ReturnType<typeof createClient> | null = null;
 
 export const supabase = (() => {
   if (!supabaseInstance) {
-    supabaseInstance = createBrowserClient();
+    supabaseInstance = createClient();
   }
   return supabaseInstance;
 })();
