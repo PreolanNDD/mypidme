@@ -12,8 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog';
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
-import { PageActions } from '@/components/ui/PageActions';
-import { FlaskConical, Plus, Calendar, Target, TrendingUp, BarChart3, Trash2, Play, Square, Eye, Edit2 } from 'lucide-react';
+import { ShareFindingDialog } from '@/components/community/ShareFindingDialog';
+import { FlaskConical, Plus, Calendar, Target, TrendingUp, BarChart3, Trash2, Play, Square, Eye, Edit2, Share2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function LabPage() {
@@ -23,6 +23,7 @@ export default function LabPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showResultsDialog, setShowResultsDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const [selectedExperiment, setSelectedExperiment] = useState<Experiment | null>(null);
   const [selectedResults, setSelectedResults] = useState<ExperimentResults | null>(null);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
@@ -180,45 +181,44 @@ export default function LabPage() {
     };
   };
 
+  const canShare = !!getShareContext();
+
   const isLoading = loadingItems || loadingExperiments;
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <FlaskConical className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-heading text-3xl text-primary-text">Experimentation Lab</h1>
-              <p className="text-secondary-text">Design and track personal experiments to optimize your life</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
       <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Page Actions */}
-          <PageActions
-            shareDisabled={!getShareContext()}
-            shareContext={getShareContext()}
-          />
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Main Page Header with Share Button */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="font-heading text-3xl text-white mb-2">Experimentation Lab</h1>
+              <p style={{ color: '#e6e2eb' }}>Design and track personal experiments to optimize your life</p>
+            </div>
+            {canShare && (
+              <Button
+                onClick={() => setShowShareDialog(true)}
+                className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+                style={{ color: '#4a2a6d' }}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share Finding
+              </Button>
+            )}
+          </div>
 
           {/* Check if user has required metrics */}
           {inputMetrics.length === 0 || outputMetrics.length === 0 ? (
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
               <CardContent className="text-center py-12">
                 <FlaskConical className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="font-heading text-xl text-primary-text mb-2">Ready to Start Experimenting?</h3>
@@ -235,210 +235,228 @@ export default function LabPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-6">
-              {/* Create Experiment Button */}
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="font-heading text-2xl text-primary-text">Your Experiments</h2>
-                  <p className="text-secondary-text">Track the impact of your inputs on your outputs</p>
-                </div>
-                <Button onClick={() => setShowCreateDialog(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Start New Experiment
-                </Button>
-              </div>
+            <>
+              {/* Create Experiment Section */}
+              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <FlaskConical className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-heading text-lg text-primary-text">Your Experiments</h3>
+                        <p className="text-sm text-secondary-text">Track the impact of your inputs on your outputs</p>
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={() => setShowCreateDialog(true)}
+                      className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Start New Experiment
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {/* Tabs */}
+                  <div className="flex space-x-1 p-1 rounded-lg mb-6" style={{ backgroundColor: '#cdc1db' }}>
+                    <button
+                      onClick={() => setActiveTab('active')}
+                      className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                        activeTab === 'active'
+                          ? 'bg-white shadow-sm'
+                          : 'hover:bg-white/50'
+                      }`}
+                      style={{ 
+                        color: activeTab === 'active' ? '#4a2a6d' : '#9992a2'
+                      }}
+                    >
+                      Active ({activeExperiments.length})
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('completed')}
+                      className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                        activeTab === 'completed'
+                          ? 'bg-white shadow-sm'
+                          : 'hover:bg-white/50'
+                      }`}
+                      style={{ 
+                        color: activeTab === 'completed' ? '#4a2a6d' : '#9992a2'
+                      }}
+                    >
+                      Completed ({completedExperiments.length})
+                    </button>
+                  </div>
 
-              {/* Tabs */}
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-                <button
-                  onClick={() => setActiveTab('active')}
-                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === 'active'
-                      ? 'bg-white text-primary-text shadow-sm'
-                      : 'text-secondary-text hover:text-primary-text'
-                  }`}
-                >
-                  Active ({activeExperiments.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab('completed')}
-                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    activeTab === 'completed'
-                      ? 'bg-white text-primary-text shadow-sm'
-                      : 'text-secondary-text hover:text-primary-text'
-                  }`}
-                >
-                  Completed ({completedExperiments.length})
-                </button>
-              </div>
+                  {/* Experiments List */}
+                  {experimentsToDisplay.length === 0 ? (
+                    <div className="text-center py-8">
+                      <FlaskConical className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-secondary-text">
+                        {activeTab === 'active' 
+                          ? "No active experiments. Start your first experiment to begin optimizing!"
+                          : "No completed experiments yet."
+                        }
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {experimentsToDisplay.map((experiment) => {
+                        const progress = getExperimentProgress(experiment.start_date, experiment.end_date);
+                        
+                        return (
+                          <div key={experiment.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-[#8245b5]">
+                            <div className="space-y-4">
+                              {/* Header */}
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="font-heading text-lg text-primary-text mb-2">
+                                    {experiment.title}
+                                  </h4>
+                                  <div className="flex items-center space-x-2 mb-3">
+                                    <Badge variant={experiment.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                                      {experiment.status}
+                                    </Badge>
+                                    <span className="text-sm text-secondary-text">
+                                      {getExperimentDuration(experiment.start_date, experiment.end_date)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
 
-              {/* Experiments List */}
-              {experimentsToDisplay.length === 0 ? (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <FlaskConical className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-secondary-text">
-                      {activeTab === 'active' 
-                        ? "No active experiments. Start your first experiment to begin optimizing!"
-                        : "No completed experiments yet."
-                      }
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {experimentsToDisplay.map((experiment) => {
-                    const progress = getExperimentProgress(experiment.start_date, experiment.end_date);
-                    
-                    return (
-                      <Card key={experiment.id} className="hover:shadow-md transition-shadow">
-                        <CardHeader>
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h3 className="font-heading text-lg text-primary-text mb-2">
-                                {experiment.title}
-                              </h3>
-                              <div className="flex items-center space-x-2 mb-3">
-                                <Badge variant={experiment.status === 'ACTIVE' ? 'default' : 'secondary'}>
-                                  {experiment.status}
-                                </Badge>
-                                <span className="text-sm text-secondary-text">
-                                  {getExperimentDuration(experiment.start_date, experiment.end_date)}
-                                </span>
+                              {/* Progress Bar - Only show for active experiments or if experiment has started */}
+                              {(experiment.status === 'ACTIVE' || progress.status !== 'upcoming') && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="font-medium text-primary-text">Progress</span>
+                                    <span className="text-secondary-text">
+                                      {progress.status === 'upcoming' 
+                                        ? 'Starts soon'
+                                        : progress.status === 'completed'
+                                        ? 'Completed'
+                                        : `Day ${progress.daysElapsed} of ${progress.totalDays}`
+                                      }
+                                    </span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <div 
+                                      className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                                        progress.status === 'completed' 
+                                          ? 'bg-accent-2' 
+                                          : progress.status === 'active'
+                                          ? 'bg-primary' 
+                                          : 'bg-gray-300'
+                                      }`}
+                                      style={{ width: `${progress.percentage}%` }}
+                                    ></div>
+                                  </div>
+                                  {progress.status === 'active' && progress.percentage > 0 && progress.percentage < 100 && (
+                                    <p className="text-xs text-secondary-text">
+                                      {Math.round(progress.percentage)}% complete
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* Date Range */}
+                              <div className="flex items-center space-x-2 text-sm text-secondary-text">
+                                <Calendar className="w-4 h-4" />
+                                <span>{formatDate(experiment.start_date)} - {formatDate(experiment.end_date)}</span>
                               </div>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          {/* Progress Bar - Only show for active experiments or if experiment has started */}
-                          {(experiment.status === 'ACTIVE' || progress.status !== 'upcoming') && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="font-medium text-primary-text">Progress</span>
-                                <span className="text-secondary-text">
-                                  {progress.status === 'upcoming' 
-                                    ? 'Starts soon'
-                                    : progress.status === 'completed'
-                                    ? 'Completed'
-                                    : `Day ${progress.daysElapsed} of ${progress.totalDays}`
-                                  }
-                                </span>
+
+                              {/* Variables */}
+                              <div className="space-y-2">
+                                <div className="flex items-center space-x-2 text-sm">
+                                  <Target className="w-4 h-4 text-accent-1" />
+                                  <span className="text-secondary-text">Cause:</span>
+                                  <span className="font-medium text-primary-text">
+                                    {experiment.independent_variable?.name}
+                                  </span>
+                                </div>
+                                <div className="flex items-center space-x-2 text-sm">
+                                  <TrendingUp className="w-4 h-4 text-accent-2" />
+                                  <span className="text-secondary-text">Effect:</span>
+                                  <span className="font-medium text-primary-text">
+                                    {experiment.dependent_variable?.name}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className={`h-2 rounded-full transition-all duration-500 ease-out ${
-                                    progress.status === 'completed' 
-                                      ? 'bg-accent-2' 
-                                      : progress.status === 'active'
-                                      ? 'bg-primary' 
-                                      : 'bg-gray-300'
-                                  }`}
-                                  style={{ width: `${progress.percentage}%` }}
-                                ></div>
-                              </div>
-                              {progress.status === 'active' && progress.percentage > 0 && progress.percentage < 100 && (
-                                <p className="text-xs text-secondary-text">
-                                  {Math.round(progress.percentage)}% complete
+
+                              {/* Hypothesis */}
+                              <div className="p-3 bg-gray-100 rounded-lg">
+                                <p className="text-sm text-secondary-text italic">
+                                  "{experiment.hypothesis}"
                                 </p>
-                              )}
-                            </div>
-                          )}
+                              </div>
 
-                          {/* Date Range */}
-                          <div className="flex items-center space-x-2 text-sm text-secondary-text">
-                            <Calendar className="w-4 h-4" />
-                            <span>{formatDate(experiment.start_date)} - {formatDate(experiment.end_date)}</span>
-                          </div>
-
-                          {/* Variables */}
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2 text-sm">
-                              <Target className="w-4 h-4 text-accent-1" />
-                              <span className="text-secondary-text">Cause:</span>
-                              <span className="font-medium text-primary-text">
-                                {experiment.independent_variable?.name}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-sm">
-                              <TrendingUp className="w-4 h-4 text-accent-2" />
-                              <span className="text-secondary-text">Effect:</span>
-                              <span className="font-medium text-primary-text">
-                                {experiment.dependent_variable?.name}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Hypothesis */}
-                          <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-secondary-text italic">
-                              "{experiment.hypothesis}"
-                            </p>
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center justify-between pt-2">
-                            <div className="flex space-x-2">
-                              {experiment.status === 'COMPLETED' && (
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleViewResults(experiment)}
-                                  loading={analyzingId === experiment.id}
-                                  disabled={analyzingId === experiment.id}
-                                >
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  View Results
-                                </Button>
-                              )}
-                              {experiment.status === 'ACTIVE' && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleCompleteExperiment(experiment.id)}
-                                  disabled={updateStatusMutation.isPending}
-                                >
-                                  <Square className="w-4 h-4 mr-2" />
-                                  Complete
-                                </Button>
-                              )}
-                              {experiment.status === 'COMPLETED' && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleReactivateExperiment(experiment.id)}
-                                  disabled={updateStatusMutation.isPending}
-                                >
-                                  <Play className="w-4 h-4 mr-2" />
-                                  Reactivate
-                                </Button>
-                              )}
-                            </div>
-                            <div className="flex space-x-1">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleEditExperiment(experiment)}
-                                className="text-primary hover:text-primary hover:bg-primary/10"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDeleteExperiment(experiment.id)}
-                                disabled={deleteMutation.isPending}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                              {/* Actions */}
+                              <div className="flex items-center justify-between pt-2">
+                                <div className="flex space-x-2">
+                                  {experiment.status === 'COMPLETED' && (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleViewResults(experiment)}
+                                      loading={analyzingId === experiment.id}
+                                      disabled={analyzingId === experiment.id}
+                                      className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+                                    >
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      View Results
+                                    </Button>
+                                  )}
+                                  {experiment.status === 'ACTIVE' && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleCompleteExperiment(experiment.id)}
+                                      disabled={updateStatusMutation.isPending}
+                                    >
+                                      <Square className="w-4 h-4 mr-2" />
+                                      Complete
+                                    </Button>
+                                  )}
+                                  {experiment.status === 'COMPLETED' && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => handleReactivateExperiment(experiment.id)}
+                                      disabled={updateStatusMutation.isPending}
+                                    >
+                                      <Play className="w-4 h-4 mr-2" />
+                                      Reactivate
+                                    </Button>
+                                  )}
+                                </div>
+                                <div className="flex space-x-1">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleEditExperiment(experiment)}
+                                    className="text-primary hover:text-primary hover:bg-primary/10"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => handleDeleteExperiment(experiment.id)}
+                                    disabled={deleteMutation.isPending}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </>
           )}
         </div>
       </div>
@@ -466,6 +484,12 @@ export default function LabPage() {
         isOpen={showResultsDialog}
         onClose={() => setShowResultsDialog(false)}
         results={selectedResults}
+      />
+
+      <ShareFindingDialog
+        isOpen={showShareDialog}
+        onClose={() => setShowShareDialog(false)}
+        context={getShareContext()}
       />
     </div>
   );
