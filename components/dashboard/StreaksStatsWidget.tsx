@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
-import { Flame, Target, BarChart3, Settings, ArrowRight } from 'lucide-react';
+import { Flame, Target, BarChart3, ArrowRight } from 'lucide-react';
 
 interface StreaksStatsWidgetProps {
   currentStreak: number;
@@ -20,7 +20,7 @@ export function StreaksStatsWidget({
 }: StreaksStatsWidgetProps) {
   if (loading) {
     return (
-      <Card>
+      <>
         <CardHeader>
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -39,12 +39,12 @@ export function StreaksStatsWidget({
             ))}
           </div>
         </CardContent>
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card>
+    <>
       <CardHeader>
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -62,7 +62,7 @@ export function StreaksStatsWidget({
                 <Flame className="w-5 h-5 text-orange-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-primary">{currentStreak}</p>
+            <p className="text-2xl font-bold text-primary-text">{currentStreak}</p>
             <p className="text-xs text-secondary-text">Day Streak</p>
           </div>
 
@@ -73,7 +73,7 @@ export function StreaksStatsWidget({
                 <Target className="w-5 h-5 text-blue-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-accent-1">{totalMetrics}</p>
+            <p className="text-2xl font-bold text-primary-text">{totalMetrics}</p>
             <p className="text-xs text-secondary-text">Active Metrics</p>
           </div>
 
@@ -84,20 +84,20 @@ export function StreaksStatsWidget({
                 <BarChart3 className="w-5 h-5 text-green-600" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-accent-2">{totalEntries}</p>
+            <p className="text-2xl font-bold text-primary-text">{totalEntries}</p>
             <p className="text-xs text-secondary-text">Total Logs</p>
           </div>
         </div>
 
-        {/* Manage Logs Button - Now matches "View Your Trends" style */}
+        {/* Manage Logs Button */}
         <Button 
           onClick={() => window.location.href = '/log'}
-          className="w-full"
+          className="w-full bg-brand-button hover:bg-brand-button/90 text-white"
         >
           <span>Manage Logs</span>
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </CardContent>
-    </Card>
+    </>
   );
 }

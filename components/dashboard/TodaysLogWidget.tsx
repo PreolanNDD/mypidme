@@ -7,7 +7,7 @@ import { TrackableItem } from '@/lib/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { LogEntryField } from '@/components/log/LogEntryField';
-import { Calendar, Save, CheckCircle, Target, TrendingUp, Edit } from 'lucide-react';
+import { Calendar, Save, CheckCircle, Target, TrendingUp, Edit, Plus, Minus } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface TodaysLogWidgetProps {
@@ -21,10 +21,105 @@ const getDefaultValue = (dataType: string) => {
     case 'BOOLEAN': return false;
     case 'TEXT': return '';
     case 'SCALE_1_10': return 5;
-    case 'NUMERIC': return null;
+    case 'NUMERIC': return 0;
     default: return null;
   }
 };
+
+// Custom Numeric Input Component
+function NumericInput({ value, onChange, disabled }: { 
+  value: number; 
+  onChange: (value: number) => void; 
+  disabled?: boolean;
+}) {
+  const handleIncrement = () => {
+    onChange(value + 1);
+  };
+
+  const handleDecrement = () => {
+    onChange(Math.max(0, value - 1));
+  };
+
+  const handleDirectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseInt(e.target.value) || 0;
+    onChange(Math.max(0, newValue));
+  };
+
+  return (
+    <div className="flex items-center space-x-3">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={handleDecrement}
+        disabled={disabled || value <= 0}
+        className="w-8 h-8 p-0 rounded-full"
+      >
+        <Minus className="w-4 h-4" />
+      </Button>
+      
+      <div className="flex-1 text-center">
+        <input
+          type="number"
+          value={value}
+          onChange={handleDirectChange}
+          disabled={disabled}
+          min="0"
+          className="w-full text-center text-2xl font-bold bg-transparent border-none outline-none text-primary-text"
+        />
+      </div>
+      
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={handleIncrement}
+        disabled={disabled}
+        className="w-8 h-8 p-0 rounded-full"
+      >
+        <Plus className="w-4 h-4" />
+      </Button>
+    </div>
+  );
+}
+
+// Enhanced LogEntryField with custom numeric input
+function EnhancedLogEntryField({ item, value, onChange }: {
+  item: TrackableItem;
+  value: any;
+  onChange: (itemId: string, value: any) => void;
+}) {
+  const handleChange = useCallback((newValue: any) => {
+    onChange(item.id, newValue);
+  }, [item.id, onChange]);
+
+  if (item.type === 'NUMERIC') {
+    const numericValue = value === null || value === undefined ? 0 : Number(value);
+    
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-primary-text">
+            {item.name}
+          </label>
+        </div>
+        <NumericInput
+          value={numericValue}
+          onChange={handleChange}
+        />
+      </div>
+    );
+  }
+
+  // For all other types, use the original LogEntryField
+  return (
+    <LogEntryField 
+      item={item} 
+      value={value} 
+      onChange={onChange}
+    />
+  );
+}
 
 export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: TodaysLogWidgetProps) {
   const { user, userProfile } = useAuth();
@@ -34,7 +129,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
   // Initialize form data with existing entries or defaults
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [message, setMessage] = useState('');
-  const [isEditing, setIsEditing] = useState(false); // New state to control edit mode
+  const [isEditing, setIsEditing] = useState(false);
 
   // Update form data when trackableItems or todaysEntries change
   useEffect(() => {
@@ -60,13 +155,11 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     ).length;
     const progressPercentage = totalMetrics > 0 ? (completedMetrics / totalMetrics) * 100 : 0;
     
-    const metrics = {
+    return {
       total: totalMetrics,
       completed: completedMetrics,
       percentage: progressPercentage
     };
-    
-    return metrics;
   }, [trackableItems, todaysEntries]);
 
   // Save mutation
@@ -93,11 +186,10 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     },
     onSuccess: () => {
       setMessage('All data saved successfully!');
-      setIsEditing(false); // Exit edit mode after successful save
+      setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: ['todaysEntries', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['dashboardStats', user?.id] });
       
-      // Clear message after 3 seconds
       setTimeout(() => {
         setMessage('');
       }, 3000);
@@ -105,7 +197,6 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     onError: (error: any) => {
       setMessage(`Failed to save data: ${error.message}`);
       
-      // Clear error after 5 seconds
       setTimeout(() => {
         setMessage('');
       }, 5000);
@@ -124,107 +215,50 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
       return;
     }
     saveMutation.mutate();
-  }, [saveMutation, trackableItems.length, user?.id]);
+  }, [saveMutation, trackableItems.length]);
 
   const handleEditClick = useCallback(() => {
     setIsEditing(true);
-    setMessage(''); // Clear any existing messages
+    setMessage('');
   }, []);
 
-  // Check if all metrics have been saved to the database (not just form state)
+  // Check if all metrics have been saved to the database
   const allMetricsSaved = useMemo(() => {
     if (trackableItems.length === 0) return false;
     
-    const saved = trackableItems.every(item => {
+    return trackableItems.every(item => {
       return todaysEntries[item.id] !== undefined;
     });
-    
-    return saved;
   }, [trackableItems, todaysEntries]);
-
-  const firstName = userProfile?.first_name || 'there';
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="font-heading text-2xl text-primary-text">Today's Log</h2>
-              <p className="text-secondary-text">Loading your metrics...</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <CardContent className="p-8">
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
+          ))}
+        </div>
+      </CardContent>
     );
   }
 
   if (trackableItems.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="font-heading text-2xl text-primary-text">Today's Log</h2>
-              <p className="text-secondary-text">No metrics to track yet</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="text-center py-8">
-          <p className="text-secondary-text mb-4">Create some metrics first to start logging your daily data!</p>
-          <Button onClick={() => window.location.href = '/log'}>
-            Create Your First Metric
-          </Button>
-        </CardContent>
-      </Card>
+      <CardContent className="text-center py-12">
+        <p className="text-primary-text mb-4">Create some metrics first to start logging your daily data!</p>
+        <Button onClick={() => window.location.href = '/log'} className="bg-brand-button hover:bg-brand-button/90 text-white">
+          Create Your First Metric
+        </Button>
+      </CardContent>
     );
   }
 
   // Show completion state only if all metrics are saved AND we're not in edit mode
   if (allMetricsSaved && !isEditing) {
     return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-accent-2 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <h2 className="font-heading text-2xl text-primary-text">Today's Log</h2>
-              <p className="text-secondary-text">All metrics completed for today!</p>
-            </div>
-          </div>
-          
-          {/* Progress Bar - Completed State */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-primary-text">Progress</span>
-              <span className="text-sm text-accent-2 font-medium">
-                {progressMetrics.completed}/{progressMetrics.total} Complete
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-accent-2 h-2 rounded-full transition-all duration-500 ease-out"
-                style={{ width: '100%' }}
-              ></div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="text-center py-8">
+      <CardContent className="p-8">
+        <div className="text-center py-8">
           <div className="space-y-4">
             <div className="w-16 h-16 bg-accent-2 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-8 h-8 text-white" />
@@ -249,8 +283,8 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardContent>
     );
   }
 
@@ -258,8 +292,9 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
   const outputItems = trackableItems.filter(item => item.category === 'OUTPUT');
 
   return (
-    <Card>
-      <CardHeader>
+    <CardContent className="p-8">
+      <div className="space-y-6">
+        {/* Header */}
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
             <Calendar className="w-5 h-5 text-white" />
@@ -287,7 +322,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
         </div>
         
         {/* Progress Bar */}
-        <div className="mt-4">
+        <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-primary-text">Today's Progress</span>
             <span className="text-sm text-secondary-text">
@@ -312,8 +347,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
             </p>
           )}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
+
         {message && (
           <div className={`p-3 rounded-lg text-sm ${
             message.includes('successfully') 
@@ -324,61 +358,68 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
           </div>
         )}
 
-        {/* Input Metrics */}
-        {inputItems.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
-                <Target className="w-4 h-4 text-white" />
+        {/* Two-column layout for metrics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column: Input Metrics */}
+          <div className="space-y-6">
+            {inputItems.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
+                    <Target className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="font-heading text-lg text-primary-text">Inputs</h3>
+                </div>
+                <div className="space-y-4">
+                  {inputItems.map(item => (
+                    <EnhancedLogEntryField 
+                      key={item.id}
+                      item={item} 
+                      value={formData[item.id]} 
+                      onChange={handleFieldChange}
+                    />
+                  ))}
+                </div>
               </div>
-              <h3 className="font-heading text-lg text-primary-text">Inputs</h3>
-            </div>
-            <div className="space-y-4 pl-11">
-              {inputItems.map(item => (
-                <LogEntryField 
-                  key={item.id}
-                  item={item} 
-                  value={formData[item.id]} 
-                  onChange={handleFieldChange}
-                />
-              ))}
-            </div>
+            )}
           </div>
-        )}
 
-        {/* Output Metrics */}
-        {outputItems.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-white" />
+          {/* Right Column: Output Metrics */}
+          <div className="space-y-6">
+            {outputItems.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-white" />
+                  </div>
+                  <h3 className="font-heading text-lg text-primary-text">Outputs</h3>
+                </div>
+                <div className="space-y-4">
+                  {outputItems.map(item => (
+                    <EnhancedLogEntryField 
+                      key={item.id}
+                      item={item} 
+                      value={formData[item.id]} 
+                      onChange={handleFieldChange}
+                    />
+                  ))}
+                </div>
               </div>
-              <h3 className="font-heading text-lg text-primary-text">Outputs</h3>
-            </div>
-            <div className="space-y-4 pl-11">
-              {outputItems.map(item => (
-                <LogEntryField 
-                  key={item.id}
-                  item={item} 
-                  value={formData[item.id]} 
-                  onChange={handleFieldChange}
-                />
-              ))}
-            </div>
+            )}
           </div>
-        )}
+        </div>
         
         <Button 
           onClick={handleSave}
           loading={saveMutation.isPending}
-          className="w-full" 
+          className="w-full bg-brand-button hover:bg-brand-button/90 text-white" 
           size="lg"
           disabled={saveMutation.isPending}
         >
           <Save className="w-4 h-4 mr-2" />
           Save Today's Log
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </CardContent>
   );
 }

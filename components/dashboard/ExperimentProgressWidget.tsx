@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getExperiments } from '@/lib/experiments';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { FlaskConical, Plus, Calendar, Target, TrendingUp, ArrowRight } from 'lucide-react';
@@ -74,7 +74,7 @@ export function ExperimentProgressWidget() {
 
   if (isLoading) {
     return (
-      <Card>
+      <>
         <CardHeader>
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -90,12 +90,12 @@ export function ExperimentProgressWidget() {
             ))}
           </div>
         </CardContent>
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card>
+    <>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -133,7 +133,7 @@ export function ExperimentProgressWidget() {
             <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
               Design controlled experiments to test what really works for your optimization goals.
             </p>
-            <Button onClick={handleCreateExperiment} className="w-full sm:w-auto">
+            <Button onClick={handleCreateExperiment} className="w-full sm:w-auto bg-brand-button hover:bg-brand-button/90 text-white">
               <Plus className="w-4 h-4 mr-2" />
               Create Your First Experiment
             </Button>
@@ -231,7 +231,7 @@ export function ExperimentProgressWidget() {
                 variant="outline"
                 size="sm"
                 onClick={handleCreateExperiment}
-                className="w-full"
+                className="w-full bg-brand-button hover:bg-brand-button/90 text-white border-brand-button"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Start New Experiment
@@ -240,6 +240,6 @@ export function ExperimentProgressWidget() {
           </div>
         )}
       </CardContent>
-    </Card>
+    </>
   );
 }

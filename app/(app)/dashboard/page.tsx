@@ -5,10 +5,8 @@ import { getTrackableItems } from '@/lib/trackable-items';
 import { getDashboardStats, getTodaysEntries } from '@/lib/dashboard-stats';
 import { TodaysLogWidget } from '@/components/dashboard/TodaysLogWidget';
 import { StreaksStatsWidget } from '@/components/dashboard/StreaksStatsWidget';
-import { AnalyzeDataWidget } from '@/components/dashboard/AnalyzeDataWidget';
 import { ExperimentProgressWidget } from '@/components/dashboard/ExperimentProgressWidget';
 import { CommunityFeedWidget } from '@/components/dashboard/CommunityFeedWidget';
-import { Settings2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
 export default function Dashboard() {
@@ -44,59 +42,53 @@ export default function Dashboard() {
   const isLoading = loadingItems || loadingEntries || loadingStats;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Settings2 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-heading text-3xl text-primary-text">
-                Hello, {firstName}!
+    <div className="min-h-screen bg-gradient-to-br from-[#9b5de5] to-[#3c1a5b]">
+      {/* Content */}
+      <div className="px-6 py-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          
+          {/* Section 1: Welcome & Stats */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left: Welcome Message */}
+            <div className="flex flex-col justify-center">
+              <h1 className="text-4xl font-heading mb-2">
+                <span className="text-accent-1">Hello, {firstName}!</span>
               </h1>
-              <p className="text-secondary-text">
+              <p className="text-xl text-white">
                 Ready to optimize your day?
               </p>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Content */}
-      <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Main Today's Log Widget */}
-            <div className="lg:col-span-2 space-y-8">
-              <TodaysLogWidget
-                trackableItems={trackableItems}
-                todaysEntries={todaysEntries}
-                loading={isLoading}
-              />
-
-              {/* Experiment Progress Widget */}
-              <ExperimentProgressWidget />
-
-              {/* Community Feed Widget */}
-              <CommunityFeedWidget />
-            </div>
-
-            {/* Right Column - Supporting Widgets */}
-            <div className="lg:col-span-1 space-y-6">
-              {/* Streaks & Stats Widget */}
+            {/* Right: Streaks & Stats Widget */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
               <StreaksStatsWidget
                 currentStreak={dashboardStats?.currentStreak || 0}
                 totalMetrics={dashboardStats?.totalMetrics || 0}
                 totalEntries={dashboardStats?.totalEntries || 0}
                 loading={loadingStats}
               />
-
-              {/* Analyze Data Widget */}
-              <AnalyzeDataWidget />
             </div>
           </div>
+
+          {/* Section 2: Interactive "Today's Log" */}
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+            <TodaysLogWidget
+              trackableItems={trackableItems}
+              todaysEntries={todaysEntries}
+              loading={isLoading}
+            />
+          </div>
+
+          {/* Section 3: "Active Experiments" */}
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+            <ExperimentProgressWidget />
+          </div>
+
+          {/* Section 4: "Community Insights" */}
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+            <CommunityFeedWidget />
+          </div>
+
         </div>
       </div>
     </div>

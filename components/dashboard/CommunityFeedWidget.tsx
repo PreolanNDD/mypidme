@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getCommunityFindings } from '@/lib/community';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { Users, ChevronUp, ChevronDown, User, Calendar, ArrowRight, MessageSquare, TrendingUp } from 'lucide-react';
@@ -66,7 +66,7 @@ export function CommunityFeedWidget() {
 
   if (isLoading) {
     return (
-      <Card>
+      <>
         <CardHeader>
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -82,12 +82,12 @@ export function CommunityFeedWidget() {
             ))}
           </div>
         </CardContent>
-      </Card>
+      </>
     );
   }
 
   return (
-    <Card>
+    <>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -123,7 +123,7 @@ export function CommunityFeedWidget() {
             <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
               Be the first to share your insights and discoveries with the community!
             </p>
-            <Button onClick={handleViewCommunity} className="w-full sm:w-auto">
+            <Button onClick={handleViewCommunity} className="w-full sm:w-auto bg-brand-button hover:bg-brand-button/90 text-white">
               <Users className="w-4 h-4 mr-2" />
               Explore Community
             </Button>
@@ -224,7 +224,7 @@ export function CommunityFeedWidget() {
                 variant="outline"
                 size="sm"
                 onClick={handleViewCommunity}
-                className="w-full"
+                className="w-full bg-brand-button hover:bg-brand-button/90 text-white border-brand-button"
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Discover More Insights
@@ -233,6 +233,6 @@ export function CommunityFeedWidget() {
           </div>
         )}
       </CardContent>
-    </Card>
+    </>
   );
 }

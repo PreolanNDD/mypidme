@@ -22,6 +22,7 @@ const config: Config = {
       colors: {
         background: '#F8F8FF',
         primary: '#9B5DE5',
+        'brand-button': '#8245b5',
         'primary-text': '#2F2F2F',
         'secondary-text': '#708090',
         'accent-1': '#FFA500',
