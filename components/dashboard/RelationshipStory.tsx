@@ -43,14 +43,14 @@ export function RelationshipStory({
           image: '/images/relationship_pos.webp',
           headline: 'They Move in Sync',
           description: `This means that when ${comparisonMetricName} goes up, ${primaryMetricName} also tends to go up.`,
-          icon: <TrendingUp className="w-4 h-4 text-green-600" />
+          icon: <TrendingUp className="w-4 h-4 text-white" />
         };
       case 'negative':
         return {
           image: '/images/relationship_neg.webp',
           headline: "It's a See-Saw Effect",
           description: `This means that when ${comparisonMetricName} goes up, ${primaryMetricName} tends to go down.`,
-          icon: <TrendingDown className="w-4 h-4 text-red-600" />
+          icon: <TrendingDown className="w-4 h-4 text-white" />
         };
       case 'neutral':
       default:
@@ -58,7 +58,7 @@ export function RelationshipStory({
           image: '/images/relationship_neut.webp',
           headline: 'No Clear Pattern',
           description: "There doesn't appear to be a consistent relationship between these two metrics in the selected period.",
-          icon: <Minus className="w-4 h-4 text-gray-500" />
+          icon: <Minus className="w-4 h-4 text-white" />
         };
     }
   };
@@ -91,15 +91,15 @@ export function RelationshipStory({
       <CardContent className="space-y-6">
         {/* Image and Content */}
         <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-          {/* Relationship Image */}
+          {/* Relationship Image - Made wider */}
           <div className="flex-shrink-0">
-            <div className="w-32 h-32 relative rounded-lg overflow-hidden bg-gray-100">
+            <div className="w-48 h-32 relative rounded-lg overflow-hidden bg-gray-100">
               <Image
                 src={content.image}
                 alt={content.headline}
                 fill
-                className="object-cover"
-                sizes="(max-width: 768px) 128px, 128px"
+                className="object-contain"
+                sizes="(max-width: 768px) 192px, 192px"
               />
             </div>
           </div>
@@ -125,21 +125,6 @@ export function RelationshipStory({
                 {connectionStrength}
               </Badge>
             </div>
-          </div>
-        </div>
-
-        {/* Additional Details */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-primary-text">
-              Correlation Score:
-            </span>
-            <span className="font-mono text-secondary-text">
-              {correlationScore.toFixed(3)}
-            </span>
-          </div>
-          <div className="mt-2 text-xs text-secondary-text">
-            Scores range from -1.0 (perfect negative correlation) to +1.0 (perfect positive correlation)
           </div>
         </div>
       </CardContent>
