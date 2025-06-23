@@ -67,48 +67,46 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
   const totalScore = userFindings.reduce((sum, finding) => sum + (finding.upvotes - finding.downvotes), 0);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-6">
-        <div className="max-w-4xl mx-auto">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          
-          {/* User Profile Header */}
-          <div className="flex items-start space-x-4">
-            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-white" />
-            </div>
-            <div className="flex-1">
-              <h1 className="font-heading text-3xl text-primary-text mb-2">
-                {displayName}
-                {isOwnProfile && (
-                  <span className="text-lg text-secondary-text ml-2">(You)</span>
-                )}
-              </h1>
-              <div className="flex items-center space-x-4 text-sm text-secondary-text">
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>Joined {formatJoinDate(userProfile.created_at)}</span>
+    <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
+      {/* Content */}
+      <div className="px-6 py-8">
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Main Page Header */}
+          <div className="flex items-center space-x-3 mb-8">
+            <Button
+              variant="ghost"
+              onClick={() => router.back()}
+              className="text-white hover:bg-white/10"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            
+            {/* User Profile Header */}
+            <div className="flex items-start space-x-4">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+                <User className="w-8 h-8 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h1 className="font-heading text-3xl text-white mb-2">
+                  {displayName}
+                  {isOwnProfile && (
+                    <span className="text-lg ml-2" style={{ color: '#e6e2eb' }}>(You)</span>
+                  )}
+                </h1>
+                <div className="flex items-center space-x-4 text-sm" style={{ color: '#e6e2eb' }}>
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>Joined {formatJoinDate(userProfile.created_at)}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Content */}
-      <div className="px-6 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
               <CardContent className="p-6 text-center">
                 <div className="text-3xl font-bold text-primary mb-2">{totalFindings}</div>
                 <div className="text-sm text-secondary-text">
@@ -117,14 +115,14 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
               <CardContent className="p-6 text-center">
                 <div className="text-3xl font-bold text-green-600 mb-2">{totalUpvotes}</div>
                 <div className="text-sm text-secondary-text">Total Upvotes</div>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
               <CardContent className="p-6 text-center">
                 <div className={`text-3xl font-bold mb-2 ${totalScore >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {totalScore > 0 ? '+' : ''}{totalScore}
@@ -137,16 +135,16 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
           {/* Findings Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="font-heading text-2xl text-primary-text">
+              <h2 className="font-heading text-2xl text-white">
                 {isOwnProfile ? 'Your Findings' : `${displayName}'s Findings`}
               </h2>
-              <div className="text-sm text-secondary-text">
+              <div className="text-sm" style={{ color: '#e6e2eb' }}>
                 {totalFindings} finding{totalFindings !== 1 ? 's' : ''}
               </div>
             </div>
 
             {userFindings.length === 0 ? (
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                 <CardContent className="text-center py-12">
                   <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                   <h3 className="font-heading text-xl text-primary-text mb-2">
@@ -166,7 +164,7 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
                   const score = finding.upvotes - finding.downvotes;
 
                   return (
-                    <Card key={finding.id} className="hover:shadow-md transition-shadow">
+                    <Card key={finding.id} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl hover:shadow-3xl transition-shadow">
                       <CardContent className="p-6">
                         <Link href={`/community/${finding.id}`} className="block">
                           <div className="space-y-4">

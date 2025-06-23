@@ -110,11 +110,11 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   // Handle case where finding might be null (e.g., deleted after initial load)
   if (!findingData) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-heading text-2xl text-primary-text mb-4">Finding Not Found</h1>
-          <p className="text-secondary-text mb-6">This finding may have been removed or is no longer available.</p>
-          <Button onClick={() => router.back()}>
+          <h1 className="font-heading text-2xl text-white mb-4">Finding Not Found</h1>
+          <p style={{ color: '#e6e2eb' }} className="mb-6">This finding may have been removed or is no longer available.</p>
+          <Button onClick={() => router.back()} className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200" style={{ color: '#4a2a6d' }}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Back
           </Button>
@@ -479,54 +479,52 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
 
   return (
     <>
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-6 py-6">
-          <div className="max-w-4xl mx-auto">
-            <Button
-              variant="ghost"
-              onClick={() => router.back()}
-              className="mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <div>
-              <h1 className="font-heading text-3xl text-primary-text mb-2">
-                {finding.title}
-              </h1>
-              <div className="flex items-center space-x-4 text-sm text-secondary-text">
-                <div className="flex items-center space-x-1">
-                  <User className="w-4 h-4" />
-                  <span 
-                    className="hover:text-primary transition-colors cursor-pointer"
-                    onClick={handleAuthorClick}
-                  >
-                    {authorName}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>{formatDate(finding.created_at)}</span>
-                </div>
-                <Badge variant="outline" className="text-xs">
-                  Score: {score > 0 ? '+' : ''}{score}
-                </Badge>
-                {finding.share_data && (
-                  <Badge variant="outline" className="text-blue-700 border-blue-300">
-                    Data Shared
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
         {/* Content */}
         <div className="px-6 py-8">
           <div className="max-w-4xl mx-auto space-y-8">
+            {/* Header */}
+            <div className="mb-8">
+              <Button
+                variant="ghost"
+                onClick={() => router.back()}
+                className="mb-4 text-white hover:bg-white/10"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              <div>
+                <h1 className="font-heading text-3xl text-white mb-2">
+                  {finding.title}
+                </h1>
+                <div className="flex items-center space-x-4 text-sm" style={{ color: '#e6e2eb' }}>
+                  <div className="flex items-center space-x-1">
+                    <User className="w-4 h-4" />
+                    <span 
+                      className="hover:text-white transition-colors cursor-pointer"
+                      onClick={handleAuthorClick}
+                    >
+                      {authorName}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>{formatDate(finding.created_at)}</span>
+                  </div>
+                  <Badge variant="outline" className="text-xs bg-white/10 border-white/20 text-white">
+                    Score: {score > 0 ? '+' : ''}{score}
+                  </Badge>
+                  {finding.share_data && (
+                    <Badge variant="outline" className="text-blue-200 border-blue-300 bg-blue-500/20">
+                      Data Shared
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Main Content */}
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
               <CardContent className="p-8">
                 <div className="prose prose-lg max-w-none">
                   <div className="whitespace-pre-wrap text-primary-text leading-relaxed">
@@ -540,7 +538,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
             {finding.share_data && finding.chart_config && primaryMetric && (
               <div className="space-y-6">
                 {/* Chart Display */}
-                <Card>
+                <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                   <CardContent className="p-8">
                     <h3 className="font-heading text-xl text-primary-text mb-4">
                       Data Analysis: {primaryMetric.name}
@@ -628,27 +626,31 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
 
                 {/* At a Glance - Correlation Analysis */}
                 {correlationScore !== null && primaryMetric && comparisonMetric && (
-                  <CorrelationCard
-                    correlationScore={correlationScore}
-                    primaryMetricName={primaryMetric.name}
-                    comparisonMetricName={comparisonMetric.name}
-                  />
+                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                    <CorrelationCard
+                      correlationScore={correlationScore}
+                      primaryMetricName={primaryMetric.name}
+                      comparisonMetricName={comparisonMetric.name}
+                    />
+                  </div>
                 )}
 
                 {/* Metric Relationship Breakdown */}
                 {primaryMetric && comparisonMetric && processedChartData.length > 0 && (
-                  <MetricRelationshipBreakdown
-                    chartData={processedChartData}
-                    primaryMetric={primaryMetric}
-                    comparisonMetric={comparisonMetric}
-                  />
+                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                    <MetricRelationshipBreakdown
+                      chartData={processedChartData}
+                      primaryMetric={primaryMetric}
+                      comparisonMetric={comparisonMetric}
+                    />
+                  </div>
                 )}
               </div>
             )}
 
             {/* Data Visualization Placeholder for Experiment */}
             {finding.share_data && finding.experiment_id && !finding.chart_config && (
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                 <CardContent className="p-8">
                   <h3 className="font-heading text-xl text-primary-text mb-4">
                     Experiment Results
@@ -668,7 +670,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
             )}
 
             {/* Actions */}
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   {/* Voting */}

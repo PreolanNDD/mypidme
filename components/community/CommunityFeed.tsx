@@ -322,11 +322,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     return 'Anonymous';
   };
 
-  const truncateContent = (content: string, maxLength: number = 150) => {
-    if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength).trim() + '...';
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'visible':
@@ -347,7 +342,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
               <div className="animate-pulse space-y-3">
                 <div className="h-6 bg-gray-200 rounded w-3/4"></div>
                 <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-20 bg-gray-200 rounded"></div>
                 <div className="flex space-x-4">
                   <div className="h-8 bg-gray-200 rounded w-16"></div>
                   <div className="h-8 bg-gray-200 rounded w-16"></div>
@@ -432,13 +426,6 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                       </div>
                     </div>
                     <ArrowRight className="w-5 h-5 text-secondary-text hover:text-primary transition-colors flex-shrink-0 ml-4" />
-                  </div>
-
-                  {/* Content Preview */}
-                  <div className="prose prose-sm max-w-none">
-                    <p className="text-primary-text leading-relaxed">
-                      {truncateContent(finding.content)}
-                    </p>
                   </div>
 
                   {/* Actions - Outside the link to prevent nested interactive elements */}

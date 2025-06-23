@@ -37,7 +37,7 @@ function SubmitButton() {
       type="submit"
       loading={pending}
       disabled={pending}
-      className="w-full"
+      className="w-full bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
       size="lg"
     >
       <Send className="w-4 h-4 mr-2" />
@@ -296,38 +296,36 @@ export default function CreateFindingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="mr-2"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Edit3 className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-heading text-3xl text-primary-text">Create Finding</h1>
-              <p className="text-secondary-text">Share your insights with the community</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
       <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Main Page Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.back()}
+                className="mr-2 text-white hover:bg-white/10"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                <Edit3 className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="font-heading text-3xl text-white">Create Finding</h1>
+                <p style={{ color: '#e6e2eb' }}>Share your insights with the community</p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Column - Editor */}
             <div className="space-y-6">
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                 <CardHeader>
                   <div className="flex items-center space-x-3">
                     <Edit3 className="w-5 h-5 text-primary" />
@@ -421,7 +419,7 @@ export default function CreateFindingPage() {
 
             {/* Right Column - Live Preview */}
             <div className="space-y-6">
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                 <CardHeader>
                   <div className="flex items-center space-x-3">
                     <Eye className="w-5 h-5 text-primary" />
