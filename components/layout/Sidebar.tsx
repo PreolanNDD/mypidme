@@ -121,6 +121,13 @@ export function Sidebar() {
           {isOpen && "© 2024 PIDMe"}
         </div>
       </div>
+
+      {/* Custom CSS variable to communicate sidebar state */}
+      <style jsx global>{`
+        :root {
+          --sidebar-width: ${isOpen ? '256px' : '64px'};
+        }
+      `}</style>
     </div>
   );
 }

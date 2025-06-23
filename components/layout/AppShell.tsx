@@ -13,8 +13,11 @@ export function AppShell({ children }: AppShellProps) {
       {/* Sidebar */}
       <Sidebar />
       
-      {/* Main Content - Remove fixed margins and use responsive classes */}
-      <main className="flex-1 transition-all duration-300 ease-in-out ml-16 lg:ml-64">
+      {/* Main Content - Use CSS variable for dynamic width */}
+      <main 
+        className="flex-1 transition-all duration-300 ease-in-out"
+        style={{ marginLeft: 'var(--sidebar-width, 64px)' }}
+      >
         {children}
       </main>
     </div>
