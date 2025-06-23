@@ -63,31 +63,20 @@ export default function SettingsPage() {
   const hasChanges = firstName !== userProfile?.first_name || lastName !== userProfile?.last_name;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-6 py-6">
-        <div className="max-w-screen-sm mx-auto">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Settings className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-heading text-3xl text-primary-text">
-                Settings
-              </h1>
-              <p className="text-secondary-text">
-                Manage your account and preferences
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
       <div className="px-6 py-8">
-        <div className="max-w-screen-sm mx-auto space-y-6">
+        <div className="max-w-screen-sm mx-auto space-y-8">
+          {/* Main Page Header */}
+          <div className="mb-8">
+            <h1 className="font-heading text-3xl text-white mb-2">Settings</h1>
+            <p style={{ color: '#e6e2eb' }}>
+              Manage your account and preferences
+            </p>
+          </div>
+
           {/* Profile Section */}
-          <Card>
+          <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
             <CardHeader>
               <div className="flex items-center space-x-3">
                 <User className="w-5 h-5 text-primary" />
@@ -128,7 +117,7 @@ export default function SettingsPage() {
                   type="submit"
                   loading={updating}
                   disabled={!firstName || !lastName || !hasChanges}
-                  className="w-full"
+                  className="w-full bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
                 >
                   Update Profile
                 </Button>
@@ -137,7 +126,7 @@ export default function SettingsPage() {
           </Card>
 
           {/* Account Information */}
-          <Card>
+          <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
             <CardHeader>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-primary" />
@@ -172,7 +161,7 @@ export default function SettingsPage() {
           </Card>
 
           {/* Logout Section */}
-          <Card>
+          <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
             <CardContent className="pt-6">
               <Button
                 onClick={handleLogout}
