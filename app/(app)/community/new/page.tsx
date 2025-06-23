@@ -56,7 +56,7 @@ export default function CreateFindingPage() {
   const [state, formAction] = useFormState(createFindingAction, { message: '' });
 
   // Form state for metric selection
-  const [selectedHabitId, setSelectedHabitId] = useState<string>('');
+  const [selectedHabitId, setSelectedHabitId] = useState<string>('none');
   const [selectedGoalId, setSelectedGoalId] = useState<string>('');
   const [selectedDateRange, setSelectedDateRange] = useState<string>('30');
 
@@ -112,6 +112,8 @@ export default function CreateFindingPage() {
       }
       if (context.comparisonMetricId) {
         setSelectedHabitId(context.comparisonMetricId);
+      } else {
+        setSelectedHabitId('none');
       }
       if (context.dateRange) {
         setSelectedDateRange(context.dateRange.toString());
@@ -127,7 +129,7 @@ export default function CreateFindingPage() {
       return getDualMetricChartData(
         user!.id,
         selectedGoalId,
-        selectedHabitId || null,
+        selectedHabitId === 'none' ? null : selectedHabitId,
         parseInt(selectedDateRange)
       );
     },
@@ -263,7 +265,7 @@ export default function CreateFindingPage() {
   // Enhanced form action wrapper
   const enhancedFormAction = async (formData: FormData) => {
     // Set chart config based on selected metrics
-    if (selectedGoalId && selectedHabitId) {
+    if (selectedGoalId && selectedHabitId !== 'none') {
       formData.set('shareData', 'on');
       formData.set('chartConfig', JSON.stringify({
         primaryMetricId: selectedGoalId,
@@ -441,7 +443,7 @@ export default function CreateFindingPage() {
                                 <SelectValue placeholder="Select a habit metric" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="">None</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
                                 {inputMetrics.map((metric) => (
                                   <SelectItem key={metric.id} value={metric.id}>
                                     {metric.name} ({
@@ -532,7 +534,7 @@ export default function CreateFindingPage() {
 
                       <div className="flex items-center space-x-2">
                         <Badge className="bg-green-100 text-green-800 border-green-300">Published</Badge>
-                        {(context || (selectedGoalId && selectedHabitId)) && (
+                        {(context || (selectedGoalId && selectedHabitId !== 'none')) && (
                           <Badge variant="outline" className="text-blue-700 border-blue-300">
                             Data Shared
                           </Badge>
@@ -548,7 +550,7 @@ export default function CreateFindingPage() {
                     </div>
 
                     {/* Preview Data Visualization - Chart Analysis */}
-                    {((context && context.type === 'chart') || (selectedGoalId && selectedHabitId)) && primaryMetric && (
+                    {((context && context.type === 'chart') || (selectedGoalId && selectedHabitId !== 'none')) && primaryMetric && (
                       <div className="space-y-4">
                         <div className="border-t border-gray-200 pt-4">
                           <h3 className="font-medium text-primary-text mb-3">
