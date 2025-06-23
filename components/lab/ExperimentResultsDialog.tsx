@@ -70,7 +70,7 @@ export function ExperimentResultsDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-4xl max-h-[80vh] overflow-y-auto mr-6">
         <DialogHeader>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center space-x-3 flex-1 min-w-0">

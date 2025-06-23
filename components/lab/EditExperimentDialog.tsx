@@ -117,7 +117,7 @@ export function EditExperimentDialog({
 
   return (
     <Dialog open={isOpen && !!experiment} onOpenChange={handleClose}>
-      <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-y-auto mr-6">
         <DialogHeader>
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
@@ -256,7 +256,7 @@ export function EditExperimentDialog({
                 disabled={!formData.title || !formData.hypothesis || !formData.independent_variable_id || 
                          !formData.dependent_variable_id || !formData.start_date || !formData.end_date || 
                          inputMetrics.length === 0 || outputMetrics.length === 0 || isLoading}
-                className="flex-1"
+                className="flex-1 bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
               >
                 <Save className="w-4 h-4 mr-2" />
                 Save Changes
