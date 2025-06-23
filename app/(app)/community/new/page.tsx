@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { createFindingAction } from '@/lib/actions/community-actions';
@@ -48,17 +48,19 @@ function SubmitButton() {
 }
 
 export default function CreateFindingPage() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   // Use useFormState for form handling
   const [state, formAction] = useFormState(createFindingAction, { message: '' });
 
-  // Form state for metric selection
+  // Form state for metric selection and content
   const [selectedHabitId, setSelectedHabitId] = useState<string>('none');
   const [selectedGoalId, setSelectedGoalId] = useState<string>('');
   const [selectedDateRange, setSelectedDateRange] = useState<string>('30');
+  const [title, setTitle] = useState<string>('');
+  const [content, setContent] = useState<string>('');
 
   // Parse context from URL parameters
   const context = useMemo((): ShareContext | null => {
@@ -248,20 +250,6 @@ export default function CreateFindingPage() {
     return { processedChartData: processedData, axisConfig: config };
   }, [chartData, primaryMetric, comparisonMetric]);
 
-  const getContextDescription = () => {
-    if (!context) return '';
-    
-    if (context.type === 'chart') {
-      return `Chart analysis: ${primaryMetric?.name || 'Unknown metric'}${
-        comparisonMetric ? ` vs ${comparisonMetric.name}` : ''
-      } over ${context.dateRange || 30} days`;
-    } else if (context.type === 'experiment') {
-      return `Experiment results: ${experiment?.title || 'Unknown experiment'}`;
-    }
-    
-    return '';
-  };
-
   // Enhanced form action wrapper
   const enhancedFormAction = async (formData: FormData) => {
     // Set chart config based on selected metrics
@@ -291,6 +279,18 @@ export default function CreateFindingPage() {
     } catch (error) {
       throw error;
     }
+  };
+
+  const getContextDescription = () => {
+    if (!context) return '';
+    
+    if (context.type === 'chart') {
+      return `This finding is based on your data analysis${context.dateRange ? ` over the last ${context.dateRange} days` : ''}.`;
+    } else if (context.type === 'experiment') {
+      return 'This finding is based on your experiment results.';
+    }
+    
+    return '';
   };
 
   // Custom Tooltip Component (same as /data page)
@@ -341,6 +341,26 @@ export default function CreateFindingPage() {
         ))}
       </div>
     );
+  };
+
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (str: string) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  // Get author name with proper capitalization
+  const getAuthorName = () => {
+    if (!userProfile) return 'You';
+    const { first_name, last_name } = userProfile;
+    if (first_name && last_name) {
+      return `${capitalizeFirstLetter(first_name)} ${capitalizeFirstLetter(last_name)}`;
+    } else if (first_name) {
+      return capitalizeFirstLetter(first_name);
+    } else if (last_name) {
+      return capitalizeFirstLetter(last_name);
+    }
+    return 'You';
   };
 
   return (
@@ -408,16 +428,16 @@ export default function CreateFindingPage() {
                         <h3 className="font-medium text-primary-text">Select Metrics to Feature</h3>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Goal (Output) Selector */}
+                          {/* Goal Selector */}
                           <div className="space-y-2">
                             <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
                               <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
                                 <TrendingUp className="w-3 h-3 text-white" />
                               </div>
-                              <span>Goal (Output)</span>
+                              <span>Goal</span>
                             </label>
                             <Select value={selectedGoalId} onValueChange={setSelectedGoalId}>
-                              <SelectTrigger>
+                              <SelectTrigger className="bg-white">
                                 <SelectValue placeholder="Select a goal metric" />
                               </SelectTrigger>
                               <SelectContent>
@@ -430,16 +450,16 @@ export default function CreateFindingPage() {
                             </Select>
                           </div>
 
-                          {/* Habit (Input) Selector */}
+                          {/* Habit Selector */}
                           <div className="space-y-2">
                             <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
                               <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
                                 <Target className="w-3 h-3 text-white" />
                               </div>
-                              <span>Habit (Input)</span>
+                              <span>Habit</span>
                             </label>
                             <Select value={selectedHabitId} onValueChange={setSelectedHabitId}>
-                              <SelectTrigger>
+                              <SelectTrigger className="bg-white">
                                 <SelectValue placeholder="Select a habit metric" />
                               </SelectTrigger>
                               <SelectContent>
@@ -463,7 +483,7 @@ export default function CreateFindingPage() {
                             Time Period
                           </label>
                           <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-white">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -480,6 +500,8 @@ export default function CreateFindingPage() {
                     <Input
                       label="Finding Title"
                       name="title"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g., Morning meditation significantly improves my focus"
                       required
                     />
@@ -491,6 +513,8 @@ export default function CreateFindingPage() {
                       </Label>
                       <textarea
                         name="content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
                         placeholder="Share your insights, patterns you discovered, and what this means for your optimization journey. What did you learn? What surprised you? How might this help others?"
                         className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         rows={12}
@@ -518,13 +542,13 @@ export default function CreateFindingPage() {
                     {/* Preview Header */}
                     <div className="space-y-4">
                       <h1 className="font-heading text-2xl text-primary-text">
-                        Your finding title will appear here...
+                        {title || 'Your finding title will appear here...'}
                       </h1>
                       
                       <div className="flex items-center space-x-4 text-sm text-secondary-text">
                         <div className="flex items-center space-x-1">
                           <User className="w-4 h-4" />
-                          <span>{user?.email?.split('@')[0] || 'You'}</span>
+                          <span>{getAuthorName()}</span>
                         </div>
                         <div className="flex items-center space-x-1">
                           <Calendar className="w-4 h-4" />
@@ -545,7 +569,7 @@ export default function CreateFindingPage() {
                     {/* Preview Content */}
                     <div className="prose prose-sm max-w-none">
                       <div className="text-primary-text leading-relaxed whitespace-pre-wrap">
-                        Your insights and analysis will appear here as you type...
+                        {content || 'Your insights and analysis will appear here as you type...'}
                       </div>
                     </div>
 
@@ -630,12 +654,12 @@ export default function CreateFindingPage() {
                                 </ResponsiveContainer>
                               </div>
 
-                              {/* At a Glance - Correlation Analysis Preview */}
-                              {correlationScore !== null && primaryMetric && comparisonMetric && (
+                              {/* Metric Relationship Breakdown Preview */}
+                              {primaryMetric && comparisonMetric && processedChartData.length > 0 && (
                                 <div className="p-3 bg-gray-50 rounded-lg">
-                                  <h4 className="font-medium text-primary-text mb-2">At a Glance Preview</h4>
+                                  <h4 className="font-medium text-primary-text mb-2">Relationship Breakdown Preview</h4>
                                   <p className="text-sm text-secondary-text">
-                                    Correlation analysis and detailed metric breakdown will be shown here
+                                    Detailed metric breakdown will be shown here
                                   </p>
                                 </div>
                               )}
