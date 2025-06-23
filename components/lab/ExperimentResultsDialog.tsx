@@ -70,23 +70,25 @@ export function ExperimentResultsDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-4xl max-h-[80vh] overflow-y-auto mr-6">
+      <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto mr-6">
         <DialogHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center space-x-3 flex-1 min-w-0">
-              <div className="w-10 h-10 bg-accent-2 rounded-lg flex items-center justify-center flex-shrink-0">
-                <FlaskConical className="w-5 h-5 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <DialogTitle className="font-heading text-xl text-primary-text">
-                  Experiment Results
-                </DialogTitle>
-                <p className="text-sm text-secondary-text truncate">{experiment.title}</p>
-              </div>
+          <div className="flex items-center space-x-3 pr-12">
+            <div className="w-10 h-10 bg-accent-2 rounded-lg flex items-center justify-center">
+              <FlaskConical className="w-5 h-5 text-white" />
             </div>
+            <div className="flex-1 min-w-0">
+              <DialogTitle className="font-heading text-xl text-primary-text">
+                Experiment Results
+              </DialogTitle>
+              <p className="text-sm text-secondary-text">{experiment.title}</p>
+            </div>
+          </div>
+          
+          {/* Share Button - Positioned below the title to avoid overlap */}
+          <div className="flex justify-start pt-2">
             <Button
               onClick={onShare}
-              className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white flex-shrink-0"
+              className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
               size="sm"
             >
               <Share2 className="w-4 h-4 mr-2" />
