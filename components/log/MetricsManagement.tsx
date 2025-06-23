@@ -440,7 +440,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                        updateMutation.isPending;
     
     return (
-      <Card key={item.id} className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl ${!item.is_active ? 'opacity-70' : ''} ${isEditing || isDeleting ? 'ring-2 ring-primary ring-opacity-30' : ''} transition-all duration-200`}>
+      <Card key={item.id} className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl ${isEditing || isDeleting ? 'ring-2 ring-primary ring-opacity-30' : ''} transition-all duration-200`}>
         <CardContent className="p-3">
           {isDeleting ? (
             // Delete confirmation mode - expanded form
@@ -482,7 +482,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                   onClick={handleConfirmDelete}
                   disabled={isMutating}
                   loading={isMutating}
-                  className={`h-7 px-3 text-xs ${deleteMode === 'hard' ? 'bg-red-600 hover:bg-red-700 text-white' : ''}`}
+                  className={`h-7 px-3 text-xs ${deleteMode === 'hard' ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white'}`}
                 >
                   {deleteMode === 'hard' ? 'Delete Permanently' : 'Archive'}
                 </Button>
@@ -564,7 +564,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                   onClick={() => handleSaveEdit(item.id)}
                   disabled={!editFormData.name || !editFormData.category || !editFormData.type || isMutating}
                   loading={updateMutation.isPending}
-                  className="h-7 px-2 text-xs"
+                  className="h-7 px-2 text-xs bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
                 >
                   <Save className="w-3 h-3 mr-1" />
                   Save
