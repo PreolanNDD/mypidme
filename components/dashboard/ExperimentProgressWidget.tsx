@@ -133,7 +133,10 @@ export function ExperimentProgressWidget() {
             <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
               Design controlled experiments to test what really works for your optimization goals.
             </p>
-            <Button onClick={handleCreateExperiment} className="w-full sm:w-auto bg-brand-button hover:bg-brand-button/90 text-white">
+            <Button 
+              onClick={handleCreateExperiment} 
+              className="w-full sm:w-auto bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create Your First Experiment
             </Button>
@@ -231,7 +234,7 @@ export function ExperimentProgressWidget() {
                 variant="outline"
                 size="sm"
                 onClick={handleCreateExperiment}
-                className="w-full bg-brand-button hover:bg-brand-button/90 text-white border-brand-button"
+                className="w-full bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Start New Experiment

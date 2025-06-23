@@ -2,8 +2,7 @@
 
 import React from 'react';
 import { CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/Button';
-import { Flame, Target, BarChart3, ArrowRight } from 'lucide-react';
+import { Flame, Target, BarChart3 } from 'lucide-react';
 
 interface StreaksStatsWidgetProps {
   currentStreak: number;
@@ -53,7 +52,7 @@ export function StreaksStatsWidget({
           <h3 className="font-heading text-lg text-primary-text">Streaks & Stats</h3>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent>
         <div className="grid grid-cols-3 gap-4">
           {/* Current Streak */}
           <div className="text-center">
@@ -88,15 +87,6 @@ export function StreaksStatsWidget({
             <p className="text-xs text-secondary-text">Total Logs</p>
           </div>
         </div>
-
-        {/* Manage Logs Button */}
-        <Button 
-          onClick={() => window.location.href = '/log'}
-          className="w-full bg-brand-button hover:bg-brand-button/90 text-white"
-        >
-          <span>Manage Logs</span>
-          <ArrowRight className="w-4 h-4 ml-2" />
-        </Button>
       </CardContent>
     </>
   );

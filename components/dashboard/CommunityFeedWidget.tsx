@@ -123,7 +123,10 @@ export function CommunityFeedWidget() {
             <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
               Be the first to share your insights and discoveries with the community!
             </p>
-            <Button onClick={handleViewCommunity} className="w-full sm:w-auto bg-brand-button hover:bg-brand-button/90 text-white">
+            <Button 
+              onClick={handleViewCommunity} 
+              className="w-full sm:w-auto bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+            >
               <Users className="w-4 h-4 mr-2" />
               Explore Community
             </Button>
@@ -224,7 +227,7 @@ export function CommunityFeedWidget() {
                 variant="outline"
                 size="sm"
                 onClick={handleViewCommunity}
-                className="w-full bg-brand-button hover:bg-brand-button/90 text-white border-brand-button"
+                className="w-full bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
               >
                 <TrendingUp className="w-4 h-4 mr-2" />
                 Discover More Insights

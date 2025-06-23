@@ -247,7 +247,10 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     return (
       <CardContent className="text-center py-12">
         <p className="text-primary-text mb-4">Create some metrics first to start logging your daily data!</p>
-        <Button onClick={() => window.location.href = '/log'} className="bg-brand-button hover:bg-brand-button/90 text-white">
+        <Button 
+          onClick={() => window.location.href = '/log'} 
+          className="bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+        >
           Create Your First Metric
         </Button>
       </CardContent>
@@ -412,7 +415,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
         <Button 
           onClick={handleSave}
           loading={saveMutation.isPending}
-          className="w-full bg-brand-button hover:bg-brand-button/90 text-white" 
+          className="w-full bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white" 
           size="lg"
           disabled={saveMutation.isPending}
         >

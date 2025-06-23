@@ -42,7 +42,7 @@ export default function Dashboard() {
   const isLoading = loadingItems || loadingEntries || loadingStats;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#9b5de5] to-[#3c1a5b]">
+    <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
@@ -60,7 +60,7 @@ export default function Dashboard() {
             </div>
 
             {/* Right: Streaks & Stats Widget */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_25px_50px_-12px_rgba(255,255,255,0.25)]">
               <StreaksStatsWidget
                 currentStreak={dashboardStats?.currentStreak || 0}
                 totalMetrics={dashboardStats?.totalMetrics || 0}
@@ -71,7 +71,7 @@ export default function Dashboard() {
           </div>
 
           {/* Section 2: Interactive "Today's Log" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_25px_50px_-12px_rgba(255,255,255,0.25)]">
             <TodaysLogWidget
               trackableItems={trackableItems}
               todaysEntries={todaysEntries}
@@ -80,12 +80,12 @@ export default function Dashboard() {
           </div>
 
           {/* Section 3: "Active Experiments" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_25px_50px_-12px_rgba(255,255,255,0.25)]">
             <ExperimentProgressWidget />
           </div>
 
           {/* Section 4: "Community Insights" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_25px_50px_-12px_rgba(255,255,255,0.25)]">
             <CommunityFeedWidget />
           </div>
 
