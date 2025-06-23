@@ -5,18 +5,20 @@ import { ExperimentResults } from '@/lib/experiments';
 import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, BarChart3, Calendar, Target, FlaskConical } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, Calendar, Target, FlaskConical, Share2 } from 'lucide-react';
 
 interface ExperimentResultsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   results: ExperimentResults | null;
+  onShare: () => void;
 }
 
 export function ExperimentResultsDialog({ 
   isOpen, 
   onClose, 
-  results 
+  results,
+  onShare 
 }: ExperimentResultsDialogProps) {
   if (!results) return null;
 
@@ -68,18 +70,27 @@ export function ExperimentResultsDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-accent-2 rounded-lg flex items-center justify-center">
-              <FlaskConical className="w-5 h-5 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-accent-2 rounded-lg flex items-center justify-center">
+                <FlaskConical className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="font-heading text-xl text-primary-text">
+                  Experiment Results
+                </DialogTitle>
+                <p className="text-sm text-secondary-text">{experiment.title}</p>
+              </div>
             </div>
-            <div>
-              <DialogTitle className="font-heading text-xl text-primary-text">
-                Experiment Results
-              </DialogTitle>
-              <p className="text-sm text-secondary-text">{experiment.title}</p>
-            </div>
+            <Button
+              onClick={onShare}
+              className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Share Finding
+            </Button>
           </div>
         </DialogHeader>
         
@@ -211,16 +222,6 @@ export function ExperimentResultsDialog({
                 <p className="text-sm text-purple-800 italic mb-3">
                   "{experiment.hypothesis}"
                 </p>
-                {difference !== null && (
-                  <p className="text-sm text-purple-700">
-                    <strong>Result:</strong> {difference > 0 
-                      ? 'Your hypothesis appears to be supported by the data.' 
-                      : difference < 0 
-                        ? 'Your hypothesis appears to be contradicted by the data.'
-                        : 'The data shows no clear relationship between the variables.'
-                    }
-                  </p>
-                )}
               </div>
             </div>
           ) : (
