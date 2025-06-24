@@ -147,6 +147,13 @@ export default function CreateFindingPage() {
 
   const experiment = experiments.find(exp => exp.id === context?.experimentId);
 
+  // Fetch experiment results for preview
+  const { data: experimentResults } = useQuery({
+    queryKey: ['experimentResults', context?.experimentId],
+    queryFn: () => analyzeExperimentResults(experiment!),
+    enabled: !!experiment && context?.type === 'experiment',
+  });
+
   // Get metric details
   const primaryMetric = trackableItems.find(item => item.id === selectedGoalId);
   const comparisonMetric = trackableItems.find(item => item.id === selectedHabitId);
@@ -292,6 +299,51 @@ export default function CreateFindingPage() {
     
     return '';
   };
+
+  // Auto-populate content for experiment findings
+  useEffect(() => {
+    if (context?.type === 'experiment' && experimentResults && !content) {
+      const { experiment, positiveConditionAverage, negativeConditionAverage, 
+              positiveConditionCount, negativeConditionCount, daysWithData } = experimentResults;
+      
+      const getConditionLabel = (isPositive: boolean): string => {
+        if (!experiment.independent_variable) return isPositive ? 'High' : 'Low';
+        
+        if (experiment.independent_variable.type === 'BOOLEAN') {
+          return isPositive ? 'Yes' : 'No';
+        } else if (experiment.independent_variable.type === 'SCALE_1_10') {
+          return isPositive ? 'High (6-10)' : 'Low (1-5)';
+        } else {
+          return isPositive ? 'High' : 'Low';
+        }
+      };
+
+      const difference = positiveConditionAverage !== null && negativeConditionAverage !== null 
+        ? positiveConditionAverage - negativeConditionAverage 
+        : null;
+
+      let autoContent = `Based on my ${experiment.title} experiment, I tracked ${experiment.independent_variable?.name} and measured its impact on ${experiment.dependent_variable?.name} over ${daysWithData} days with data.\n\n`;
+
+      if (difference !== null && positiveConditionAverage !== null && negativeConditionAverage !== null) {
+        autoContent += `Key findings:\n`;
+        autoContent += `• On days with ${getConditionLabel(true).toLowerCase()} ${experiment.independent_variable?.name?.toLowerCase()}, my average ${experiment.dependent_variable?.name} was ${positiveConditionAverage.toFixed(1)} (${positiveConditionCount} days)\n`;
+        autoContent += `• On days with ${getConditionLabel(false).toLowerCase()} ${experiment.independent_variable?.name?.toLowerCase()}, my average ${experiment.dependent_variable?.name} was ${negativeConditionAverage.toFixed(1)} (${negativeConditionCount} days)\n`;
+        autoContent += `• This represents a ${Math.abs(difference).toFixed(1)} point ${difference > 0 ? 'improvement' : 'decrease'} when ${experiment.independent_variable?.name?.toLowerCase()} was ${getConditionLabel(true).toLowerCase()}\n\n`;
+        
+        if (Math.abs(difference) >= 1) {
+          autoContent += `This suggests that ${experiment.independent_variable?.name?.toLowerCase()} has a meaningful impact on my ${experiment.dependent_variable?.name?.toLowerCase()}. `;
+        } else {
+          autoContent += `The impact appears to be modest, suggesting ${experiment.independent_variable?.name?.toLowerCase()} may have a limited effect on my ${experiment.dependent_variable?.name?.toLowerCase()}. `;
+        }
+      } else {
+        autoContent += `Unfortunately, I didn't have enough data points to draw strong conclusions from this experiment. `;
+      }
+
+      autoContent += `\n\nWhat I learned and what this means for my optimization journey...`;
+
+      setContent(autoContent);
+    }
+  }, [context, experimentResults, content]);
 
   // Custom Tooltip Component (same as /data page)
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -443,7 +495,7 @@ export default function CreateFindingPage() {
                               <SelectContent>
                                 {outputMetrics.map((metric) => (
                                   <SelectItem key={metric.id} value={metric.id}>
-                                    {metric.name} ({metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'})
+                                    {metric.name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -466,10 +518,7 @@ export default function CreateFindingPage() {
                                 <SelectItem value="none">None</SelectItem>
                                 {inputMetrics.map((metric) => (
                                   <SelectItem key={metric.id} value={metric.id}>
-                                    {metric.name} ({
-                                      metric.type === 'BOOLEAN' ? 'Yes/No' : 
-                                      metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'
-                                    })
+                                    {metric.name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -684,12 +733,21 @@ export default function CreateFindingPage() {
                               Experiment: {experiment.title}
                             </div>
                             <div className="p-3 bg-gray-50 rounded-lg">
-                              <p className="text-sm text-primary-text">
-                                <strong>Hypothesis:</strong> {experiment.hypothesis}
-                              </p>
-                              <div className="mt-2 text-xs text-secondary-text">
-                                {experiment.start_date} to {experiment.end_date}
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <span className="font-medium text-primary-text">Independent Variable:</span>
+                                  <span className="ml-2 text-secondary-text">{experiment.independent_variable?.name}</span>
+                                </div>
+                                <div>
+                                  <span className="font-medium text-primary-text">Dependent Variable:</span>
+                                  <span className="ml-2 text-secondary-text">{experiment.dependent_variable?.name}</span>
+                                </div>
                               </div>
+                              {experimentResults && (
+                                <div className="mt-2 text-xs text-secondary-text">
+                                  {experimentResults.daysWithData} days with data out of {experimentResults.totalDays} total days
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>

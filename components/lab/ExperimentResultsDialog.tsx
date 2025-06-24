@@ -11,7 +11,7 @@ interface ExperimentResultsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   results: ExperimentResults | null;
-  onShare: () => void;
+  onShare: (results: ExperimentResults) => void;
 }
 
 export function ExperimentResultsDialog({ 
@@ -68,6 +68,10 @@ export function ExperimentResultsDialog({
 
   const dataCompleteness = totalDays > 0 ? (daysWithData / totalDays) * 100 : 0;
 
+  const handleShare = () => {
+    onShare(results);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto mr-6">
@@ -87,7 +91,7 @@ export function ExperimentResultsDialog({
           {/* Share Button - Positioned below the title to avoid overlap */}
           <div className="flex justify-start pt-2">
             <Button
-              onClick={onShare}
+              onClick={handleShare}
               className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
               size="sm"
             >
@@ -218,14 +222,6 @@ export function ExperimentResultsDialog({
                   </p>
                 </div>
               )}
-
-              {/* Hypothesis Check */}
-              <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <h4 className="font-medium text-purple-900 mb-2">Your Hypothesis</h4>
-                <p className="text-sm text-purple-800 italic mb-3">
-                  "{experiment.hypothesis}"
-                </p>
-              </div>
             </div>
           ) : (
             <div className="text-center py-8">

@@ -13,7 +13,7 @@ import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog'
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
 import { DeleteExperimentDialog } from '@/components/lab/DeleteExperimentDialog';
-import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, Share2 } from 'lucide-react';
+import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -133,15 +133,11 @@ export default function LabPage() {
     }
   };
 
-  const handleShareFinding = () => {
-    // Find a completed experiment to share
-    const completedExperiment = completedExperiments[0];
-    if (!completedExperiment) return;
-    
-    // Navigate to community/new with experiment context
+  const handleShareFinding = (results: ExperimentResults) => {
+    // Navigate to community/new with experiment context and prepopulated data
     const params = new URLSearchParams({
       type: 'experiment',
-      experimentId: completedExperiment.id
+      experimentId: results.experiment.id
     });
     
     router.push(`/community/new?${params.toString()}`);
@@ -194,8 +190,6 @@ export default function LabPage() {
     return { percentage, daysElapsed: Math.max(1, daysElapsed), totalDays, status: 'active' };
   };
 
-  const canShare = completedExperiments.length > 0;
-
   const isLoading = loadingItems || loadingExperiments;
 
   if (isLoading) {
@@ -218,16 +212,6 @@ export default function LabPage() {
               <p style={{ color: '#e6e2eb' }}>Design and track personal experiments to optimize your life</p>
             </div>
             <div className="flex space-x-3">
-              {canShare && (
-                <Button
-                  onClick={handleShareFinding}
-                  className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
-                  style={{ color: '#4a2a6d' }}
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share Finding
-                </Button>
-              )}
               <Button
                 onClick={() => setShowCreateDialog(true)}
                 className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
@@ -493,10 +477,7 @@ export default function LabPage() {
         isOpen={showResultsDialog}
         onClose={() => setShowResultsDialog(false)}
         results={selectedResults}
-        onShare={() => {
-          setShowResultsDialog(false);
-          handleShareFinding();
-        }}
+        onShare={handleShareFinding}
       />
 
       <DeleteExperimentDialog
