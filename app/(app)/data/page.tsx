@@ -278,7 +278,7 @@ export default function DataPage() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="font-heading text-3xl text-white mb-2">Data Analysis</h1>
-              <p style={{ color: '#e6e2eb' }}>Advanced dual-axis visualization with synchronized scaling</p>
+              <p style={{ color: '#e6e2eb' }}>Ever wonder why some days feel great and others don't? Select any goal and any habit to visualize their relationship and find the answer.</p>
             </div>
             {canShare && (
               <Button
