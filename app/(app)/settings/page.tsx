@@ -1,34 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Settings, User, LogOut, Mail } from 'lucide-react';
+import { Settings, User, Mail } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user, userProfile, refreshUserProfile } = useAuth();
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [firstName, setFirstName] = useState(userProfile?.first_name || '');
   const [lastName, setLastName] = useState(userProfile?.last_name || '');
   const [message, setMessage] = useState('');
-
-  const handleLogout = async () => {
-    setLoading(true);
-    try {
-      await supabase.auth.signOut();
-      router.push('/login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,23 +142,6 @@ export default function SettingsPage() {
                   </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Logout Section */}
-          <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-            <CardContent className="pt-6">
-              <Button
-                onClick={handleLogout}
-                loading={loading}
-                variant="outline"
-                className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-              >
-                <span className="flex items-center">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Log Out
-                </span>
-              </Button>
             </CardContent>
           </Card>
         </div>

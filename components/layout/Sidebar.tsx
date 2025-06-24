@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/components/providers/AuthProvider';
+import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 import { 
   Home, 
@@ -12,7 +14,8 @@ import {
   Users,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -27,15 +30,32 @@ const navigationItems = [
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useAuth();
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
 
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    
+    setLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      router.push('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   return (
     <div className={cn(
-      "fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50",
+      "fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50 flex flex-col",
       isOpen ? "w-64" : "w-16"
     )}>
       {/* Header with Logo */}
@@ -114,11 +134,40 @@ export function Sidebar() {
         "p-4 border-t border-gray-200 transition-all duration-300",
         !isOpen && "text-center"
       )}>
+        {/* Logout Button */}
+        {user && (
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className={cn(
+              'flex items-center rounded-lg transition-all duration-200 group w-full mb-3',
+              isOpen ? 'px-3 py-2.5' : 'px-2 py-2.5 justify-center',
+              'text-gray-700 hover:bg-red-50 hover:text-red-600',
+              loggingOut && 'opacity-50 cursor-not-allowed'
+            )}
+          >
+            <LogOut className={cn(
+              'flex-shrink-0 transition-all duration-200',
+              isOpen ? 'w-5 h-5' : 'w-6 h-6',
+              'text-gray-600 group-hover:text-red-600'
+            )} />
+            
+            <span className={cn(
+              'font-medium transition-all duration-300 ease-in-out',
+              isOpen ? 'ml-3 opacity-100' : 'ml-0 opacity-0 w-0 overflow-hidden',
+              'text-gray-700 group-hover:text-red-600'
+            )}>
+              {loggingOut ? 'Logging out...' : 'Log Out'}
+            </span>
+          </button>
+        )}
+
+        {/* Copyright */}
         <div className={cn(
           "text-xs text-gray-500 transition-all duration-300",
           isOpen ? "opacity-100" : "opacity-0"
         )}>
-          {isOpen && "© 2024 PIDMe"}
+          {isOpen && "© 2025 MyPID.me"}
         </div>
       </div>
 
