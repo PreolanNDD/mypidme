@@ -35,7 +35,7 @@ export function Sidebar() {
 
   return (
     <div className={cn(
-      "ml-3 fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50",
+      "ml-2 fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50",
       isOpen ? "w-64" : "w-16"
     )}>
       {/* Header with Logo */}
