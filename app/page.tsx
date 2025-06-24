@@ -69,7 +69,7 @@ export default function Home() {
             {/* Main Headline with Responsive Text */}
             <div className="text-center mb-8 sm:mb-10">
               <p className="text-base sm:text-lg text-secondary-text font-medium">
-                Your <strong className="font-bold">Personal Insight Dashboard</strong> that helps you prove what works.
+                Your <strong className="font-bold text-black">Personal Insight Dashboard</strong> that helps you prove what works.
               </p>
             </div>
 
