@@ -65,7 +65,7 @@ export default function Dashboard() {
                 <span className="text-accent-1">Hello, {firstName}!</span>
               </h1>
               <p className="text-xl text-white">
-                Ready to optimize your day?
+                Ready to unlock your potential today?
               </p>
             </div>
           </div>
