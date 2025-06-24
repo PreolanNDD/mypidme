@@ -130,7 +130,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   const { data: trackableItems = [] } = useQuery({
     queryKey: ['trackableItems', user?.id],
     queryFn: () => getTrackableItems(user!.id),
-    enabled: !!user?.id && finding.share_data && !!finding.chart_config,
+    enabled: !!user?.id && finding.share_data && (!!finding.chart_config || !!finding.experiment_id),
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
   });
