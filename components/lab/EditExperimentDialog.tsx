@@ -145,6 +145,7 @@ export function EditExperimentDialog({
               placeholder="e.g., Does meditation improve my focus?"
               required
               disabled={isLoading}
+              className="bg-white"
             />
 
             {/* Hypothesis */}
@@ -156,7 +157,7 @@ export function EditExperimentDialog({
                 value={formData.hypothesis}
                 onChange={(e) => setFormData({ ...formData, hypothesis: e.target.value })}
                 placeholder="What do you expect to happen? e.g., I believe that meditating daily will increase my focus scores by at least 2 points."
-                className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
                 rows={3}
                 required
                 disabled={isLoading}
@@ -173,7 +174,7 @@ export function EditExperimentDialog({
                 onValueChange={(value) => setFormData({ ...formData, independent_variable_id: value })}
                 disabled={isLoading}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Select an input metric" />
                 </SelectTrigger>
                 <SelectContent>
@@ -197,7 +198,7 @@ export function EditExperimentDialog({
                 onValueChange={(value) => setFormData({ ...formData, dependent_variable_id: value })}
                 disabled={isLoading}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Select an output metric" />
                 </SelectTrigger>
                 <SelectContent>
@@ -220,7 +221,7 @@ export function EditExperimentDialog({
                   type="date"
                   value={formData.start_date}
                   onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                  className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
                   required
                   disabled={isLoading}
                 />
@@ -233,7 +234,7 @@ export function EditExperimentDialog({
                   type="date"
                   value={formData.end_date}
                   onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                  className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
                   required
                   disabled={isLoading}
                 />
@@ -243,9 +244,8 @@ export function EditExperimentDialog({
             <div className="flex space-x-3 pt-4">
               <Button
                 type="button"
-                variant="outline"
                 onClick={handleClose}
-                className="flex-1"
+                className="flex-1 bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
                 disabled={isLoading}
               >
                 Cancel

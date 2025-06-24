@@ -5,7 +5,7 @@ import { ExperimentResults } from '@/lib/experiments';
 import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, BarChart3, Calendar, Target, FlaskConical, Share2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, Calendar, Target, FlaskConical, Share2, CheckCircle, XCircle } from 'lucide-react';
 
 interface ExperimentResultsDialogProps {
   isOpen: boolean;
@@ -23,7 +23,8 @@ export function ExperimentResultsDialog({
   if (!results) return null;
 
   const { experiment, positiveConditionAverage, negativeConditionAverage, 
-          positiveConditionCount, negativeConditionCount, totalDays, daysWithData } = results;
+          positiveConditionCount, negativeConditionCount, totalDays, daysWithData,
+          missingDays, loggedDays } = results;
 
   // Calculate the difference and determine impact
   const difference = positiveConditionAverage !== null && negativeConditionAverage !== null 
@@ -134,7 +135,7 @@ export function ExperimentResultsDialog({
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-secondary-text">Days with data:</span>
+                <span className="text-secondary-text">Days with complete data:</span>
                 <span className="font-medium text-primary-text">{daysWithData} of {totalDays} days</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -146,6 +147,51 @@ export function ExperimentResultsDialog({
               <p className="text-xs text-secondary-text">
                 {dataCompleteness.toFixed(1)}% data completeness
               </p>
+            </div>
+
+            {/* Data Tracking Details */}
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              {/* Logged Days */}
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center space-x-2 mb-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <h4 className="font-medium text-green-900">Days with Data ({loggedDays.length})</h4>
+                </div>
+                {loggedDays.length > 0 ? (
+                  <div className="max-h-32 overflow-y-auto">
+                    <div className="flex flex-wrap gap-1">
+                      {loggedDays.map(date => (
+                        <span key={date} className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                          {new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-green-700">No complete data days</p>
+                )}
+              </div>
+
+              {/* Missing Days */}
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center space-x-2 mb-2">
+                  <XCircle className="w-4 h-4 text-red-600" />
+                  <h4 className="font-medium text-red-900">Missing Data Days ({missingDays.length})</h4>
+                </div>
+                {missingDays.length > 0 ? (
+                  <div className="max-h-32 overflow-y-auto">
+                    <div className="flex flex-wrap gap-1">
+                      {missingDays.map(date => (
+                        <span key={date} className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                          {new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-red-700">No missing days - perfect tracking!</p>
+                )}
+              </div>
             </div>
           </div>
 

@@ -25,6 +25,8 @@ export interface ExperimentResults {
   negativeConditionCount: number;
   totalDays: number;
   daysWithData: number;
+  missingDays: string[]; // Array of missing dates
+  loggedDays: string[]; // Array of logged dates
 }
 
 export async function getExperiments(userId: string): Promise<Experiment[]> {
@@ -162,6 +164,19 @@ export async function analyzeExperimentResults(experiment: Experiment): Promise<
   }
 
   try {
+    // Calculate total days in experiment (inclusive)
+    const startDate = new Date(experiment.start_date);
+    const endDate = new Date(experiment.end_date);
+    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    // Generate array of all expected dates
+    const expectedDates: string[] = [];
+    const currentDate = new Date(startDate);
+    for (let i = 0; i < totalDays; i++) {
+      expectedDates.push(currentDate.toISOString().split('T')[0]);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
     // Fetch all logged entries for both variables during the experiment period
     const { data: entries, error } = await supabase
       .from('logged_entries')
@@ -196,29 +211,28 @@ export async function analyzeExperimentResults(experiment: Experiment): Promise<
       }
     });
 
-    // Analyze the data
+    // Analyze the data and track which days have complete data
     const positiveConditionValues: number[] = [];
     const negativeConditionValues: number[] = [];
-    let daysWithData = 0;
+    const loggedDays: string[] = [];
+    const missingDays: string[] = [];
 
-    entriesByDate.forEach((dayEntries, date) => {
-      const independentValue = dayEntries.get(experiment.independent_variable_id);
-      const dependentValue = dayEntries.get(experiment.dependent_variable_id);
+    expectedDates.forEach(date => {
+      const dayEntries = entriesByDate.get(date);
+      const independentValue = dayEntries?.get(experiment.independent_variable_id);
+      const dependentValue = dayEntries?.get(experiment.dependent_variable_id);
 
-      // Only analyze days where both variables have data
+      // Check if both variables have data for this day
       if (independentValue !== undefined && dependentValue !== undefined) {
-        daysWithData++;
+        loggedDays.push(date);
         
         // Determine if this is a positive or negative condition
-        // For boolean: 1 = positive, 0 = negative
-        // For numeric/scale: above median = positive, below/equal median = negative
         let isPositiveCondition = false;
         
         if (experiment.independent_variable?.type === 'BOOLEAN') {
           isPositiveCondition = independentValue === 1;
         } else {
-          // For numeric/scale variables, we need to determine the threshold
-          // For now, we'll use a simple approach: above 5 for scale 1-10, above 0 for numeric
+          // For numeric/scale variables
           if (experiment.independent_variable?.type === 'SCALE_1_10') {
             isPositiveCondition = independentValue > 5;
           } else {
@@ -231,8 +245,12 @@ export async function analyzeExperimentResults(experiment: Experiment): Promise<
         } else {
           negativeConditionValues.push(dependentValue);
         }
+      } else {
+        missingDays.push(date);
       }
     });
+
+    const daysWithData = loggedDays.length;
 
     // Calculate averages
     const positiveConditionAverage = positiveConditionValues.length > 0
@@ -243,11 +261,6 @@ export async function analyzeExperimentResults(experiment: Experiment): Promise<
       ? negativeConditionValues.reduce((sum, val) => sum + val, 0) / negativeConditionValues.length
       : null;
 
-    // Calculate total days in experiment
-    const startDate = new Date(experiment.start_date);
-    const endDate = new Date(experiment.end_date);
-    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
     const results: ExperimentResults = {
       experiment,
       positiveConditionAverage,
@@ -255,10 +268,17 @@ export async function analyzeExperimentResults(experiment: Experiment): Promise<
       positiveConditionCount: positiveConditionValues.length,
       negativeConditionCount: negativeConditionValues.length,
       totalDays,
-      daysWithData
+      daysWithData,
+      missingDays,
+      loggedDays
     };
 
-    console.log('Experiment analysis results:', results);
+    console.log('Experiment analysis results:', {
+      ...results,
+      missingDaysCount: missingDays.length,
+      loggedDaysCount: loggedDays.length
+    });
+    
     return results;
   } catch (error) {
     console.error('Unexpected error in analyzeExperimentResults:', error);
