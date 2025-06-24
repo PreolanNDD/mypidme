@@ -619,7 +619,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
       {/* Manage Metrics Header */}
       <div className="mb-6">
         <h2 className="font-heading text-2xl text-white">Manage Metrics</h2>
-        <p style={{ color: '#e6e2eb' }}>Create and organize your trackable metrics</p>
+        <p style={{ color: '#e6e2eb' }}>Create and organize your trackable habits and goals</p>
       </div>
 
       {/* Add Metric Container */}
