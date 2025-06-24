@@ -192,38 +192,6 @@ export default function LabPage() {
     return `${days} day${days !== 1 ? 's' : ''}`;
   };
 
-  const getExperimentProgress = (startDate: string, endDate: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
-    
-    const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999);
-    
-    const totalDuration = end.getTime() - start.getTime();
-    const elapsed = today.getTime() - start.getTime();
-    
-    // If experiment hasn't started yet
-    if (elapsed < 0) {
-      return { percentage: 0, daysElapsed: 0, totalDays: Math.ceil(totalDuration / (1000 * 60 * 60 * 24)) + 1, status: 'upcoming' };
-    }
-    
-    // If experiment has ended
-    if (today.getTime() > end.getTime()) {
-      const totalDays = Math.ceil(totalDuration / (1000 * 60 * 60 * 24)) + 1;
-      return { percentage: 100, daysElapsed: totalDays, totalDays, status: 'completed' };
-    }
-    
-    // Experiment is in progress
-    const percentage = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
-    const daysElapsed = Math.ceil(elapsed / (1000 * 60 * 60 * 24));
-    const totalDays = Math.ceil(totalDuration / (1000 * 60 * 60 * 24)) + 1;
-    
-    return { percentage, daysElapsed: Math.max(1, daysElapsed), totalDays, status: 'active' };
-  };
-
   const isLoading = loadingItems || loadingExperiments;
 
   if (isLoading) {
@@ -323,7 +291,6 @@ export default function LabPage() {
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {experimentsToDisplay.map((experiment) => {
-                    const progress = getExperimentProgress(experiment.start_date, experiment.end_date);
                     const progressData = experimentProgressData[experiment.id];
                     
                     return (
@@ -352,60 +319,28 @@ export default function LabPage() {
                             </div>
                           </div>
 
-                          {/* Progress Bar - Only show for active experiments or if experiment has started */}
-                          {(experiment.status === 'ACTIVE' || progress.status !== 'upcoming') && (
+                          {/* Progress Bar - Now shows data completeness */}
+                          {progressData && (
                             <div className="space-y-2">
                               <div className="flex items-center justify-between text-sm">
                                 <span className="font-medium text-primary-text">Progress</span>
                                 <span className="text-secondary-text">
-                                  {progress.status === 'upcoming' 
-                                    ? 'Starts soon'
-                                    : progress.status === 'completed'
-                                    ? 'Completed'
-                                    : `Day ${progress.daysElapsed} of ${progress.totalDays}`
-                                  }
+                                  {progressData.daysWithData} of {progressData.totalDays} days logged
                                 </span>
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-2">
                                 <div 
-                                  className={`h-2 rounded-full transition-all duration-500 ease-out ${
-                                    progress.status === 'completed' 
-                                      ? 'bg-accent-2' 
-                                      : progress.status === 'active'
-                                      ? 'bg-primary' 
-                                      : 'bg-gray-300'
-                                  }`}
-                                  style={{ width: `${progress.percentage}%` }}
-                                ></div>
-                              </div>
-                              {progress.status === 'active' && progress.percentage > 0 && progress.percentage < 100 && (
-                                <p className="text-xs text-secondary-text">
-                                  {Math.round(progress.percentage)}% complete
-                                </p>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Data Tracking Progress */}
-                          {progressData && (
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between text-sm">
-                                <span className="font-medium text-primary-text">Data Logged</span>
-                                <span className="text-secondary-text">
-                                  {progressData.daysWithData} of {progressData.totalDays} days
-                                </span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className="h-2 rounded-full transition-all duration-500 ease-out bg-blue-500"
+                                  className="h-2 rounded-full transition-all duration-500 ease-out bg-primary"
                                   style={{ 
                                     width: `${progressData.totalDays > 0 ? (progressData.daysWithData / progressData.totalDays) * 100 : 0}%` 
                                   }}
                                 ></div>
                               </div>
-                              <p className="text-xs text-secondary-text">
-                                {progressData.totalDays > 0 ? Math.round((progressData.daysWithData / progressData.totalDays) * 100) : 0}% data completeness
-                              </p>
+                              {progressData.totalDays > 0 && (
+                                <p className="text-xs text-secondary-text">
+                                  {Math.round((progressData.daysWithData / progressData.totalDays) * 100)}% data completeness
+                                </p>
+                              )}
                             </div>
                           )}
 
