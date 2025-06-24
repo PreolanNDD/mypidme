@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Zap, BarChart2, CalendarCheck2, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { Zap, BarChart2, CalendarCheck2, TrendingUp, TrendingDown, AlertCircle, Search, LineChart } from 'lucide-react';
 import { TrackableItem } from '@/lib/types';
 
 interface DualMetricChartData {
@@ -93,6 +93,13 @@ export function MetricRelationshipBreakdown({
     } else {
       // Scenario B: Numeric or Scale comparison metric
       const comparisonValues = validDataPoints.map(d => d.comparisonValue!);
+      
+      // Check for insufficient variance - all values are the same
+      const uniqueValues = [...new Set(comparisonValues)];
+      if (uniqueValues.length < 2) {
+        return null; // Not enough variance to perform analysis
+      }
+      
       const sortedValues = [...comparisonValues].sort((a, b) => a - b);
       const medianIndex = Math.floor(sortedValues.length / 2);
       const median = sortedValues.length % 2 === 0 
@@ -154,8 +161,15 @@ export function MetricRelationshipBreakdown({
       // For boolean: streak day is when value is true (1)
       streakCondition = (value: number) => value === 1;
     } else {
-      // For numeric/scale: calculate median and use above median as streak condition
+      // For numeric/scale: check for variance first
       const comparisonValues = sortedDataPoints.map(d => d.comparisonValue!);
+      const uniqueValues = [...new Set(comparisonValues)];
+      
+      if (uniqueValues.length < 2) {
+        return null; // Not enough variance to perform analysis
+      }
+      
+      // Calculate median and use above median as streak condition
       const sortedValues = [...comparisonValues].sort((a, b) => a - b);
       const medianIndex = Math.floor(sortedValues.length / 2);
       const median = sortedValues.length % 2 === 0 
@@ -224,8 +238,44 @@ export function MetricRelationshipBreakdown({
     };
   }, [chartData, comparisonMetric]);
 
+  // Check if we have insufficient data variance for analysis
+  const hasInsufficientVariance = useMemo(() => {
+    if (!chartData.length) return false;
+
+    const validDataPoints = chartData.filter(dataPoint => 
+      dataPoint.primaryValue !== null && dataPoint.primaryValue !== undefined &&
+      dataPoint.comparisonValue !== null && dataPoint.comparisonValue !== undefined
+    );
+
+    if (validDataPoints.length < 2) return false;
+
+    // Check if all comparison values are the same
+    const comparisonValues = validDataPoints.map(d => d.comparisonValue!);
+    const uniqueValues = [...new Set(comparisonValues)];
+    
+    return uniqueValues.length < 2;
+  }, [chartData]);
+
   // Render Conditional Averages Section
   const renderConditionalAverages = () => {
+    if (hasInsufficientVariance) {
+      return (
+        <div className="text-center py-8 space-y-4">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+            <Search className="w-8 h-8 text-blue-600" />
+          </div>
+          <div className="space-y-2">
+            <h5 className="font-medium text-primary-text text-lg">
+              Keep Logging to Reveal Your Patterns
+            </h5>
+            <p className="text-sm text-secondary-text max-w-md mx-auto leading-relaxed">
+              You're doing a great job logging your data! This analysis works by comparing different types of days (like high-energy days vs. low-energy days). To find a pattern, the app needs a bit more variety in your logged data for <strong>{comparisonMetric.name}</strong>. Keep tracking consistently, and new insights will appear here as soon as a pattern emerges!
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     if (!conditionalAverages) {
       return (
         <div className="text-center py-4">
@@ -314,6 +364,24 @@ export function MetricRelationshipBreakdown({
 
   // Render Consistency Analysis Section
   const renderConsistencyAnalysis = () => {
+    if (hasInsufficientVariance) {
+      return (
+        <div className="text-center py-8 space-y-4">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+            <LineChart className="w-8 h-8 text-blue-600" />
+          </div>
+          <div className="space-y-2">
+            <h5 className="font-medium text-primary-text text-lg">
+              Keep Logging to Reveal Your Patterns
+            </h5>
+            <p className="text-sm text-secondary-text max-w-md mx-auto leading-relaxed">
+              You're doing a great job logging your data! This analysis works by comparing different types of days (like high-energy days vs. low-energy days). To find a pattern, the app needs a bit more variety in your logged data for <strong>{comparisonMetric.name}</strong>. Keep tracking consistently, and new insights will appear here as soon as a pattern emerges!
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     if (!consistencyAnalysis) {
       return (
         <div className="text-center py-4 space-y-3">
