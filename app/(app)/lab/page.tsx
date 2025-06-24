@@ -413,7 +413,7 @@ export default function LabPage() {
                                       onClick={() => handleViewProgress(experiment)}
                                       loading={analyzingId === experiment.id}
                                       disabled={analyzingId === experiment.id}
-                                      className="bg-blue-600 hover:bg-white hover:text-blue-600 border border-blue-600 transition-colors duration-200 text-white"
+                                      className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
                                     >
                                       <BarChart3 className="w-4 h-4 mr-2" />
                                       View Progress
