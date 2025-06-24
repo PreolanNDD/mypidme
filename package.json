@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "NODE_OPTIONS=--max_old_space_size=4096 next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:fast": "next dev --turbo --experimental-https"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
