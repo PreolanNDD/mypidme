@@ -109,3 +109,27 @@
   z-index: 1 !important;
   position: relative !important;
 }
+
+/* Ensure dialog overlays appear above everything */
+[data-radix-dialog-overlay] {
+  z-index: 9998 !important;
+}
+
+[data-radix-dialog-content] {
+  z-index: 9999 !important;
+}
+
+/* Ensure tooltips have proper z-index but lower than dialogs */
+[data-radix-tooltip-content] {
+  z-index: 9000 !important;
+}
+
+/* Ensure select dropdowns have proper z-index */
+[data-radix-select-content] {
+  z-index: 8000 !important;
+}
+
+/* Ensure popovers have proper z-index */
+[data-radix-popover-content] {
+  z-index: 7000 !important;
+}

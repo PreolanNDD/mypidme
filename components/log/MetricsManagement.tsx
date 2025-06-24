@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/Input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { DataTypeInfoDialog } from './DataTypeInfoDialog';
 import { ReactivateMetricDialog } from '@/components/trackable-items/ReactivateMetricDialog';
 import { Edit2, Trash2, Plus, Loader2, RotateCw, X, Save, Check, AlertTriangle, Info } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -34,54 +34,6 @@ const CATEGORY_LABELS: Record<Category, string> = {
   'INPUT': 'Habits',
   'OUTPUT': 'Goals'
 };
-
-// Data Type Info Component
-function DataTypeInfo() {
-  return (
-    <div className="max-w-sm space-y-4 text-sm">
-      <div>
-        <h4 className="font-medium text-primary-text mb-2">What kind of data do you want to track?</h4>
-        <p className="text-secondary-text mb-3">
-          Choose the format that best fits the metric you are measuring. This will determine the type of input you use each day.
-        </p>
-      </div>
-      
-      <div className="space-y-3">
-        <div>
-          <h5 className="font-medium text-primary-text">Scale (1-10):</h5>
-          <p className="text-secondary-text text-xs">
-            Best for subjective ratings.<br />
-            (e.g., "Mood", "Energy Level", "Stress Level")
-          </p>
-        </div>
-        
-        <div>
-          <h5 className="font-medium text-primary-text">Number:</h5>
-          <p className="text-secondary-text text-xs">
-            Best for any measurable quantity.<br />
-            (e.g., "Hours of Sleep", "Workout Duration (minutes)", "Cups of Coffee")
-          </p>
-        </div>
-        
-        <div>
-          <h5 className="font-medium text-primary-text">Yes/No:</h5>
-          <p className="text-secondary-text text-xs">
-            Best for simple, daily check-ins.<br />
-            (e.g., "Did you meditate?", "Workout Complete?", "Took Vitamins?")
-          </p>
-        </div>
-        
-        <div>
-          <h5 className="font-medium text-primary-text">Text:</h5>
-          <p className="text-secondary-text text-xs">
-            Best for short notes or journal entries.<br />
-            (e.g., "Daily Highlight", "Reasons for Stress", "Workout Notes")
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
   const { user } = useAuth();
@@ -106,7 +58,8 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
   });
   const [addFormError, setAddFormError] = useState('');
 
-  // Reactivation dialog state
+  // Dialog states
+  const [showDataTypeInfo, setShowDataTypeInfo] = useState(false);
   const [showReactivateDialog, setShowReactivateDialog] = useState(false);
   const [metricToReactivate, setMetricToReactivate] = useState<TrackableItem | null>(null);
   const operationRef = useRef<string>('');
@@ -664,222 +617,223 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
   const isAddFormLoading = createMutation.isPending || reactivateMutation.isPending;
 
   return (
-    <TooltipProvider>
-      <div className="space-y-6">
-        {/* Manage Metrics Header */}
-        <div className="mb-6">
-          <h2 className="font-heading text-2xl text-white">Manage Metrics</h2>
-          <p style={{ color: '#e6e2eb' }}>Create and organize your trackable habits and goals</p>
-        </div>
+    <div className="space-y-6">
+      {/* Manage Metrics Header */}
+      <div className="mb-6">
+        <h2 className="font-heading text-2xl text-white">Manage Metrics</h2>
+        <p style={{ color: '#e6e2eb' }}>Create and organize your trackable habits and goals</p>
+      </div>
 
-        {/* Add Metric Container */}
-        <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-          <CardHeader>
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Plus className="w-4 h-4 text-white" />
-              </div>
-              <h3 className="font-heading text-lg text-primary-text">Add New Metric</h3>
+      {/* Add Metric Container */}
+      <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+        <CardHeader>
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Plus className="w-4 h-4 text-white" />
             </div>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddSubmit} className="space-y-4">
-              {addFormError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-600">{addFormError}</p>
-                </div>
-              )}
+            <h3 className="font-heading text-lg text-primary-text">Add New Metric</h3>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleAddSubmit} className="space-y-4">
+            {addFormError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{addFormError}</p>
+              </div>
+            )}
 
-              <Input
-                label="Metric Name"
-                value={addFormData.name}
-                onChange={handleAddNameChange}
-                placeholder="e.g., Sleep Quality, Caffeine Intake"
-                required
-                disabled={isAddFormLoading}
-              />
+            <Input
+              label="Metric Name"
+              value={addFormData.name}
+              onChange={handleAddNameChange}
+              placeholder="e.g., Sleep Quality, Caffeine Intake"
+              required
+              disabled={isAddFormLoading}
+            />
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-primary-text">
-                    Habit/Goal
-                  </label>
-                  <Select
-                    value={addFormData.category}
-                    onValueChange={(value: Category) => setAddFormData({ ...addFormData, category: value })}
-                    disabled={isAddFormLoading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <label className="block text-sm font-medium text-primary-text">
-                      Data Type
-                    </label>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <button type="button" className="text-gray-400 hover:text-gray-600 transition-colors">
-                          <Info className="w-4 h-4" />
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="bg-white border border-gray-200 shadow-lg">
-                        <DataTypeInfo />
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                  <Select
-                    value={addFormData.type}
-                    onValueChange={(value: DataType) => setAddFormData({ ...addFormData, type: value })}
-                    disabled={isAddFormLoading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select data type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(DATA_TYPE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-primary-text">
+                  Habit/Goal
+                </label>
+                <Select
+                  value={addFormData.category}
+                  onValueChange={(value: Category) => setAddFormData({ ...addFormData, category: value })}
+                  disabled={isAddFormLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              <Button
-                type="submit"
-                loading={isAddFormLoading}
-                disabled={!addFormData.name || !addFormData.category || !addFormData.type || isAddFormLoading}
-                className="w-full bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Metric
-              </Button>
-            </form>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <label className="block text-sm font-medium text-primary-text">
+                    Data Type
+                  </label>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowDataTypeInfo(true)}
+                    className="text-blue-500 hover:text-blue-700 transition-colors"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
+                </div>
+                <Select
+                  value={addFormData.type}
+                  onValueChange={(value: DataType) => setAddFormData({ ...addFormData, type: value })}
+                  disabled={isAddFormLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select data type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(DATA_TYPE_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              loading={isAddFormLoading}
+              disabled={!addFormData.name || !addFormData.category || !addFormData.type || isAddFormLoading}
+              className="w-full bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Metric
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Tabs */}
+      <div className="flex space-x-1 p-1 rounded-lg" style={{ backgroundColor: '#cdc1db' }}>
+        <button
+          onClick={() => {
+            setActiveTab('active');
+            handleCancelEdit(); // Cancel any ongoing edits when switching tabs
+            handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
+          }}
+          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            activeTab === 'active'
+              ? 'bg-white shadow-sm'
+              : 'hover:bg-white/50'
+          }`}
+          style={{ 
+            color: activeTab === 'active' ? '#4a2a6d' : '#9992a2'
+          }}
+        >
+          Active ({activeItems.length})
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab('archived');
+            handleCancelEdit(); // Cancel any ongoing edits when switching tabs
+            handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
+          }}
+          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+            activeTab === 'archived'
+              ? 'bg-white shadow-sm'
+              : 'hover:bg-white/50'
+          }`}
+          style={{ 
+            color: activeTab === 'archived' ? '#4a2a6d' : '#9992a2'
+          }}
+        >
+          Archived ({archivedItems.length})
+        </button>
+      </div>
+
+      {itemsToDisplay.length === 0 ? (
+        <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+          <CardContent className="text-center py-8">
+            <p className="text-secondary-text text-sm">
+              {activeTab === 'archived' ? "No archived metrics." : "No active metrics created yet."}
+            </p>
           </CardContent>
         </Card>
+      ) : (
+        <div className="space-y-6">
+          {/* Habits Section */}
+          {inputItems.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <h3 className="font-heading text-lg text-white">Habits</h3>
+                <Badge variant="secondary" className="text-xs">{inputItems.length}</Badge>
+              </div>
+              <div className="space-y-2">
+                {inputItems.map(renderMetricCard)}
+              </div>
+            </div>
+          )}
 
-        {/* Tabs */}
-        <div className="flex space-x-1 p-1 rounded-lg" style={{ backgroundColor: '#cdc1db' }}>
-          <button
-            onClick={() => {
-              setActiveTab('active');
-              handleCancelEdit(); // Cancel any ongoing edits when switching tabs
-              handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
-            }}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeTab === 'active'
-                ? 'bg-white shadow-sm'
-                : 'hover:bg-white/50'
-            }`}
-            style={{ 
-              color: activeTab === 'active' ? '#4a2a6d' : '#9992a2'
-            }}
-          >
-            Active ({activeItems.length})
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('archived');
-              handleCancelEdit(); // Cancel any ongoing edits when switching tabs
-              handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
-            }}
-            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeTab === 'archived'
-                ? 'bg-white shadow-sm'
-                : 'hover:bg-white/50'
-            }`}
-            style={{ 
-              color: activeTab === 'archived' ? '#4a2a6d' : '#9992a2'
-            }}
-          >
-            Archived ({archivedItems.length})
-          </button>
+          {/* Goals Section */}
+          {outputItems.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <h3 className="font-heading text-lg text-white">Goals</h3>
+                <Badge variant="secondary" className="text-xs">{outputItems.length}</Badge>
+              </div>
+              <div className="space-y-2">
+                {outputItems.map(renderMetricCard)}
+              </div>
+            </div>
+          )}
+
+          {/* Show message if only one category has items */}
+          {inputItems.length === 0 && outputItems.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <h3 className="font-heading text-lg text-gray-400">Habits</h3>
+                <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
+              </div>
+              <div>
+                <p className="text-sm" style={{ color: '#e6e2eb' }}>No habits yet.</p>
+              </div>
+            </div>
+          )}
+
+          {outputItems.length === 0 && inputItems.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <h3 className="font-heading text-lg text-gray-400">Goals</h3>
+                <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
+              </div>
+              <div>
+                <p className="text-sm" style={{ color: '#e6e2eb' }}>No goals yet.</p>
+              </div>
+            </div>
+          )}
         </div>
+      )}
 
-        {itemsToDisplay.length === 0 ? (
-          <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-            <CardContent className="text-center py-8">
-              <p className="text-secondary-text text-sm">
-                {activeTab === 'archived' ? "No archived metrics." : "No active metrics created yet."}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-6">
-            {/* Habits Section */}
-            {inputItems.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <h3 className="font-heading text-lg text-white">Habits</h3>
-                  <Badge variant="secondary" className="text-xs">{inputItems.length}</Badge>
-                </div>
-                <div className="space-y-2">
-                  {inputItems.map(renderMetricCard)}
-                </div>
-              </div>
-            )}
+      {/* Data Type Info Dialog */}
+      <DataTypeInfoDialog
+        isOpen={showDataTypeInfo}
+        onClose={() => setShowDataTypeInfo(false)}
+      />
 
-            {/* Goals Section */}
-            {outputItems.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <h3 className="font-heading text-lg text-white">Goals</h3>
-                  <Badge variant="secondary" className="text-xs">{outputItems.length}</Badge>
-                </div>
-                <div className="space-y-2">
-                  {outputItems.map(renderMetricCard)}
-                </div>
-              </div>
-            )}
-
-            {/* Show message if only one category has items */}
-            {inputItems.length === 0 && outputItems.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <h3 className="font-heading text-lg text-gray-400">Habits</h3>
-                  <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
-                </div>
-                <div>
-                  <p className="text-sm" style={{ color: '#e6e2eb' }}>No habits yet.</p>
-                </div>
-              </div>
-            )}
-
-            {outputItems.length === 0 && inputItems.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <h3 className="font-heading text-lg text-gray-400">Goals</h3>
-                  <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
-                </div>
-                <div>
-                  <p className="text-sm" style={{ color: '#e6e2eb' }}>No goals yet.</p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Reactivate Metric Dialog */}
-        <ReactivateMetricDialog
-          isOpen={showReactivateDialog}
-          onClose={handleReactivateClose}
-          onConfirm={handleReactivateConfirm}
-          metric={metricToReactivate}
-          loading={reactivateMutation.isPending}
-        />
-      </div>
-    </TooltipProvider>
+      {/* Reactivate Metric Dialog */}
+      <ReactivateMetricDialog
+        isOpen={showReactivateDialog}
+        onClose={handleReactivateClose}
+        onConfirm={handleReactivateConfirm}
+        metric={metricToReactivate}
+        loading={reactivateMutation.isPending}
+      />
+    </div>
   );
 }
