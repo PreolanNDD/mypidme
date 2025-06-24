@@ -45,12 +45,45 @@ export default function LabPage() {
     enabled: !!user?.id,
   });
 
+  // Fetch experiment progress data for all experiments
+  const { data: experimentProgressData = {} } = useQuery({
+    queryKey: ['experimentProgress', user?.id, experiments.map(e => e.id)],
+    queryFn: async () => {
+      const progressMap: Record<string, { daysWithData: number; totalDays: number }> = {};
+      
+      for (const experiment of experiments) {
+        try {
+          const results = await analyzeExperimentResults(experiment);
+          progressMap[experiment.id] = {
+            daysWithData: results.daysWithData,
+            totalDays: results.totalDays
+          };
+        } catch (error) {
+          console.error(`Failed to analyze experiment ${experiment.id}:`, error);
+          // Fallback calculation
+          const startDate = new Date(experiment.start_date);
+          const endDate = new Date(experiment.end_date);
+          const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          progressMap[experiment.id] = {
+            daysWithData: 0,
+            totalDays
+          };
+        }
+      }
+      
+      return progressMap;
+    },
+    enabled: !!user?.id && experiments.length > 0,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+
   // Update experiment status mutation
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'ACTIVE' | 'COMPLETED' }) => 
       updateExperimentStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['experiments', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['experimentProgress', user?.id] });
     },
   });
 
@@ -59,6 +92,7 @@ export default function LabPage() {
     mutationFn: deleteExperiment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['experiments', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['experimentProgress', user?.id] });
       setShowDeleteDialog(false);
       setExperimentToDelete(null);
     },
@@ -290,6 +324,7 @@ export default function LabPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {experimentsToDisplay.map((experiment) => {
                     const progress = getExperimentProgress(experiment.start_date, experiment.end_date);
+                    const progressData = experimentProgressData[experiment.id];
                     
                     return (
                       <div key={experiment.id} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6">
@@ -348,6 +383,29 @@ export default function LabPage() {
                                   {Math.round(progress.percentage)}% complete
                                 </p>
                               )}
+                            </div>
+                          )}
+
+                          {/* Data Tracking Progress */}
+                          {progressData && (
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="font-medium text-primary-text">Data Logged</span>
+                                <span className="text-secondary-text">
+                                  {progressData.daysWithData} of {progressData.totalDays} days
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="h-2 rounded-full transition-all duration-500 ease-out bg-blue-500"
+                                  style={{ 
+                                    width: `${progressData.totalDays > 0 ? (progressData.daysWithData / progressData.totalDays) * 100 : 0}%` 
+                                  }}
+                                ></div>
+                              </div>
+                              <p className="text-xs text-secondary-text">
+                                {progressData.totalDays > 0 ? Math.round((progressData.daysWithData / progressData.totalDays) * 100) : 0}% data completeness
+                              </p>
                             </div>
                           )}
 
