@@ -51,72 +51,73 @@ export default function Home() {
         {/* Subtle overlay for better text readability */}
         <div className="absolute inset-0 bg-black/20"></div>
         
-        {/* Content Container with Safety Margins */}
-        <div className="relative z-10 w-full max-w-xl px-6 py-8 sm:px-8 sm:py-12 lg:px-12 lg:py-16">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 sm:p-10 border border-white/20">
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
+        {/* Content Container with Safety Margins and Responsive Sizing */}
+        <div className="relative z-10 w-full max-w-xl px-4 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10 lg:px-10 lg:py-12 xl:px-12 xl:py-16">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 sm:p-8 md:p-10 border border-white/20">
+            {/* Logo with Responsive Sizing */}
+            <div className="flex justify-center mb-6 sm:mb-8">
               <Image
                 src="/images/logo.svg"
                 alt="PIDMe Logo"
-                width={0}
-                height={0}
-                className="w-auto h-auto rounded-xl"
+                width={320}
+                height={120}
+                className="h-auto w-auto max-w-[200px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[320px] rounded-xl"
+                priority
               />
             </div>
 
-            {/* Main Headline */}
-            <div className="text-center mb-10">
-              <h1 className="text-3xl font-heading text-primary-text leading-tight mb-4">
+            {/* Main Headline with Responsive Text */}
+            <div className="text-center mb-8 sm:mb-10">
+              <h1 className="text-2xl sm:text-3xl font-heading text-primary-text leading-tight mb-3 sm:mb-4">
                 Stop Guessing. Start Knowing.
               </h1>
-              <p className="text-lg text-secondary-text font-medium">
+              <p className="text-base sm:text-lg text-secondary-text font-medium">
                 Your personal science lab that helps you prove what works.
               </p>
             </div>
 
-            {/* Value Proposition Features */}
-            <div className="space-y-6 mb-10">
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-accent-1 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <BarChart3 className="w-5 h-5 text-white" />
+            {/* Value Proposition Features with Responsive Spacing */}
+            <div className="space-y-4 sm:space-y-6 mb-8 sm:mb-10">
+              <div className="flex items-start space-x-3 sm:space-x-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-accent-1 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-semibold text-primary-text text-base mb-1">Track Your Life</h3>
-                  <p className="text-sm text-secondary-text leading-relaxed">Log your key inputs and outputs in less than a minute a day.</p>
+                  <h3 className="font-semibold text-primary-text text-sm sm:text-base mb-1">Track Your Life</h3>
+                  <p className="text-xs sm:text-sm text-secondary-text leading-relaxed">Log your key inputs and outputs in less than a minute a day.</p>
                 </div>
               </div>
               
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-accent-2 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Eye className="w-5 h-5 text-white" />
+              <div className="flex items-start space-x-3 sm:space-x-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-accent-2 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-semibold text-primary-text text-base mb-1">See What's Working</h3>
-                  <p className="text-sm text-secondary-text leading-relaxed">Instantly visualize the connections between your habits and your ambitions.</p>
+                  <h3 className="font-semibold text-primary-text text-sm sm:text-base mb-1">See What's Working</h3>
+                  <p className="text-xs sm:text-sm text-secondary-text leading-relaxed">Instantly visualize the connections between your habits and your ambitions.</p>
                 </div>
               </div>
               
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-soft-accent rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Settings className="w-5 h-5 text-white" />
+              <div className="flex items-start space-x-3 sm:space-x-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-soft-accent rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-semibold text-primary-text text-base mb-1">Master Your Routine</h3>
-                  <p className="text-sm text-secondary-text leading-relaxed">Use your data to adapt, improve, and build a lifestyle that's precisely tuned to your goals.</p>
+                  <h3 className="font-semibold text-primary-text text-sm sm:text-base mb-1">Master Your Routine</h3>
+                  <p className="text-xs sm:text-sm text-secondary-text leading-relaxed">Use your data to adapt, improve, and build a lifestyle that's precisely tuned to your goals.</p>
                 </div>
               </div>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="space-y-4">
+            {/* CTA Buttons with Responsive Sizing */}
+            <div className="space-y-3 sm:space-y-4">
               <Link href="/signup" className="block w-full">
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-200">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base py-2 sm:py-3">
                   Start Your Lab
                 </Button>
               </Link>
               <Link href="/login" className="block w-full">
-                <Button variant="outline" className="w-full bg-white/90 hover:bg-white border-gray-200 text-primary-text shadow-lg hover:shadow-xl transition-all duration-200">
+                <Button variant="outline" className="w-full bg-white/90 hover:bg-white border-gray-200 text-primary-text shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base py-2 sm:py-3">
                   Log In
                 </Button>
               </Link>
@@ -140,9 +141,9 @@ export default function Home() {
       </div>
 
       {/* Footer - Only show on mobile/tablet when full screen */}
-      <footer className="absolute bottom-0 left-0 right-0 px-6 py-4 bg-black/10 backdrop-blur-sm border-t border-white/10 lg:hidden">
-        <p className="text-center text-sm text-white/80">
-          © 2024 PIDMe. Engineering your personal optimization.
+      <footer className="absolute bottom-0 left-0 right-0 px-4 sm:px-6 py-3 sm:py-4 bg-black/10 backdrop-blur-sm border-t border-white/10 lg:hidden">
+        <p className="text-center text-xs sm:text-sm text-white/80">
+          © 2025 PIDMe. Engineering your personal optimization.
         </p>
       </footer>
     </div>
