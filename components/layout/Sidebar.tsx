@@ -39,7 +39,7 @@ export function Sidebar() {
       isOpen ? "w-64" : "w-16"
     )}>
       {/* Header with Logo */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 h-28">
         <div className={cn(
           "transition-all duration-300 ease-in-out",
           isOpen ? "opacity-100" : "opacity-0 w-0 overflow-hidden"
@@ -50,7 +50,7 @@ export function Sidebar() {
               alt="PIDMe Logo"
               width={320}
               height={120}
-              className="h-auto w-auto rounded-xl"
+              className="h-13 w-auto rounded-xl"
             />
           )}
         </div>
