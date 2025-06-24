@@ -326,7 +326,7 @@ export default function DataPage() {
                         <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
                           <TrendingUp className="w-3 h-3 text-white" />
                         </div>
-                        <span>Output Metric</span>
+                        <span>Goal</span>
                       </label>
                       <Select value={primaryMetricId} onValueChange={setPrimaryMetricId}>
                         <SelectTrigger>
@@ -348,7 +348,7 @@ export default function DataPage() {
                         <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
                           <Target className="w-3 h-3 text-white" />
                         </div>
-                        <span>Input Metric</span>
+                        <span>Habit</span>
                       </label>
                       <Select value={comparisonMetricId} onValueChange={setComparisonMetricId}>
                         <SelectTrigger>
