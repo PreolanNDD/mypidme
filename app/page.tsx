@@ -68,11 +68,8 @@ export default function Home() {
 
             {/* Main Headline with Responsive Text */}
             <div className="text-center mb-8 sm:mb-10">
-              <h1 className="text-2xl sm:text-3xl font-heading text-primary-text leading-tight mb-3 sm:mb-4">
-                Stop Guessing. Start Knowing.
-              </h1>
               <p className="text-base sm:text-lg text-secondary-text font-medium">
-                Your personal science lab that helps you prove what works.
+                Your Personal Insight Dashboard that helps you prove what works.
               </p>
             </div>
 
