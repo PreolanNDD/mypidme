@@ -8,6 +8,7 @@ import { castVoteAction, reportFindingAction } from '@/lib/actions/community-act
 import { CommunityFinding, FindingVote } from '@/lib/community';
 import { getTrackableItems } from '@/lib/trackable-items';
 import { getDualMetricChartData } from '@/lib/chart-data';
+import { getExperiments, analyzeExperimentResults } from '@/lib/experiments';
 import { calculatePearsonCorrelation } from '@/lib/correlation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
@@ -16,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
-import { ChevronUp, ChevronDown, Flag, User, Calendar, ArrowLeft, MessageSquare } from 'lucide-react';
+import { ChevronUp, ChevronDown, Flag, User, Calendar, ArrowLeft, MessageSquare, Target, TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -149,6 +150,27 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
       );
     },
     enabled: !!user?.id && finding.share_data && !!finding.chart_config,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // Fetch experiment data if there's an experiment_id
+  const { data: experiments = [] } = useQuery({
+    queryKey: ['experiments', user?.id],
+    queryFn: () => getExperiments(user!.id),
+    enabled: !!user?.id && finding.share_data && !!finding.experiment_id,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+  });
+
+  // Get the specific experiment for this finding
+  const experiment = experiments.find(exp => exp.id === finding.experiment_id);
+
+  // Fetch experiment results if we have an experiment
+  const { data: experimentResults } = useQuery({
+    queryKey: ['experimentResults', finding.experiment_id],
+    queryFn: () => analyzeExperimentResults(experiment!),
+    enabled: !!experiment && finding.share_data && !!finding.experiment_id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -424,6 +446,19 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     return 'Anonymous';
   };
 
+  // Helper function for experiment results display
+  const getConditionLabel = (isPositive: boolean): string => {
+    if (!experiment?.independent_variable) return isPositive ? 'High' : 'Low';
+    
+    if (experiment.independent_variable.type === 'BOOLEAN') {
+      return isPositive ? 'Yes' : 'No';
+    } else if (experiment.independent_variable.type === 'SCALE_1_10') {
+      return isPositive ? 'High (6-10)' : 'Low (1-5)';
+    } else {
+      return isPositive ? 'High' : 'Low';
+    }
+  };
+
   // Custom Tooltip Component (same as /data page)
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -648,8 +683,139 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
               </div>
             )}
 
-            {/* Data Visualization Placeholder for Experiment */}
-            {finding.share_data && finding.experiment_id && !finding.chart_config && (
+            {/* Data Visualization - Experiment Results */}
+            {finding.share_data && finding.experiment_id && experiment && experimentResults && (
+              <div className="space-y-6">
+                {/* Experiment Overview */}
+                <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                  <CardContent className="p-8">
+                    <h3 className="font-heading text-xl text-primary-text mb-4">
+                      Experiment Results: {experiment.title}
+                    </h3>
+                    
+                    {/* Experiment Details */}
+                    <div className="p-4 bg-gray-50 rounded-lg mb-6">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-primary-text">Independent Variable:</span>
+                          <span className="ml-2 text-secondary-text">{experiment.independent_variable?.name}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-primary-text">Dependent Variable:</span>
+                          <span className="ml-2 text-secondary-text">{experiment.dependent_variable?.name}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-primary-text">Duration:</span>
+                          <span className="ml-2 text-secondary-text">{experimentResults.totalDays} days</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-primary-text">Data Completeness:</span>
+                          <span className="ml-2 text-secondary-text">{experimentResults.daysWithData} days with data</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Results Analysis */}
+                    {experimentResults.daysWithData > 0 && experimentResults.positiveConditionAverage !== null && experimentResults.negativeConditionAverage !== null ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <Target className="w-4 h-4 text-primary" />
+                          <h4 className="font-medium text-primary-text">Results Analysis</h4>
+                        </div>
+
+                        {/* Condition Comparison */}
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Positive Condition */}
+                          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="text-center">
+                              <h5 className="font-medium text-green-900 mb-2">
+                                {getConditionLabel(true)} {experiment.independent_variable?.name}
+                              </h5>
+                              <div className="text-2xl font-bold text-green-600 mb-1">
+                                {experimentResults.positiveConditionAverage.toFixed(1)}
+                              </div>
+                              <p className="text-sm text-green-700">
+                                Average {experiment.dependent_variable?.name}
+                              </p>
+                              <p className="text-xs text-green-600 mt-1">
+                                {experimentResults.positiveConditionCount} day{experimentResults.positiveConditionCount !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Negative Condition */}
+                          <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <div className="text-center">
+                              <h5 className="font-medium text-gray-900 mb-2">
+                                {getConditionLabel(false)} {experiment.independent_variable?.name}
+                              </h5>
+                              <div className="text-2xl font-bold text-gray-600 mb-1">
+                                {experimentResults.negativeConditionAverage.toFixed(1)}
+                              </div>
+                              <p className="text-sm text-gray-700">
+                                Average {experiment.dependent_variable?.name}
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">
+                                {experimentResults.negativeConditionCount} day{experimentResults.negativeConditionCount !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Impact Summary */}
+                        {(() => {
+                          const difference = experimentResults.positiveConditionAverage - experimentResults.negativeConditionAverage;
+                          const getImpactStrength = (diff: number): string => {
+                            const absDiff = Math.abs(diff);
+                            if (absDiff >= 2) return 'Strong';
+                            if (absDiff >= 1) return 'Moderate';
+                            if (absDiff >= 0.5) return 'Weak';
+                            return 'Minimal';
+                          };
+
+                          return (
+                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-center space-x-2 mb-3">
+                                {difference > 0 ? (
+                                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                                ) : difference < 0 ? (
+                                  <TrendingDown className="w-5 h-5 text-blue-600" />
+                                ) : (
+                                  <BarChart3 className="w-5 h-5 text-blue-600" />
+                                )}
+                                <h5 className="font-medium text-blue-900">
+                                  {getImpactStrength(difference)} {difference > 0 ? 'Positive' : difference < 0 ? 'Negative' : 'No'} Impact
+                                </h5>
+                                <Badge variant="outline" className="text-blue-700 border-blue-300">
+                                  {Math.abs(difference).toFixed(1)} point difference
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-blue-800">
+                                During the experiment, on days when {experiment.independent_variable?.name?.toLowerCase()} was {getConditionLabel(true).toLowerCase()}, 
+                                the average {experiment.dependent_variable?.name} was <strong>{experimentResults.positiveConditionAverage.toFixed(1)}</strong>. 
+                                On days when it was {getConditionLabel(false).toLowerCase()}, 
+                                the average {experiment.dependent_variable?.name} was <strong>{experimentResults.negativeConditionAverage.toFixed(1)}</strong>.
+                              </p>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <h4 className="font-medium text-primary-text mb-2">Insufficient Data</h4>
+                        <p className="text-secondary-text">
+                          No data was logged for both variables during the experiment period.
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Data Visualization Placeholder for Experiment without results */}
+            {finding.share_data && finding.experiment_id && experiment && !experimentResults && (
               <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                 <CardContent className="p-8">
                   <h3 className="font-heading text-xl text-primary-text mb-4">
