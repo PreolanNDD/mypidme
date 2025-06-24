@@ -73,6 +73,13 @@ export function ExperimentResultsDialog({
     onShare(results);
   };
 
+  // Check if this is an active experiment with insufficient data for analysis
+  const isActiveExperiment = experiment.status === 'ACTIVE';
+  const hasInsufficientData = daysWithData < 3;
+
+  // Determine dialog title based on experiment status
+  const dialogTitle = isActiveExperiment ? 'Experiment Progress' : 'Experiment Results';
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto mr-6">
@@ -83,23 +90,25 @@ export function ExperimentResultsDialog({
             </div>
             <div className="flex-1 min-w-0">
               <DialogTitle className="font-heading text-xl text-primary-text">
-                Experiment Results
+                {dialogTitle}
               </DialogTitle>
               <p className="text-sm text-secondary-text">{experiment.title}</p>
             </div>
           </div>
           
-          {/* Share Button - Positioned below the title to avoid overlap */}
-          <div className="flex justify-start pt-2">
-            <Button
-              onClick={handleShare}
-              className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
-              size="sm"
-            >
-              <Share2 className="w-4 h-4 mr-2" />
-              Share Finding
-            </Button>
-          </div>
+          {/* Share Button - Only show for completed experiments or active experiments with sufficient data */}
+          {(!isActiveExperiment || !hasInsufficientData) && (
+            <div className="flex justify-start pt-2">
+              <Button
+                onClick={handleShare}
+                className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+                size="sm"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share Finding
+              </Button>
+            </div>
+          )}
         </DialogHeader>
         
         <div className="space-y-6">
@@ -196,11 +205,13 @@ export function ExperimentResultsDialog({
           </div>
 
           {/* Results Analysis */}
-          {daysWithData > 0 ? (
+          {daysWithData >= 3 ? (
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Target className="w-4 h-4 text-primary" />
-                <h3 className="font-medium text-primary-text">Results Analysis</h3>
+                <h3 className="font-medium text-primary-text">
+                  {isActiveExperiment ? 'Progress Analysis' : 'Results Analysis'}
+                </h3>
               </div>
 
               {/* Condition Comparison */}
@@ -261,21 +272,30 @@ export function ExperimentResultsDialog({
                     </Badge>
                   </div>
                   <p className="text-sm text-blue-800">
-                    During your experiment, on days when you had {getConditionLabel(true).toLowerCase()} {experiment.independent_variable?.name?.toLowerCase()}, 
+                    {isActiveExperiment ? 'So far in this experiment, on' : 'During your experiment, on'} days when you had {getConditionLabel(true).toLowerCase()} {experiment.independent_variable?.name?.toLowerCase()}, 
                     your average {experiment.dependent_variable?.name} was <strong>{positiveConditionAverage?.toFixed(1)}</strong>. 
                     On days when you had {getConditionLabel(false).toLowerCase()} {experiment.independent_variable?.name?.toLowerCase()}, 
                     your average {experiment.dependent_variable?.name} was <strong>{negativeConditionAverage?.toFixed(1)}</strong>.
                   </p>
+                  {isActiveExperiment && (
+                    <p className="text-sm text-blue-700 mt-2 italic">
+                      Note: This is preliminary data. Continue logging to get more reliable results.
+                    </p>
+                  )}
                 </div>
               )}
             </div>
           ) : (
             <div className="text-center py-8">
               <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="font-medium text-primary-text mb-2">Insufficient Data</h3>
+              <h3 className="font-medium text-primary-text mb-2">
+                {isActiveExperiment ? 'Keep Logging for Analysis' : 'Insufficient Data'}
+              </h3>
               <p className="text-secondary-text">
-                No data was logged for both variables during the experiment period. 
-                Make sure to log your metrics consistently to see meaningful results.
+                {isActiveExperiment 
+                  ? `You need at least 3 days of complete data to see meaningful analysis. You currently have ${daysWithData} day${daysWithData !== 1 ? 's' : ''} logged.`
+                  : "No data was logged for both variables during the experiment period. Make sure to log your metrics consistently to see meaningful results."
+                }
               </p>
             </div>
           )}

@@ -13,7 +13,7 @@ import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog'
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
 import { DeleteExperimentDialog } from '@/components/lab/DeleteExperimentDialog';
-import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2 } from 'lucide-react';
+import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -143,6 +143,20 @@ export default function LabPage() {
     } catch (error) {
       console.error('Failed to analyze experiment:', error);
       alert('Failed to analyze experiment results');
+    } finally {
+      setAnalyzingId(null);
+    }
+  };
+
+  const handleViewProgress = async (experiment: Experiment) => {
+    setAnalyzingId(experiment.id);
+    try {
+      const results = await analyzeExperimentResults(experiment);
+      setSelectedResults(results);
+      setShowResultsDialog(true);
+    } catch (error) {
+      console.error('Failed to analyze experiment:', error);
+      alert('Failed to analyze experiment progress');
     } finally {
       setAnalyzingId(null);
     }
@@ -391,15 +405,30 @@ export default function LabPage() {
                                 </Button>
                               )}
                               {experiment.status === 'ACTIVE' && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleCompleteExperiment(experiment.id)}
-                                  disabled={updateStatusMutation.isPending}
-                                >
-                                  <Square className="w-4 h-4 mr-2" />
-                                  Complete
-                                </Button>
+                                <>
+                                  {/* View Progress Button - requires at least 3 days of data */}
+                                  {progressData && progressData.daysWithData >= 3 && (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleViewProgress(experiment)}
+                                      loading={analyzingId === experiment.id}
+                                      disabled={analyzingId === experiment.id}
+                                      className="bg-blue-600 hover:bg-white hover:text-blue-600 border border-blue-600 transition-colors duration-200 text-white"
+                                    >
+                                      <BarChart3 className="w-4 h-4 mr-2" />
+                                      View Progress
+                                    </Button>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCompleteExperiment(experiment.id)}
+                                    disabled={updateStatusMutation.isPending}
+                                  >
+                                    <Square className="w-4 h-4 mr-2" />
+                                    Complete
+                                  </Button>
+                                </>
                               )}
                               {experiment.status === 'COMPLETED' && (
                                 <Button
