@@ -48,8 +48,8 @@ export function Sidebar() {
             <Image
               src="/images/logo.svg"
               alt="PIDMe Logo"
-              width={213}
-              height={80}
+              width={100}
+              height={40}
               className="h-auto w-auto rounded-xl"
             />
           )}
