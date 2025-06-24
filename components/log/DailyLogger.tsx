@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { LogEntryField } from '@/components/log/LogEntryField';
 import { Calendar, Save, Target, TrendingUp, Plus, Minus } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const getDefaultValue = (dataType: string) => {
   switch (dataType) {
@@ -117,13 +118,13 @@ function EnhancedLogEntryField({ item, value, onChange }: {
 
 export function DailyLogger({ trackableItems, loading }: { trackableItems: TrackableItem[]; loading: boolean }) {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState(() => {
     const defaultDate = new Date().toISOString().split('T')[0];
     return defaultDate;
   });
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loadingEntries, setLoadingEntries] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -181,16 +182,13 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
     };
   }, [user?.id, selectedDate, trackableItems.length]); // Dependency array with only stable primitives
 
-  const handleSave = useCallback(async () => {
-    if (!user?.id || saving || trackableItems.length === 0) {
-      return;
-    }
+  // Save mutation with comprehensive cache invalidation
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id || trackableItems.length === 0) {
+        throw new Error("User not found or no trackable items");
+      }
 
-    setSaving(true);
-    setMessage('');
-    setError('');
-
-    try {
       const savePromises = trackableItems.map(item => {
         const value = formData[item.id];
         const entryData = {
@@ -204,26 +202,40 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
         return upsertLoggedEntry(entryData);
       });
       
-      await Promise.all(savePromises);
-      
+      return Promise.all(savePromises);
+    },
+    onSuccess: () => {
       setMessage('All data saved successfully!');
+      setError('');
+      
+      // Invalidate all relevant queries that depend on logged entries
+      queryClient.invalidateQueries({ queryKey: ['todaysEntries', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardStats', user?.id] });
+      
+      // Invalidate chart data queries for all possible combinations
+      queryClient.invalidateQueries({ queryKey: ['chartData'] });
+      queryClient.invalidateQueries({ queryKey: ['dualMetricChartData'] });
+      queryClient.invalidateQueries({ queryKey: ['multiMetricChartData'] });
+      
+      // Invalidate experiment-related queries
+      queryClient.invalidateQueries({ queryKey: ['experimentResults'] });
+      queryClient.invalidateQueries({ queryKey: ['experiments', user?.id] });
       
       // Clear message after 3 seconds
       setTimeout(() => {
         setMessage('');
       }, 3000);
-      
-    } catch (err: any) {
+    },
+    onError: (err: any) => {
       setError(`Failed to save data: ${err.message}`);
+      setMessage('');
       
       // Clear error after 5 seconds
       setTimeout(() => {
         setError('');
       }, 5000);
-    } finally {
-      setSaving(false);
-    }
-  }, [user?.id, saving, trackableItems, formData, selectedDate]);
+    },
+  });
 
   const handleFieldChange = useCallback((itemId: string, value: any) => {
     setFormData(prev => {
@@ -235,7 +247,7 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
   const handleDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = e.target.value;
     
-    if (saving) {
+    if (saveMutation.isPending) {
       return;
     }
     
@@ -243,7 +255,14 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
     setFormData({});
     setMessage('');
     setError('');
-  }, [saving, selectedDate]);
+  }, [saveMutation.isPending, selectedDate]);
+
+  const handleSave = useCallback(() => {
+    if (saveMutation.isPending || trackableItems.length === 0) {
+      return;
+    }
+    saveMutation.mutate();
+  }, [saveMutation, trackableItems.length]);
 
   if (loading || loadingEntries) {
     return (
@@ -279,7 +298,7 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
                 onChange={handleDateChange}
                 max={new Date().toISOString().split('T')[0]}
                 className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                disabled={saving}
+                disabled={saveMutation.isPending}
               />
             </div>
           </div>
@@ -355,14 +374,12 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
           )}
           
           <Button 
-            onClick={() => {
-              handleSave();
-            }} 
-            loading={saving} 
+            onClick={handleSave} 
+            loading={saveMutation.isPending} 
             className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200" 
             style={{ color: '#4a2a6d' }}
             size="lg"
-            disabled={saving}
+            disabled={saveMutation.isPending}
           >
             <Save className="w-4 h-4 mr-2" />
             Save Changes

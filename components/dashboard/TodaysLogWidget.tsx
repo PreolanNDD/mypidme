@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { LogEntryField } from '@/components/log/LogEntryField';
 import { Calendar, Save, CheckCircle, Target, TrendingUp, Edit, Plus, Minus } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useFormState, useFormStatus } from 'react-dom';
 
 interface TodaysLogWidgetProps {
   trackableItems: TrackableItem[];
@@ -162,7 +163,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     };
   }, [trackableItems, todaysEntries]);
 
-  // Save mutation
+  // Save mutation with comprehensive cache invalidation
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!user?.id) throw new Error("User not found");
@@ -187,9 +188,21 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     onSuccess: () => {
       setMessage('All data saved successfully!');
       setIsEditing(false);
+      
+      // Invalidate all relevant queries that depend on logged entries
       queryClient.invalidateQueries({ queryKey: ['todaysEntries', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['dashboardStats', user?.id] });
       
+      // Invalidate chart data queries for all possible combinations
+      queryClient.invalidateQueries({ queryKey: ['chartData'] });
+      queryClient.invalidateQueries({ queryKey: ['dualMetricChartData'] });
+      queryClient.invalidateQueries({ queryKey: ['multiMetricChartData'] });
+      
+      // Invalidate experiment-related queries
+      queryClient.invalidateQueries({ queryKey: ['experimentResults'] });
+      queryClient.invalidateQueries({ queryKey: ['experiments', user?.id] });
+      
+      // Clear message after 3 seconds
       setTimeout(() => {
         setMessage('');
       }, 3000);
