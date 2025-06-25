@@ -3,10 +3,9 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
-import { DivideIcon as LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
-  icon: LucideIcon;
+  icon: React.ElementType;
   title: string;
   description: string;
   action?: {
