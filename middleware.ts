@@ -77,8 +77,11 @@ export async function middleware(request: NextRequest) {
   ]
 
   const pathname = request.nextUrl.pathname
-  const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/auth/')
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+  // Normalize pathname by removing trailing slash (except for root)
+  const normalizedPathname = pathname === '/' ? pathname : pathname.replace(/\/$/, '')
+  
+  const isPublicRoute = publicRoutes.includes(normalizedPathname) || normalizedPathname.startsWith('/auth/')
+  const isProtectedRoute = protectedRoutes.some(route => normalizedPathname.startsWith(route))
 
   try {
     // Attempt to refresh session - this is critical for Server Components
@@ -86,6 +89,7 @@ export async function middleware(request: NextRequest) {
     
     console.log('🔐 [Middleware] Session check:', {
       pathname,
+      normalizedPathname,
       hasSession: !!session,
       hasError: !!error,
       isPublicRoute,
@@ -139,7 +143,7 @@ export async function middleware(request: NextRequest) {
     }
     
     // Handle authenticated users on auth pages (except root and update-password)
-    if (session && isPublicRoute && pathname !== '/' && pathname !== '/update-password') {
+    if (session && isPublicRoute && normalizedPathname !== '/' && normalizedPathname !== '/update-password') {
       console.log('🔄 [Middleware] Authenticated user on auth page, redirecting to dashboard')
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
