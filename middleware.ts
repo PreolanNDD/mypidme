@@ -54,20 +54,21 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  const pathname = request.nextUrl.pathname
+  // Normalize pathname by removing trailing slash (except for root)
+  const normalizedPathname = pathname === '/' ? pathname : pathname.replace(/\/$/, '')
+  
   // Define public routes that don't require authentication
   const publicRoutes = [
+    '/',
     '/login',
     '/signup', 
     '/forgot-password',
-    '/update-password',
-    '/auth/callback',
-    '/auth/auth-code-error',
-    '/auth/session-expired',
-    '/'
+    '/update-password'
   ]
 
-  // Define protected routes that require authentication
-  const protectedRoutes = [
+  // Define protected route prefixes that require authentication
+  const protectedRoutePrefixes = [
     '/dashboard',
     '/log',
     '/data',
@@ -76,20 +77,37 @@ export async function middleware(request: NextRequest) {
     '/settings'
   ]
 
-  const pathname = request.nextUrl.pathname
-  // Normalize pathname by removing trailing slash (except for root)
-  const normalizedPathname = pathname === '/' ? pathname : pathname.replace(/\/$/, '')
-  
-  const isPublicRoute = publicRoutes.includes(normalizedPathname) || normalizedPathname.startsWith('/auth/')
-  const isProtectedRoute = protectedRoutes.some(route => normalizedPathname.startsWith(route))
+  // Check if the normalized pathname is a public route
+  const isPublicRoute = publicRoutes.includes(normalizedPathname) || 
+                       normalizedPathname.startsWith('/auth/') ||
+                       normalizedPathname.startsWith('/_next/') ||
+                       normalizedPathname.includes('.')
+
+  // Check if the normalized pathname is a protected route
+  const isProtectedRoute = protectedRoutePrefixes.some(prefix => 
+    normalizedPathname.startsWith(prefix)
+  )
+
+  console.log('🔐 [Middleware] Route analysis:', {
+    pathname,
+    normalizedPathname,
+    isPublicRoute,
+    isProtectedRoute
+  })
+
+  // Skip middleware for static files and Next.js internals
+  if (normalizedPathname.startsWith('/_next/') || 
+      normalizedPathname.includes('.') || 
+      normalizedPathname.startsWith('/api/')) {
+    return response
+  }
 
   try {
     // Attempt to refresh session - this is critical for Server Components
     const { data: { session }, error } = await supabase.auth.getSession()
     
     console.log('🔐 [Middleware] Session check:', {
-      pathname,
-      normalizedPathname,
+      pathname: normalizedPathname,
       hasSession: !!session,
       hasError: !!error,
       isPublicRoute,
@@ -99,6 +117,11 @@ export async function middleware(request: NextRequest) {
     // Handle protected routes without valid session
     if (isProtectedRoute && (!session || error)) {
       console.log('🚨 [Middleware] Protected route without valid session, redirecting to login')
+      
+      // Prevent redirect loop - don't redirect if already going to login
+      if (normalizedPathname === '/login') {
+        return response
+      }
       
       // Clear all auth cookies to ensure clean state
       const authCookieNames = [
@@ -145,6 +168,12 @@ export async function middleware(request: NextRequest) {
     // Handle authenticated users on auth pages (except root and update-password)
     if (session && isPublicRoute && normalizedPathname !== '/' && normalizedPathname !== '/update-password') {
       console.log('🔄 [Middleware] Authenticated user on auth page, redirecting to dashboard')
+      
+      // Prevent redirect loop - don't redirect if already going to dashboard
+      if (normalizedPathname === '/dashboard') {
+        return response
+      }
+      
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
     
@@ -152,7 +181,7 @@ export async function middleware(request: NextRequest) {
     console.error('💥 [Middleware] Unexpected error during session check:', error)
     
     // On any unexpected error with protected routes, redirect to login
-    if (isProtectedRoute) {
+    if (isProtectedRoute && normalizedPathname !== '/login') {
       const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
       
       // Clear auth cookies on error
