@@ -1,6 +1,5 @@
 import { AppShell } from '@/components/layout/AppShell';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { PageErrorBoundary } from '@/components/error/PageErrorBoundary';
 
 export default function AppLayout({
   children,
@@ -9,11 +8,9 @@ export default function AppLayout({
 }) {
   return (
     <ProtectedRoute>
-      <PageErrorBoundary>
-        <AppShell>
-          {children}
-        </AppShell>
-      </PageErrorBoundary>
+      <AppShell>
+        {children}
+      </AppShell>
     </ProtectedRoute>
   );
 }

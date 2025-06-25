@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,17 +11,15 @@ import { BarChart3, Eye, Settings } from 'lucide-react';
 
 export default function Home() {
   const { user, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    // Only redirect if we have a user and we're not loading
     if (!loading && user) {
       console.log('Home: User is authenticated, redirecting to dashboard');
-      // Use window.location instead of router to avoid RSC payload issues
-      window.location.href = '/dashboard';
+      router.replace('/dashboard'); // Use replace instead of push
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
-  // Show loading state while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -28,7 +28,6 @@ export default function Home() {
     );
   }
 
-  // If user is authenticated, show loading while redirecting
   if (user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -37,7 +36,6 @@ export default function Home() {
     );
   }
 
-  // Show landing page for unauthenticated users
   return (
     <div className="min-h-screen w-full flex overflow-hidden relative">
       {/* Left Side - Welcome Content with Background (Desktop: 40% of screen, Mobile: Full screen) */}

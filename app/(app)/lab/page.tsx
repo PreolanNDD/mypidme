@@ -13,14 +13,11 @@ import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog'
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
 import { DeleteExperimentDialog } from '@/components/lab/DeleteExperimentDialog';
-import { LoadingState } from '@/components/error/LoadingState';
-import { EmptyState } from '@/components/error/EmptyState';
-import { PageErrorBoundary } from '@/components/error/PageErrorBoundary';
 import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
-function LabContent() {
+export default function LabPage() {
   const { user } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -34,22 +31,18 @@ function LabContent() {
   const [experimentToDelete, setExperimentToDelete] = useState<Experiment | null>(null);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
 
-  // Fetch trackable items with error handling
-  const { data: trackableItems = [], isLoading: loadingItems, error: itemsError } = useQuery<TrackableItem[]>({
+  // Fetch trackable items
+  const { data: trackableItems = [], isLoading: loadingItems } = useQuery<TrackableItem[]>({
     queryKey: ['trackableItems', user?.id],
     queryFn: () => getTrackableItems(user!.id),
     enabled: !!user?.id,
-    retry: 2,
-    staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch experiments with error handling
-  const { data: experiments = [], isLoading: loadingExperiments, error: experimentsError } = useQuery<Experiment[]>({
+  // Fetch experiments
+  const { data: experiments = [], isLoading: loadingExperiments } = useQuery<Experiment[]>({
     queryKey: ['experiments', user?.id],
     queryFn: () => getExperiments(user!.id),
     enabled: !!user?.id,
-    retry: 2,
-    staleTime: 5 * 60 * 1000,
   });
 
   // Fetch experiment progress data for all experiments
@@ -214,16 +207,13 @@ function LabContent() {
   };
 
   const isLoading = loadingItems || loadingExperiments;
-  const hasError = itemsError || experimentsError;
-
-  // Handle errors gracefully
-  if (hasError) {
-    console.error('Lab data loading error:', { itemsError, experimentsError });
-    throw new Error('Failed to load lab data');
-  }
 
   if (isLoading) {
-    return <LoadingState fullScreen message="Loading your experiments..." />;
+    return (
+      <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (
@@ -251,15 +241,22 @@ function LabContent() {
 
           {/* Check if user has required metrics */}
           {inputMetrics.length === 0 || outputMetrics.length === 0 ? (
-            <EmptyState
-              icon={FlaskConical}
-              title="Ready to Start Experimenting?"
-              description={`To create experiments, you need both input metrics (things you control) and output metrics (things you measure). You have ${inputMetrics.length} input metrics and ${outputMetrics.length} output metrics.`}
-              action={{
-                label: "Create Your Metrics",
-                onClick: () => router.push('/log')
-              }}
-            />
+            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+              <CardContent className="text-center py-12">
+                <FlaskConical className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="font-heading text-xl text-primary-text mb-2">Ready to Start Experimenting?</h3>
+                <p className="text-secondary-text mb-6 max-w-md mx-auto">
+                  To create experiments, you need both input metrics (things you control) and output metrics (things you measure).
+                </p>
+                <div className="space-y-2 text-sm text-secondary-text mb-6">
+                  <p>✓ Input metrics: {inputMetrics.length} created</p>
+                  <p>✓ Output metrics: {outputMetrics.length} created</p>
+                </div>
+                <Button onClick={() => window.location.href = '/log'}>
+                  Create Your Metrics
+                </Button>
+              </CardContent>
+            </Card>
           ) : (
             <>
               {/* Tabs */}
@@ -294,19 +291,17 @@ function LabContent() {
 
               {/* Experiments List */}
               {experimentsToDisplay.length === 0 ? (
-                <EmptyState
-                  icon={FlaskConical}
-                  title={activeTab === 'active' ? 'No Active Experiments' : 'No Completed Experiments'}
-                  description={
-                    activeTab === 'active' 
-                      ? "No active experiments. Start your first experiment to begin optimizing!"
-                      : "No completed experiments yet."
-                  }
-                  action={activeTab === 'active' ? {
-                    label: "Start Your First Experiment",
-                    onClick: () => setShowCreateDialog(true)
-                  } : undefined}
-                />
+                <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                  <CardContent className="text-center py-8">
+                    <FlaskConical className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-secondary-text">
+                      {activeTab === 'active' 
+                        ? "No active experiments. Start your first experiment to begin optimizing!"
+                        : "No completed experiments yet."
+                      }
+                    </p>
+                  </CardContent>
+                </Card>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {experimentsToDisplay.map((experiment) => {
@@ -518,13 +513,5 @@ function LabContent() {
         loading={deleteMutation.isPending}
       />
     </div>
-  );
-}
-
-export default function LabPage() {
-  return (
-    <PageErrorBoundary pageName="Lab">
-      <LabContent />
-    </PageErrorBoundary>
   );
 }

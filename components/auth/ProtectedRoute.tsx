@@ -2,8 +2,7 @@
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
-import { LoadingState } from '@/components/error/LoadingState';
+import { useEffect } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,42 +11,37 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const redirectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Clear any existing timeout
-    if (redirectTimeoutRef.current) {
-      clearTimeout(redirectTimeoutRef.current);
-      redirectTimeoutRef.current = null;
-    }
-
     // Only redirect if loading is complete and there's no user
-    // Add a small delay to prevent race conditions
     if (!loading && !user) {
       console.log('ProtectedRoute: No authenticated user found, redirecting to login');
-      
-      // Use a timeout to prevent immediate redirects that might interfere with auth flow
-      redirectTimeoutRef.current = setTimeout(() => {
-        window.location.href = '/login';
-      }, 100);
+      router.replace('/login'); // Use replace instead of push to avoid back button issues
     }
-
-    return () => {
-      if (redirectTimeoutRef.current) {
-        clearTimeout(redirectTimeoutRef.current);
-        redirectTimeoutRef.current = null;
-      }
-    };
-  }, [user, loading]);
+  }, [user, loading, router]);
 
   // Show loading spinner while auth is being determined
   if (loading) {
-    return <LoadingState fullScreen message="Loading your account..." />;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-secondary-text">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   // Show loading spinner while redirecting (no user)
   if (!user) {
-    return <LoadingState fullScreen message="Redirecting to login..." />;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-secondary-text">Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   // If we have a user, render the protected content

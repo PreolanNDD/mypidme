@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   
   // Track if we're currently fetching a profile to prevent concurrent requests
   const fetchingProfileRef = useRef<string | null>(null);
@@ -110,106 +112,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const supabase = createClient();
 
-    // Initialize auth state
-    const initializeAuth = async () => {
-      try {
-        console.log('🔐 [AuthProvider] Initializing auth state...');
-        
-        // Get initial session
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        
-        console.log('🔐 [AuthProvider] Initial session check:', { 
-          hasSession: !!initialSession, 
-          hasError: !!error,
-          userId: initialSession?.user?.id
-        });
-        
-        if (error) {
-          console.error('❌ [AuthProvider] Initial session error:', error);
-        }
-
-        // Set initial state
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-        
-        // Fetch profile if we have a user
-        if (initialSession?.user) {
-          const profile = await fetchUserProfile(initialSession.user.id);
-          setUserProfile(profile);
-        }
-        
-        setLoading(false);
-        
-      } catch (error) {
-        console.error('❌ [AuthProvider] Auth initialization error:', error);
-        setLoading(false);
-      }
-    };
-
-    // Set up the auth state change listener
+    // Set up the auth state change listener - this is our single source of truth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log(`🔐 [AuthProvider] Auth state change:`, { 
-          event, 
-          hasSession: !!session,
-          userId: session?.user?.id
-        });
+        // Handle the initial session load
+        if (event === 'INITIAL_SESSION') {
+          setLoading(false);
+        }
+
+        // Handle invalid refresh token errors
+        if (event === 'TOKEN_REFRESHED' && !session) {
+          try {
+            await supabase.auth.signOut();
+            router.replace('/login');
+          } catch (signOutError) {
+            router.replace('/login');
+          }
+          return;
+        }
+
+        // Handle specific events that should trigger profile updates
+        const shouldUpdateProfile = [
+          'INITIAL_SESSION',
+          'SIGNED_IN',
+          'TOKEN_REFRESHED',
+          'USER_UPDATED'
+        ].includes(event);
+
+        setSession(session);
+        setUser(session?.user ?? null);
         
-        // Handle different auth events
-        switch (event) {
-          case 'SIGNED_IN':
-            console.log(`✅ [AuthProvider] User signed in`);
-            setSession(session);
-            setUser(session?.user ?? null);
-            
-            if (session?.user) {
-              const profile = await fetchUserProfile(session.user.id);
-              setUserProfile(profile);
-            }
-            break;
-            
-          case 'SIGNED_OUT':
-            console.log(`👋 [AuthProvider] User signed out`);
-            setSession(null);
-            setUser(null);
-            setUserProfile(null);
-            profileCacheRef.current.clear();
-            break;
-            
-          case 'TOKEN_REFRESHED':
-            if (session) {
-              console.log(`🔄 [AuthProvider] Token refreshed successfully`);
-              setSession(session);
-              setUser(session.user);
-            } else {
-              console.log(`🚨 [AuthProvider] Token refresh failed, clearing state`);
-              setSession(null);
-              setUser(null);
-              setUserProfile(null);
-              profileCacheRef.current.clear();
-            }
-            break;
-            
-          case 'USER_UPDATED':
-            console.log(`👤 [AuthProvider] User updated`);
-            if (session?.user) {
-              setUser(session.user);
-              // Refresh profile data
-              const profile = await fetchUserProfile(session.user.id, true);
-              setUserProfile(profile);
-            }
-            break;
-            
-          case 'INITIAL_SESSION':
-            console.log(`🔍 [AuthProvider] Initial session event`);
-            // Don't set loading to false here - let the initialization handle it
-            break;
+        if (session?.user) {
+          // Only fetch profile in specific cases to avoid unnecessary requests
+          if (shouldUpdateProfile || !userProfile || userProfile.id !== session.user.id) {
+            const profile = await fetchUserProfile(session.user.id);
+            setUserProfile(profile);
+          }
+        } else {
+          setUserProfile(null);
+          // Clear profile cache when user logs out
+          profileCacheRef.current.clear();
+        }
+
+        if (event === 'PASSWORD_RECOVERY') {
+          router.push('/update-password');
         }
       }
     );
-
-    // Initialize auth state
-    initializeAuth();
 
     return () => {
       subscription?.unsubscribe();
