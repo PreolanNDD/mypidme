@@ -81,8 +81,9 @@ export async function middleware(request: NextRequest) {
     '/update-password'
   ]
 
-  // Define protected route prefixes that require authentication
-  const protectedRoutePrefixes = [
+  // Define protected routes that require authentication
+  // FIXED: Use exact matches and specific patterns to avoid conflicts
+  const protectedRoutes = [
     '/dashboard',
     '/log',
     '/data',
@@ -92,9 +93,15 @@ export async function middleware(request: NextRequest) {
   ]
 
   const isPublicRoute = publicRoutes.includes(pathname)
-  const isProtectedRoute = protectedRoutePrefixes.some(prefix => 
-    pathname.startsWith(prefix)
-  )
+  
+  // FIXED: Check for protected routes more precisely
+  const isProtectedRoute = protectedRoutes.some(route => {
+    // Exact match for the route itself
+    if (pathname === route) return true
+    // Match sub-routes (e.g., /community/123, /lab/experiments)
+    if (pathname.startsWith(route + '/')) return true
+    return false
+  })
 
   console.log('🔍 [Middleware] Route classification:', {
     pathname,
