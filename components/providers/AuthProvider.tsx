@@ -123,48 +123,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Only redirect if we're not already on a public route
     const publicRoutes = ['/login', '/signup', '/forgot-password', '/update-password', '/'];
     if (!publicRoutes.includes(pathname)) {
-      router.replace('/login');
+      // Use window.location instead of router to avoid RSC payload issues
+      window.location.href = '/login';
     }
-  }, [router, pathname]);
-
-  // Set up global fetch interceptor for 401 errors
-  useEffect(() => {
-    // Store original fetch
-    const originalFetch = window.fetch;
-    
-    // Create interceptor
-    window.fetch = async (...args) => {
-      try {
-        const response = await originalFetch(...args);
-        
-        // Check if this is a Supabase API call that returned 401
-        let url: string | undefined;
-        if (typeof args[0] === 'string') {
-          url = args[0];
-        } else if (args[0] instanceof Request) {
-          url = args[0].url;
-        } else if (args[0] instanceof URL) {
-          url = args[0].toString();
-        }
-        
-        const isSupabaseCall = url?.includes(process.env.NEXT_PUBLIC_SUPABASE_URL || '');
-        
-        if (isSupabaseCall && response.status === 401) {
-          console.log('🚨 [AuthProvider] Intercepted 401 from Supabase API, triggering auth error handler');
-          handleAuthError();
-        }
-        
-        return response;
-      } catch (error) {
-        throw error;
-      }
-    };
-    
-    // Cleanup function to restore original fetch
-    return () => {
-      window.fetch = originalFetch;
-    };
-  }, [handleAuthError]);
+  }, [pathname]);
 
   useEffect(() => {
     // CRITICAL FIX: Prevent multiple initializations
@@ -255,7 +217,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Only redirect if we're not already on a public route
           const publicRoutes = ['/login', '/signup', '/forgot-password', '/update-password', '/'];
           if (!publicRoutes.includes(pathname)) {
-            router.replace('/login');
+            // Use window.location instead of router to avoid RSC payload issues
+            window.location.href = '/login';
           }
           return;
         }

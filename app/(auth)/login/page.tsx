@@ -44,9 +44,9 @@ export default function Login() {
         hasSession: !!data.session
       });
 
-      // Don't force redirect here - let the AuthProvider handle it
-      // The auth state change will trigger the redirect automatically
-      console.log('🔄 [Login] Authentication successful, waiting for redirect...');
+      // Use window.location instead of router to avoid RSC payload issues
+      console.log('🔄 [Login] Authentication successful, redirecting...');
+      window.location.href = '/dashboard';
       
     } catch (err) {
       console.error('💥 [Login] Unexpected error:', err);
