@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { CheckCircle, Lock } from 'lucide-react';
@@ -34,6 +34,7 @@ export default function UpdatePassword() {
     }
 
     try {
+      const supabase = createClient();
       const { error: updateError } = await supabase.auth.updateUser({
         password: password
       });
