@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { createClient } from './supabase/client';
 import { TrackableItem } from './types';
 
 export async function getTrackableItems(userId: string): Promise<TrackableItem[]> {
@@ -8,6 +8,8 @@ export async function getTrackableItems(userId: string): Promise<TrackableItem[]
     console.error('No userId provided to getTrackableItems');
     return [];
   }
+
+  const supabase = createClient();
 
   try {
     const { data, error } = await supabase
@@ -45,6 +47,8 @@ export async function getArchivedTrackableItems(userId: string): Promise<Trackab
     return [];
   }
 
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase
       .from('trackable_items')
@@ -75,6 +79,8 @@ export async function getAllTrackableItems(userId: string): Promise<TrackableIte
     return [];
   }
 
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase
       .from('trackable_items')
@@ -104,25 +110,27 @@ export async function findExistingMetricByName(userId: string, name: string): Pr
     return null;
   }
 
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase
       .from('trackable_items')
       .select('id, user_id, name, category, type, is_active, created_at')
       .eq('user_id', userId)
       .ilike('name', name.trim()) // Case-insensitive search
-      .single();
+      .maybeSingle(); // FIXED: Use maybeSingle() instead of single() to handle no results gracefully
 
     if (error) {
-      // If no match found, that's expected - return null
-      if (error.code === 'PGRST116') {
-        console.log('No existing metric found with name:', name);
-        return null;
-      }
       console.error('Error searching for existing metric:', error);
       throw new Error(`Failed to search for existing metric: ${error.message}`);
     }
 
-    console.log('Found existing metric:', data);
+    if (data) {
+      console.log('Found existing metric:', data);
+    } else {
+      console.log('No existing metric found with name:', name);
+    }
+    
     return data;
   } catch (error) {
     console.error('Unexpected error in findExistingMetricByName:', error);
@@ -136,6 +144,8 @@ export async function createTrackableItem(item: Omit<TrackableItem, 'id' | 'crea
   if (!item.user_id) {
     throw new Error('user_id is required to create trackable item');
   }
+
+  const supabase = createClient();
 
   try {
     const { data, error } = await supabase
@@ -163,6 +173,8 @@ export async function updateTrackableItem(id: string, updates: Partial<Trackable
   if (!id) {
     throw new Error('id is required to update trackable item');
   }
+
+  const supabase = createClient();
 
   try {
     const { data, error } = await supabase
@@ -192,6 +204,8 @@ export async function reactivateTrackableItem(id: string): Promise<TrackableItem
     throw new Error('id is required to reactivate trackable item');
   }
 
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase
       .from('trackable_items')
@@ -220,6 +234,8 @@ export async function deleteTrackableItem(id: string): Promise<void> {
     throw new Error('id is required to archive trackable item');
   }
 
+  const supabase = createClient();
+
   try {
     const { error } = await supabase
       .from('trackable_items')
@@ -244,6 +260,8 @@ export async function permanentlyDeleteTrackableItem(id: string): Promise<void> 
   if (!id) {
     throw new Error('id is required to permanently delete trackable item');
   }
+
+  const supabase = createClient();
 
   try {
     const { error } = await supabase

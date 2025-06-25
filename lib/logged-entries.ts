@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { createClient } from './supabase/client';
 import { LoggedEntry, LoggedEntryWithItem } from './types';
 
 export async function getLoggedEntriesForDate(userId: string, date: string): Promise<LoggedEntryWithItem[]> {
@@ -8,6 +8,8 @@ export async function getLoggedEntriesForDate(userId: string, date: string): Pro
     console.error('Missing userId or date in getLoggedEntriesForDate');
     return [];
   }
+
+  const supabase = createClient();
 
   try {
     const { data, error } = await supabase
@@ -39,6 +41,8 @@ export async function upsertLoggedEntry(entry: Omit<LoggedEntry, 'id' | 'created
     throw new Error('user_id, trackable_item_id, and entry_date are required');
   }
 
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase
       .from('logged_entries')
@@ -67,6 +71,8 @@ export async function deleteLoggedEntry(id: string): Promise<void> {
   if (!id) {
     throw new Error('id is required to delete logged entry');
   }
+
+  const supabase = createClient();
 
   try {
     const { error } = await supabase

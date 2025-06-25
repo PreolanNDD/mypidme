@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { createClient } from './supabase/client';
 
 export interface ChartDataPoint {
   date: string;
@@ -30,6 +30,8 @@ export async function getChartData(
     console.error('Missing userId or metricId in getChartData');
     return [];
   }
+
+  const supabase = createClient();
 
   try {
     // Calculate the date range
@@ -110,6 +112,8 @@ export async function getMultiMetricChartData(
     console.error('Missing userId in getMultiMetricChartData');
     return [];
   }
+
+  const supabase = createClient();
 
   try {
     // Calculate the date range
@@ -197,6 +201,8 @@ export const getDualMetricChartData = async (
     console.error('Missing userId or primaryMetricId in getDualMetricChartData');
     return [];
   }
+
+  const supabase = createClient();
 
   try {
     // Calculate the date range

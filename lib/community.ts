@@ -1,5 +1,4 @@
-import { supabase } from './supabase';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from './supabase/client';
 
 export interface CommunityFinding {
   id: string;
@@ -46,6 +45,8 @@ export interface UserProfile {
 
 export async function getCommunityFindings(): Promise<CommunityFinding[]> {
   console.log('🔍 [getCommunityFindings] Fetching community findings with author details...');
+  
+  const supabase = createClient();
   
   // Fetch findings with author details in a single query using JOIN
   const { data: findings, error: findingsError } = await supabase
@@ -105,6 +106,7 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
   }
 
   const trimmedFindingId = findingId.trim();
+  const supabase = createClient();
 
   try {
     // Fetch the finding with author details in a single query using JOIN
@@ -170,6 +172,7 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
   }
 
   const trimmedUserId = userId.trim();
+  const supabase = createClient();
 
   try {
     // Fetch ALL findings by the user (any status) - this is for their profile page
@@ -238,6 +241,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   }
 
   const trimmedUserId = userId.trim();
+  const supabase = createClient();
 
   try {
     // First try to get from users table
@@ -260,7 +264,8 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
           return null;
         }
         
-        const adminClient = createClient(supabaseUrl, serviceRoleKey, {
+        const { createClient: createAdminClient } = await import('@supabase/supabase-js');
+        const adminClient = createAdminClient(supabaseUrl, serviceRoleKey, {
           auth: {
             autoRefreshToken: false,
             persistSession: false
@@ -326,6 +331,8 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
 export async function getUserVotes(userId: string, findingIds: string[]): Promise<FindingVote[]> {
   if (findingIds.length === 0) return [];
   
+  const supabase = createClient();
+  
   const { data, error } = await supabase
     .from('finding_votes')
     .select('*')
@@ -344,6 +351,8 @@ export async function getUserVotes(userId: string, findingIds: string[]): Promis
 // The Server Actions handle all the database mutations with proper authentication
 
 export async function createFinding(userId: string, title: string, content: string): Promise<CommunityFinding> {
+  const supabase = createClient();
+  
   const { data, error } = await supabase
     .from('community_findings')
     .insert({
@@ -386,6 +395,8 @@ export async function createFindingWithContext(findingData: {
   chart_config?: any;
   experiment_id?: string;
 }): Promise<CommunityFinding> {
+  const supabase = createClient();
+  
   // Map user_id to author_id for the database insert
   const insertData = {
     author_id: findingData.user_id,

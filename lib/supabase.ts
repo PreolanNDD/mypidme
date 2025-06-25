@@ -1,14 +1,7 @@
 import { createClient } from './supabase/client';
 
-// Create the singleton client
-let supabaseInstance: ReturnType<typeof createClient> | null = null;
-
-export const supabase = (() => {
-  if (!supabaseInstance) {
-    supabaseInstance = createClient();
-  }
-  return supabaseInstance;
-})();
+// Remove the global instance - each function should create its own client
+// This ensures proper authentication context in browser environments
 
 export type Database = {
   public: {
