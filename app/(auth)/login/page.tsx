@@ -44,9 +44,13 @@ export default function Login() {
         hasSession: !!data.session
       });
 
-      // Use window.location instead of router to avoid RSC payload issues
+      // Wait a moment for the auth state to update, then redirect
       console.log('🔄 [Login] Authentication successful, redirecting...');
-      window.location.href = '/dashboard';
+      
+      // Small delay to ensure auth state is updated
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
       
     } catch (err) {
       console.error('💥 [Login] Unexpected error:', err);

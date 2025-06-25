@@ -77,11 +77,17 @@ export async function middleware(request: NextRequest) {
     '/settings'
   ]
 
+  // Skip middleware for static files, API routes, and Next.js internals
+  if (normalizedPathname.startsWith('/_next/') || 
+      normalizedPathname.startsWith('/api/') ||
+      normalizedPathname.includes('.') ||
+      normalizedPathname.startsWith('/auth/callback') ||
+      normalizedPathname.startsWith('/auth/auth-code-error')) {
+    return response
+  }
+
   // Check if the normalized pathname is a public route
-  const isPublicRoute = publicRoutes.includes(normalizedPathname) || 
-                       normalizedPathname.startsWith('/auth/') ||
-                       normalizedPathname.startsWith('/_next/') ||
-                       normalizedPathname.includes('.')
+  const isPublicRoute = publicRoutes.includes(normalizedPathname)
 
   // Check if the normalized pathname is a protected route
   const isProtectedRoute = protectedRoutePrefixes.some(prefix => 
@@ -89,18 +95,10 @@ export async function middleware(request: NextRequest) {
   )
 
   console.log('🔐 [Middleware] Route analysis:', {
-    pathname,
-    normalizedPathname,
+    pathname: normalizedPathname,
     isPublicRoute,
     isProtectedRoute
   })
-
-  // Skip middleware for static files and Next.js internals
-  if (normalizedPathname.startsWith('/_next/') || 
-      normalizedPathname.includes('.') || 
-      normalizedPathname.startsWith('/api/')) {
-    return response
-  }
 
   try {
     // Attempt to refresh session - this is critical for Server Components
@@ -123,46 +121,8 @@ export async function middleware(request: NextRequest) {
         return response
       }
       
-      // Clear all auth cookies to ensure clean state
-      const authCookieNames = [
-        'sb-access-token',
-        'sb-refresh-token',
-        'supabase-auth-token',
-        'supabase.auth.token'
-      ]
-      
-      // Create response that redirects to login
-      const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
-      
-      // Clear all potential auth cookies
-      authCookieNames.forEach(cookieName => {
-        redirectResponse.cookies.set({
-          name: cookieName,
-          value: '',
-          expires: new Date(0),
-          path: '/',
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax'
-        })
-      })
-      
-      // Also clear any cookies that start with 'sb-'
-      request.cookies.getAll().forEach(cookie => {
-        if (cookie.name.startsWith('sb-')) {
-          redirectResponse.cookies.set({
-            name: cookie.name,
-            value: '',
-            expires: new Date(0),
-            path: '/',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax'
-          })
-        }
-      })
-      
-      return redirectResponse
+      // Redirect to login
+      return NextResponse.redirect(new URL('/login', request.url))
     }
     
     // Handle authenticated users on auth pages (except root and update-password)
@@ -182,29 +142,7 @@ export async function middleware(request: NextRequest) {
     
     // On any unexpected error with protected routes, redirect to login
     if (isProtectedRoute && normalizedPathname !== '/login') {
-      const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
-      
-      // Clear auth cookies on error
-      const authCookieNames = [
-        'sb-access-token',
-        'sb-refresh-token',
-        'supabase-auth-token',
-        'supabase.auth.token'
-      ]
-      
-      authCookieNames.forEach(cookieName => {
-        redirectResponse.cookies.set({
-          name: cookieName,
-          value: '',
-          expires: new Date(0),
-          path: '/',
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax'
-        })
-      })
-      
-      return redirectResponse
+      return NextResponse.redirect(new URL('/login', request.url))
     }
   }
 

@@ -64,8 +64,11 @@ const handleSubmit = async (e: React.FormEvent) => {
     // Case 2: Successful sign-up with immediate login (email confirmation is OFF)
     if (data.user && data.session) {
       console.log('✅ [SignUp] Sign up successful with immediate login');
-      // Use window.location instead of router to avoid RSC payload issues
-      window.location.href = '/dashboard';
+      
+      // Wait a moment for the auth state to update, then redirect
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
       return;
     }
     
