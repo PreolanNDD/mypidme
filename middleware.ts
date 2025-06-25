@@ -92,9 +92,9 @@ export async function middleware(request: NextRequest) {
       isProtectedRoute
     })
 
-    // CRITICAL FIX: Only redirect to login if we're NOT already on a public route
-    if ((error || !session) && isProtectedRoute && !isPublicRoute) {
-      console.log('🚨 [Middleware] Session error or missing session for protected route, redirecting to login')
+    // Handle protected routes without valid session
+    if (isProtectedRoute && (!session || error)) {
+      console.log('🚨 [Middleware] Protected route without valid session, redirecting to login')
       
       // Clear all auth cookies to ensure clean state
       const authCookieNames = [
@@ -138,8 +138,7 @@ export async function middleware(request: NextRequest) {
       return redirectResponse
     }
     
-    // If we're on auth pages but have a valid session, redirect to dashboard
-    // BUT exclude the root path and update-password from this redirect
+    // Handle authenticated users on auth pages (except root and update-password)
     if (session && isPublicRoute && pathname !== '/' && pathname !== '/update-password') {
       console.log('🔄 [Middleware] Authenticated user on auth page, redirecting to dashboard')
       return NextResponse.redirect(new URL('/dashboard', request.url))
@@ -148,8 +147,8 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error('💥 [Middleware] Unexpected error during session check:', error)
     
-    // On any unexpected error, clear cookies and redirect to login ONLY if on protected route AND not on public route
-    if (isProtectedRoute && !isPublicRoute) {
+    // On any unexpected error with protected routes, redirect to login
+    if (isProtectedRoute) {
       const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
       
       // Clear auth cookies on error

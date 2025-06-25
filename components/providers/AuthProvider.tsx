@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
   
   // Track if we're currently fetching a profile to prevent concurrent requests
   const fetchingProfileRef = useRef<string | null>(null);
@@ -119,9 +120,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserProfile(null);
     profileCacheRef.current.clear();
     
-    // Force redirect to login
-    router.replace('/login');
-  }, [router]);
+    // Only redirect if we're not already on a public route
+    const publicRoutes = ['/login', '/signup', '/forgot-password', '/update-password', '/'];
+    if (!publicRoutes.includes(pathname)) {
+      router.replace('/login');
+    }
+  }, [router, pathname]);
 
   // Set up global fetch interceptor for 401 errors
   useEffect(() => {
@@ -172,36 +176,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const supabase = createClient();
 
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log('🔐 [AuthProvider] Initial session check:', { 
+        hasSession: !!session, 
+        hasError: !!error,
+        pathname 
+      });
+      
+      if (error) {
+        console.error('❌ [AuthProvider] Initial session error:', error);
+        setLoading(false);
+        return;
+      }
+
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        fetchUserProfile(session.user.id).then(profile => {
+          setUserProfile(profile);
+          setLoading(false);
+        });
+      } else {
+        setLoading(false);
+      }
+    });
+
     // Set up the auth state change listener - this is our single source of truth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔐 [AuthProvider] Auth state change:', { event, hasSession: !!session });
+        console.log('🔐 [AuthProvider] Auth state change:', { event, hasSession: !!session, pathname });
         
-        // Handle the initial session load
-        if (event === 'INITIAL_SESSION') {
-          setLoading(false);
-        }
-
         // Handle invalid refresh token errors or session errors
         if (event === 'TOKEN_REFRESHED' && !session) {
           console.log('🚨 [AuthProvider] Token refresh failed, signing out');
           try {
             await supabase.auth.signOut();
-            router.replace('/login');
+            // Don't redirect here - let the SIGNED_OUT event handle it
           } catch (signOutError) {
             console.error('❌ [AuthProvider] Error during signout:', signOutError);
-            router.replace('/login');
+            handleAuthError();
           }
-          return;
-        }
-
-        // Handle sign out events
-        if (event === 'SIGNED_OUT') {
-          console.log('👋 [AuthProvider] User signed out');
-          setSession(null);
-          setUser(null);
-          setUserProfile(null);
-          profileCacheRef.current.clear();
           return;
         }
 
@@ -226,6 +242,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUserProfile(null);
           // Clear profile cache when user logs out
           profileCacheRef.current.clear();
+        }
+
+        // Handle sign out events
+        if (event === 'SIGNED_OUT') {
+          console.log('👋 [AuthProvider] User signed out');
+          setSession(null);
+          setUser(null);
+          setUserProfile(null);
+          profileCacheRef.current.clear();
+          
+          // Only redirect if we're not already on a public route
+          const publicRoutes = ['/login', '/signup', '/forgot-password', '/update-password', '/'];
+          if (!publicRoutes.includes(pathname)) {
+            router.replace('/login');
+          }
+          return;
         }
 
         if (event === 'PASSWORD_RECOVERY') {
