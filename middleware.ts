@@ -54,25 +54,47 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // Define public routes that don't require authentication
+  const publicRoutes = [
+    '/login',
+    '/signup', 
+    '/forgot-password',
+    '/update-password',
+    '/auth/callback',
+    '/auth/auth-code-error',
+    '/auth/session-expired',
+    '/'
+  ]
+
+  // Define protected routes that require authentication
+  const protectedRoutes = [
+    '/dashboard',
+    '/log',
+    '/data',
+    '/lab',
+    '/community',
+    '/settings'
+  ]
+
+  const pathname = request.nextUrl.pathname
+  const isPublicRoute = publicRoutes.includes(pathname) || pathname.startsWith('/auth/')
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+
   try {
     // Attempt to refresh session - this is critical for Server Components
     const { data: { session }, error } = await supabase.auth.getSession()
     
-    // If there's an error or no session, and we're on a protected route
-    const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
-                            request.nextUrl.pathname.startsWith('/log') ||
-                            request.nextUrl.pathname.startsWith('/data') ||
-                            request.nextUrl.pathname.startsWith('/lab') ||
-                            request.nextUrl.pathname.startsWith('/community') ||
-                            request.nextUrl.pathname.startsWith('/settings')
-    
-    if (error || (!session && isProtectedRoute)) {
-      console.log('🚨 [Middleware] Session error or missing session for protected route:', {
-        error: error?.message,
-        hasSession: !!session,
-        pathname: request.nextUrl.pathname,
-        isProtectedRoute
-      })
+    console.log('🔐 [Middleware] Session check:', {
+      pathname,
+      hasSession: !!session,
+      hasError: !!error,
+      isPublicRoute,
+      isProtectedRoute
+    })
+
+    // CRITICAL FIX: Only redirect to login if we're NOT already on a public route
+    if ((error || !session) && isProtectedRoute && !isPublicRoute) {
+      console.log('🚨 [Middleware] Session error or missing session for protected route, redirecting to login')
       
       // Clear all auth cookies to ensure clean state
       const authCookieNames = [
@@ -113,17 +135,12 @@ export async function middleware(request: NextRequest) {
         }
       })
       
-      console.log('🔄 [Middleware] Redirecting to login and clearing auth cookies')
       return redirectResponse
     }
     
     // If we're on auth pages but have a valid session, redirect to dashboard
-    const isAuthRoute = request.nextUrl.pathname.startsWith('/login') ||
-                       request.nextUrl.pathname.startsWith('/signup') ||
-                       request.nextUrl.pathname.startsWith('/forgot-password') ||
-                       request.nextUrl.pathname === '/'
-    
-    if (session && isAuthRoute && request.nextUrl.pathname !== '/') {
+    // BUT exclude the root path and update-password from this redirect
+    if (session && isPublicRoute && pathname !== '/' && pathname !== '/update-password') {
       console.log('🔄 [Middleware] Authenticated user on auth page, redirecting to dashboard')
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
@@ -131,15 +148,8 @@ export async function middleware(request: NextRequest) {
   } catch (error) {
     console.error('💥 [Middleware] Unexpected error during session check:', error)
     
-    // On any unexpected error, clear cookies and redirect to login if on protected route
-    const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') ||
-                            request.nextUrl.pathname.startsWith('/log') ||
-                            request.nextUrl.pathname.startsWith('/data') ||
-                            request.nextUrl.pathname.startsWith('/lab') ||
-                            request.nextUrl.pathname.startsWith('/community') ||
-                            request.nextUrl.pathname.startsWith('/settings')
-    
-    if (isProtectedRoute) {
+    // On any unexpected error, clear cookies and redirect to login ONLY if on protected route AND not on public route
+    if (isProtectedRoute && !isPublicRoute) {
       const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
       
       // Clear auth cookies on error
