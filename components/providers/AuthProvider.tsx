@@ -102,6 +102,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
+  // Global error handler for 401 responses
+  const handleAuthError = useCallback(async () => {
+    console.log('🚨 [AuthProvider] Handling authentication error - signing out user');
+    
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('❌ [AuthProvider] Error during signout:', error);
+    }
+    
+    // Clear all state
+    setUser(null);
+    setSession(null);
+    setUserProfile(null);
+    profileCacheRef.current.clear();
+    
+    // Force redirect to login
+    router.replace('/login');
+  }, [router]);
+
+  // Set up global fetch interceptor for 401 errors
+  useEffect(() => {
+    // Store original fetch
+    const originalFetch = window.fetch;
+    
+    // Create interceptor
+    window.fetch = async (...args) => {
+      try {
+        const response = await originalFetch(...args);
+        
+        // Check if this is a Supabase API call that returned 401
+        const url = typeof args[0] === 'string' ? args[0] : args[0]?.url;
+        const isSupabaseCall = url?.includes(process.env.NEXT_PUBLIC_SUPABASE_URL || '');
+        
+        if (isSupabaseCall && response.status === 401) {
+          console.log('🚨 [AuthProvider] Intercepted 401 from Supabase API, triggering auth error handler');
+          handleAuthError();
+        }
+        
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    };
+    
+    // Cleanup function to restore original fetch
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, [handleAuthError]);
+
   useEffect(() => {
     // CRITICAL FIX: Prevent multiple initializations
     if (initializationRef.current) {
@@ -115,19 +167,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up the auth state change listener - this is our single source of truth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔐 [AuthProvider] Auth state change:', { event, hasSession: !!session });
+        
         // Handle the initial session load
         if (event === 'INITIAL_SESSION') {
           setLoading(false);
         }
 
-        // Handle invalid refresh token errors
+        // Handle invalid refresh token errors or session errors
         if (event === 'TOKEN_REFRESHED' && !session) {
+          console.log('🚨 [AuthProvider] Token refresh failed, signing out');
           try {
             await supabase.auth.signOut();
             router.replace('/login');
           } catch (signOutError) {
+            console.error('❌ [AuthProvider] Error during signout:', signOutError);
             router.replace('/login');
           }
+          return;
+        }
+
+        // Handle sign out events
+        if (event === 'SIGNED_OUT') {
+          console.log('👋 [AuthProvider] User signed out');
+          setSession(null);
+          setUser(null);
+          setUserProfile(null);
+          profileCacheRef.current.clear();
           return;
         }
 

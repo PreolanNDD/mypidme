@@ -53,5 +53,13 @@ export const createClient = () => {
     }
   );
   
+  // Add global error handler for auth errors
+  client.auth.onAuthStateChange((event, session) => {
+    if (event === 'TOKEN_REFRESHED' && !session) {
+      console.log('🚨 [Supabase Client] Token refresh failed, session is null');
+      // The AuthProvider will handle the cleanup and redirect
+    }
+  });
+  
   return client;
 }
