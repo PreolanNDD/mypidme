@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/components/providers/AuthProvider';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 import { LoadingState } from '@/components/error/LoadingState';
@@ -12,7 +12,6 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const { user, loading } = useAuth();
-  const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -24,9 +23,10 @@ export default function AuthLayout({
     // For other auth pages, redirect authenticated users to dashboard
     if (!loading && user) {
       console.log('AuthLayout: User is authenticated, redirecting to dashboard');
-      router.replace('/dashboard'); // Use replace instead of push
+      // Use window.location instead of router to avoid RSC payload issues
+      window.location.href = '/dashboard';
     }
-  }, [user, loading, router, pathname]);
+  }, [user, loading, pathname]);
 
   if (loading) {
     return <LoadingState fullScreen message="Loading..." />;

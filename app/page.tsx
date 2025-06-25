@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -10,15 +9,15 @@ import { BarChart3, Eye, Settings } from 'lucide-react';
 
 export default function Home() {
   const { user, loading } = useAuth();
-  const router = useRouter();
 
   useEffect(() => {
     // Only redirect if we have a user and we're not loading
     if (!loading && user) {
       console.log('Home: User is authenticated, redirecting to dashboard');
-      router.replace('/dashboard');
+      // Use window.location instead of router to avoid RSC payload issues
+      window.location.href = '/dashboard';
     }
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   // Show loading state while checking authentication
   if (loading) {

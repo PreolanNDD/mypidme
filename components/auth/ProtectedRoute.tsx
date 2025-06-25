@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@/components/providers/AuthProvider';
-import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 interface ProtectedRouteProps {
@@ -10,16 +9,15 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     // Only redirect if loading is complete and there's no user
     if (!loading && !user) {
       console.log('ProtectedRoute: No authenticated user found, redirecting to login');
-      router.replace('/login');
+      // Use window.location instead of router to avoid RSC payload issues
+      window.location.href = '/login';
     }
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   // Show loading spinner while auth is being determined
   if (loading) {

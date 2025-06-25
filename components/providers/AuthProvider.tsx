@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter, usePathname } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -28,8 +27,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const pathname = usePathname();
   
   // Track if we're currently fetching a profile to prevent concurrent requests
   const fetchingProfileRef = useRef<string | null>(null);
@@ -103,31 +100,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
-  // Global error handler for 401 responses
-  const handleAuthError = useCallback(async () => {
-    console.log('🚨 [AuthProvider] Handling authentication error - signing out user');
-    
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error('❌ [AuthProvider] Error during signout:', error);
-    }
-    
-    // Clear all state
-    setUser(null);
-    setSession(null);
-    setUserProfile(null);
-    profileCacheRef.current.clear();
-    
-    // Only redirect if we're not already on a public route
-    const publicRoutes = ['/login', '/signup', '/forgot-password', '/update-password', '/'];
-    if (!publicRoutes.includes(pathname)) {
-      // Use window.location instead of router to avoid RSC payload issues
-      window.location.href = '/login';
-    }
-  }, [pathname]);
-
   useEffect(() => {
     // CRITICAL FIX: Prevent multiple initializations
     if (initializationRef.current) {
@@ -142,8 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       console.log('🔐 [AuthProvider] Initial session check:', { 
         hasSession: !!session, 
-        hasError: !!error,
-        pathname 
+        hasError: !!error
       });
       
       if (error) {
@@ -165,21 +136,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    // Set up the auth state change listener - this is our single source of truth
+    // Set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔐 [AuthProvider] Auth state change:', { event, hasSession: !!session, pathname });
+        console.log('🔐 [AuthProvider] Auth state change:', { event, hasSession: !!session });
         
         // Handle invalid refresh token errors or session errors
         if (event === 'TOKEN_REFRESHED' && !session) {
-          console.log('🚨 [AuthProvider] Token refresh failed, signing out');
-          try {
-            await supabase.auth.signOut();
-            // Don't redirect here - let the SIGNED_OUT event handle it
-          } catch (signOutError) {
-            console.error('❌ [AuthProvider] Error during signout:', signOutError);
-            handleAuthError();
-          }
+          console.log('🚨 [AuthProvider] Token refresh failed, clearing state');
+          setSession(null);
+          setUser(null);
+          setUserProfile(null);
+          profileCacheRef.current.clear();
           return;
         }
 
@@ -213,18 +181,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null);
           setUserProfile(null);
           profileCacheRef.current.clear();
-          
-          // Only redirect if we're not already on a public route
-          const publicRoutes = ['/login', '/signup', '/forgot-password', '/update-password', '/'];
-          if (!publicRoutes.includes(pathname)) {
-            // Use window.location instead of router to avoid RSC payload issues
-            window.location.href = '/login';
-          }
-          return;
         }
 
         if (event === 'PASSWORD_RECOVERY') {
-          router.push('/update-password');
+          // Use window.location instead of router to avoid RSC issues
+          window.location.href = '/update-password';
         }
       }
     );
