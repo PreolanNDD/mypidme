@@ -65,8 +65,10 @@ const handleSubmit = async (e: React.FormEvent) => {
     if (data.user && data.session) {
       console.log('✅ [SignUp] Sign up successful with immediate login');
       
-      // Redirect to dashboard immediately
-      router.push('/dashboard');
+      // Wait a moment for auth state to propagate, then redirect
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
       return;
     }
     

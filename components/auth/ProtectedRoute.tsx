@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { LoadingState } from '@/components/error/LoadingState';
 
 interface ProtectedRouteProps {
@@ -12,14 +12,32 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const redirectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Clear any existing timeout
+    if (redirectTimeoutRef.current) {
+      clearTimeout(redirectTimeoutRef.current);
+      redirectTimeoutRef.current = null;
+    }
+
     // Only redirect if loading is complete and there's no user
+    // Add a small delay to prevent race conditions
     if (!loading && !user) {
       console.log('ProtectedRoute: No authenticated user found, redirecting to login');
-      // Use window.location for immediate redirect without router conflicts
-      window.location.href = '/login';
+      
+      // Use a timeout to prevent immediate redirects that might interfere with auth flow
+      redirectTimeoutRef.current = setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
     }
+
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+        redirectTimeoutRef.current = null;
+      }
+    };
   }, [user, loading]);
 
   // Show loading spinner while auth is being determined

@@ -44,9 +44,11 @@ export default function Login() {
         hasSession: !!data.session
       });
 
-      // Redirect to dashboard immediately
+      // Wait a moment for auth state to propagate, then redirect
       console.log('🔄 [Login] Redirecting to dashboard...');
-      router.push('/dashboard');
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
       
     } catch (err) {
       console.error('💥 [Login] Unexpected error:', err);

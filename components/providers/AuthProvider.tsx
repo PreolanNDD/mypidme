@@ -126,8 +126,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (error) {
           console.error('❌ [AuthProvider] Initial session error:', error);
-          setLoading(false);
-          return;
         }
 
         // Set initial state
@@ -203,16 +201,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             break;
             
           case 'INITIAL_SESSION':
-            console.log(`🔍 [AuthProvider] Initial session`);
-            setSession(session);
-            setUser(session?.user ?? null);
-            
-            if (session?.user) {
-              const profile = await fetchUserProfile(session.user.id);
-              setUserProfile(profile);
-            }
-            
-            setLoading(false);
+            console.log(`🔍 [AuthProvider] Initial session event`);
+            // Don't set loading to false here - let the initialization handle it
             break;
         }
       }

@@ -1,8 +1,8 @@
 'use client';
 
 import { useAuth } from '@/components/providers/AuthProvider';
-import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 import { LoadingState } from '@/components/error/LoadingState';
 
@@ -13,20 +13,38 @@ export default function AuthLayout({
 }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
+  const redirectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Clear any existing timeout
+    if (redirectTimeoutRef.current) {
+      clearTimeout(redirectTimeoutRef.current);
+      redirectTimeoutRef.current = null;
+    }
+
     // Allow access to update-password page even if user is authenticated
     if (pathname === '/update-password') {
       return;
     }
 
     // For other auth pages, redirect authenticated users to dashboard
+    // Add a delay to prevent race conditions with the auth flow
     if (!loading && user) {
       console.log('AuthLayout: User is authenticated, redirecting to dashboard');
-      // Use window.location for immediate redirect without router conflicts
-      window.location.href = '/dashboard';
+      
+      redirectTimeoutRef.current = setTimeout(() => {
+        router.push('/dashboard');
+      }, 100);
     }
-  }, [user, loading, pathname]);
+
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+        redirectTimeoutRef.current = null;
+      }
+    };
+  }, [user, loading, pathname, router]);
 
   if (loading) {
     return <LoadingState fullScreen message="Loading..." />;
