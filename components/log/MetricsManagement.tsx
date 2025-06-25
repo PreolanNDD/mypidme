@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import { 
   getTrackableItems, 
   deleteTrackableItem, 
@@ -72,6 +72,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
     queryKey: ['allTrackableItems', user?.id],
     queryFn: async () => {
       // Fetch both active and archived items
+      const supabase = createClient();
       const { data, error } = await supabase
         .from('trackable_items')
         .select('id, user_id, name, category, type, is_active, created_at')

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import { 
   Home, 
@@ -44,6 +44,7 @@ export function Sidebar() {
     
     setLoggingOut(true);
     try {
+      const supabase = createClient();
       await supabase.auth.signOut();
       router.push('/login');
     } catch (error) {
