@@ -23,7 +23,7 @@ export default function AuthLayout({
     // For other auth pages, redirect authenticated users to dashboard
     if (!loading && user) {
       console.log('AuthLayout: User is authenticated, redirecting to dashboard');
-      // Use window.location instead of router to avoid RSC payload issues
+      // Use window.location for immediate redirect without router conflicts
       window.location.href = '/dashboard';
     }
   }, [user, loading, pathname]);

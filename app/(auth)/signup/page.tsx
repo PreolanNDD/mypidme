@@ -65,13 +65,8 @@ const handleSubmit = async (e: React.FormEvent) => {
     if (data.user && data.session) {
       console.log('✅ [SignUp] Sign up successful with immediate login');
       
-      // Set a timestamp cookie to help middleware avoid interfering with auth flow
-      document.cookie = `auth_timestamp=${Date.now()}; path=/; max-age=5`;
-      
-      // Wait a moment for the auth state to update, then redirect
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 200);
+      // Redirect to dashboard immediately
+      router.push('/dashboard');
       return;
     }
     

@@ -17,9 +17,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     // Only redirect if loading is complete and there's no user
     if (!loading && !user) {
       console.log('ProtectedRoute: No authenticated user found, redirecting to login');
-      router.push('/login');
+      // Use window.location for immediate redirect without router conflicts
+      window.location.href = '/login';
     }
-  }, [user, loading, router]);
+  }, [user, loading]);
 
   // Show loading spinner while auth is being determined
   if (loading) {
