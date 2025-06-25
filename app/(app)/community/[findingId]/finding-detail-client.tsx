@@ -434,15 +434,40 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   };
 
   const getAuthorName = (finding: CommunityFinding) => {
-    if (!finding.author) return 'Anonymous';
-    const { first_name, last_name } = finding.author;
-    if (first_name && last_name) {
-      return `${first_name} ${last_name}`;
-    } else if (first_name) {
-      return first_name;
-    } else if (last_name) {
-      return last_name;
+    console.log('🔍 [getAuthorName] Processing finding:', {
+      findingId: finding.id,
+      authorId: finding.author_id,
+      authorData: finding.author
+    });
+
+    if (!finding.author) {
+      console.log('⚠️ [getAuthorName] No author data found, returning Anonymous');
+      return 'Anonymous';
     }
+
+    const { first_name, last_name } = finding.author;
+    
+    console.log('📝 [getAuthorName] Author name components:', {
+      firstName: first_name,
+      lastName: last_name
+    });
+
+    // Handle different name combinations
+    if (first_name && last_name) {
+      const fullName = `${first_name.trim()} ${last_name.trim()}`;
+      console.log('✅ [getAuthorName] Returning full name:', fullName);
+      return fullName;
+    } else if (first_name) {
+      const firstName = first_name.trim();
+      console.log('✅ [getAuthorName] Returning first name only:', firstName);
+      return firstName;
+    } else if (last_name) {
+      const lastName = last_name.trim();
+      console.log('✅ [getAuthorName] Returning last name only:', lastName);
+      return lastName;
+    }
+    
+    console.log('⚠️ [getAuthorName] No valid name components, returning Anonymous');
     return 'Anonymous';
   };
 
