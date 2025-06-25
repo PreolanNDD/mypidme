@@ -134,7 +134,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const response = await originalFetch(...args);
         
         // Check if this is a Supabase API call that returned 401
-        const url = typeof args[0] === 'string' ? args[0] : args[0]?.url;
+        let url: string | undefined;
+        if (typeof args[0] === 'string') {
+          url = args[0];
+        } else if (args[0] instanceof Request) {
+          url = args[0].url;
+        } else if (args[0] instanceof URL) {
+          url = args[0].toString();
+        }
+        
         const isSupabaseCall = url?.includes(process.env.NEXT_PUBLIC_SUPABASE_URL || '');
         
         if (isSupabaseCall && response.status === 401) {
