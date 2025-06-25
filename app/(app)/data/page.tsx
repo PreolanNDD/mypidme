@@ -13,7 +13,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2 } from 'lucide-react';
 import { RelationshipStory } from '@/components/dashboard/RelationshipStory';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
-import { LoadingState, EmptyState } from '@/components/error/LoadingState';
+import { LoadingState } from '@/components/error/LoadingState';
+import { EmptyState } from '@/components/error/EmptyState';
 import { PageErrorBoundary } from '@/components/error/PageErrorBoundary';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';

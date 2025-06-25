@@ -13,7 +13,8 @@ import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog'
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
 import { DeleteExperimentDialog } from '@/components/lab/DeleteExperimentDialog';
-import { LoadingState, CardSkeleton, EmptyState } from '@/components/error/LoadingState';
+import { LoadingState } from '@/components/error/LoadingState';
+import { EmptyState } from '@/components/error/EmptyState';
 import { PageErrorBoundary } from '@/components/error/PageErrorBoundary';
 import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
