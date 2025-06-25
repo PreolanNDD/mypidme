@@ -44,13 +44,16 @@ export default function Login() {
         hasSession: !!data.session
       });
 
+      // Set a timestamp cookie to help middleware avoid interfering with auth flow
+      document.cookie = `auth_timestamp=${Date.now()}; path=/; max-age=5`;
+
       // Wait a moment for the auth state to update, then redirect
       console.log('🔄 [Login] Authentication successful, redirecting...');
       
       // Small delay to ensure auth state is updated
       setTimeout(() => {
         router.push('/dashboard');
-      }, 100);
+      }, 200);
       
     } catch (err) {
       console.error('💥 [Login] Unexpected error:', err);

@@ -82,7 +82,8 @@ export async function middleware(request: NextRequest) {
       normalizedPathname.startsWith('/api/') ||
       normalizedPathname.includes('.') ||
       normalizedPathname.startsWith('/auth/callback') ||
-      normalizedPathname.startsWith('/auth/auth-code-error')) {
+      normalizedPathname.startsWith('/auth/auth-code-error') ||
+      normalizedPathname.startsWith('/auth/session-expired')) {
     return response
   }
 
@@ -100,6 +101,15 @@ export async function middleware(request: NextRequest) {
     isProtectedRoute
   })
 
+  // Check for recent auth activity to avoid interfering with login flow
+  const authTimestamp = request.cookies.get('auth_timestamp')?.value
+  const isRecentAuth = authTimestamp && (Date.now() - parseInt(authTimestamp)) < 2000 // 2 seconds
+
+  if (isRecentAuth) {
+    console.log('🕐 [Middleware] Recent auth activity detected, allowing request to proceed')
+    return response
+  }
+
   try {
     // Attempt to refresh session - this is critical for Server Components
     const { data: { session }, error } = await supabase.auth.getSession()
@@ -109,7 +119,8 @@ export async function middleware(request: NextRequest) {
       hasSession: !!session,
       hasError: !!error,
       isPublicRoute,
-      isProtectedRoute
+      isProtectedRoute,
+      isRecentAuth
     })
 
     // Handle protected routes without valid session
@@ -121,8 +132,16 @@ export async function middleware(request: NextRequest) {
         return response
       }
       
-      // Redirect to login
-      return NextResponse.redirect(new URL('/login', request.url))
+      // Add a small delay for auth state to sync, then redirect
+      const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
+      
+      // Set a cookie to track this redirect to prevent loops
+      redirectResponse.cookies.set('redirect_timestamp', Date.now().toString(), {
+        maxAge: 5, // 5 seconds
+        httpOnly: true
+      })
+      
+      return redirectResponse
     }
     
     // Handle authenticated users on auth pages (except root and update-password)
@@ -134,6 +153,15 @@ export async function middleware(request: NextRequest) {
         return response
       }
       
+      // Check for recent redirect to prevent loops
+      const redirectTimestamp = request.cookies.get('redirect_timestamp')?.value
+      const isRecentRedirect = redirectTimestamp && (Date.now() - parseInt(redirectTimestamp)) < 5000 // 5 seconds
+      
+      if (isRecentRedirect) {
+        console.log('🔄 [Middleware] Recent redirect detected, allowing request to proceed')
+        return response
+      }
+      
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
     
@@ -141,7 +169,8 @@ export async function middleware(request: NextRequest) {
     console.error('💥 [Middleware] Unexpected error during session check:', error)
     
     // On any unexpected error with protected routes, redirect to login
-    if (isProtectedRoute && normalizedPathname !== '/login') {
+    // But only if it's not a recent auth attempt
+    if (isProtectedRoute && normalizedPathname !== '/login' && !isRecentAuth) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
   }

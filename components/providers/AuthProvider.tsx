@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchingProfileRef = useRef<string | null>(null);
   const profileCacheRef = useRef<Map<string, any>>(new Map());
   const initializationRef = useRef<boolean>(false);
+  const authStateChangeCountRef = useRef<number>(0);
 
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
     // Prevent concurrent fetches for the same user
@@ -151,12 +152,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up the auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔐 [AuthProvider] Auth state change:', { event, hasSession: !!session });
+        // Track auth state changes to help debug issues
+        authStateChangeCountRef.current += 1;
+        const changeCount = authStateChangeCountRef.current;
+        
+        console.log(`🔐 [AuthProvider] Auth state change #${changeCount}:`, { 
+          event, 
+          hasSession: !!session,
+          userId: session?.user?.id
+        });
+        
+        // Set a timestamp cookie to help middleware avoid interfering with auth flow
+        document.cookie = `auth_timestamp=${Date.now()}; path=/; max-age=5`;
         
         // Handle different auth events
         switch (event) {
           case 'SIGNED_IN':
-            console.log('✅ [AuthProvider] User signed in');
+            console.log(`✅ [AuthProvider] User signed in (change #${changeCount})`);
             setSession(session);
             setUser(session?.user ?? null);
             
@@ -167,41 +179,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             break;
             
           case 'SIGNED_OUT':
-            console.log('👋 [AuthProvider] User signed out');
+            console.log(`👋 [AuthProvider] User signed out (change #${changeCount})`);
             setSession(null);
             setUser(null);
             setUserProfile(null);
             profileCacheRef.current.clear();
+            
+            // Redirect to login page on sign out
+            window.location.href = '/login';
             break;
             
           case 'TOKEN_REFRESHED':
             if (session) {
-              console.log('🔄 [AuthProvider] Token refreshed successfully');
+              console.log(`🔄 [AuthProvider] Token refreshed successfully (change #${changeCount})`);
               setSession(session);
               setUser(session.user);
             } else {
-              console.log('🚨 [AuthProvider] Token refresh failed, clearing state');
+              console.log(`🚨 [AuthProvider] Token refresh failed, clearing state (change #${changeCount})`);
               setSession(null);
               setUser(null);
               setUserProfile(null);
               profileCacheRef.current.clear();
+              
+              // Redirect to session expired page
+              window.location.href = '/auth/session-expired';
             }
             break;
             
           case 'PASSWORD_RECOVERY':
-            console.log('🔑 [AuthProvider] Password recovery initiated');
+            console.log(`🔑 [AuthProvider] Password recovery initiated (change #${changeCount})`);
             // Use window.location instead of router to avoid RSC issues
             window.location.href = '/update-password';
             break;
             
           case 'USER_UPDATED':
-            console.log('👤 [AuthProvider] User updated');
+            console.log(`👤 [AuthProvider] User updated (change #${changeCount})`);
             if (session?.user) {
               setUser(session.user);
               // Refresh profile data
               const profile = await fetchUserProfile(session.user.id, true);
               setUserProfile(profile);
             }
+            break;
+            
+          case 'INITIAL_SESSION':
+            console.log(`🔍 [AuthProvider] Initial session (change #${changeCount})`);
+            setSession(session);
+            setUser(session?.user ?? null);
+            
+            if (session?.user) {
+              const profile = await fetchUserProfile(session.user.id);
+              setUserProfile(profile);
+            }
+            
+            setLoading(false);
             break;
         }
       }
