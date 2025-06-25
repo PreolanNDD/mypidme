@@ -73,7 +73,7 @@ export default function ForgotPassword() {
         <div className="space-y-4">
           <Button asChild className="w-full bg-primary hover:bg-primary/90 text-white shadow-lg">
             <Link href="/login">
-              Back to Log In
+              <span>Back to Log In</span>
             </Link>
           </Button>
           
