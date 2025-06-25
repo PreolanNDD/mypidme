@@ -6,9 +6,11 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { LoadingState } from '@/components/error/LoadingState';
+import { PageErrorBoundary } from '@/components/error/PageErrorBoundary';
 import { Settings, User, Mail } from 'lucide-react';
 
-export default function SettingsPage() {
+function SettingsContent() {
   const { user, userProfile, refreshUserProfile } = useAuth();
   const [updating, setUpdating] = useState(false);
   const [firstName, setFirstName] = useState(userProfile?.first_name || '');
@@ -46,6 +48,10 @@ export default function SettingsPage() {
   };
 
   const hasChanges = firstName !== userProfile?.first_name || lastName !== userProfile?.last_name;
+
+  if (!user || !userProfile) {
+    return <LoadingState fullScreen message="Loading your settings..." />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
@@ -147,5 +153,13 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <PageErrorBoundary pageName="Settings">
+      <SettingsContent />
+    </PageErrorBoundary>
   );
 }

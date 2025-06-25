@@ -13,6 +13,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2 } from 'lucide-react';
 import { RelationshipStory } from '@/components/dashboard/RelationshipStory';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
+import { LoadingState, EmptyState } from '@/components/error/LoadingState';
+import { PageErrorBoundary } from '@/components/error/PageErrorBoundary';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -38,7 +40,7 @@ interface AxisConfig {
   normalizeComparison: boolean;
 }
 
-export default function DataPage() {
+function DataContent() {
   const { user } = useAuth();
   const router = useRouter();
   const [primaryMetricId, setPrimaryMetricId] = useState<string>('');
@@ -46,10 +48,12 @@ export default function DataPage() {
   const [selectedDateRange, setSelectedDateRange] = useState<string>('30');
   const [shouldFetchChart, setShouldFetchChart] = useState(false);
 
-  const { data: allItems = [], isLoading: loadingItems } = useQuery<TrackableItem[]>({
+  const { data: allItems = [], isLoading: loadingItems, error: itemsError } = useQuery<TrackableItem[]>({
     queryKey: ['trackableItems', user?.id],
     queryFn: () => getTrackableItems(user!.id),
     enabled: !!user?.id,
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
   });
 
   const outputMetrics = useMemo(() => allItems.filter(item => 
@@ -63,7 +67,7 @@ export default function DataPage() {
   const primaryMetric = allItems.find(item => item.id === primaryMetricId);
   const comparisonMetric = allItems.find(item => item.id === comparisonMetricId);
 
-  const { data: rawChartData = [], isLoading: loadingChart, error } = useQuery<DualMetricChartData[]>({
+  const { data: rawChartData = [], isLoading: loadingChart, error: chartError } = useQuery<DualMetricChartData[]>({
     queryKey: ['dualMetricChartData', user?.id, primaryMetricId, comparisonMetricId, selectedDateRange],
     queryFn: () => getDualMetricChartData(
       user!.id, 
@@ -72,6 +76,8 @@ export default function DataPage() {
       parseInt(selectedDateRange)
     ),
     enabled: !!user?.id && !!primaryMetricId && shouldFetchChart,
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
   });
 
   // Advanced Axis Synchronization Processing
@@ -261,12 +267,14 @@ export default function DataPage() {
     );
   };
 
+  // Handle errors gracefully
+  if (itemsError || chartError) {
+    console.error('Data page error:', { itemsError, chartError });
+    throw new Error('Failed to load data analysis');
+  }
+
   if (loadingItems) {
-    return (
-      <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <LoadingState fullScreen message="Loading your metrics..." />;
   }
 
   return (
@@ -293,18 +301,15 @@ export default function DataPage() {
           </div>
 
           {outputMetrics.length === 0 ? (
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-              <CardContent className="text-center py-12">
-                <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-heading text-xl text-primary-text mb-2">No Output Metrics Available</h3>
-                <p className="text-secondary-text mb-6">
-                  You need to create some output metrics (like "Energy Level" or "Mood") before you can analyze your data.
-                </p>
-                <Button onClick={() => window.location.href = '/log'}>
-                  Create Your First Metric
-                </Button>
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={BarChart3}
+              title="No Output Metrics Available"
+              description="You need to create some output metrics (like 'Energy Level' or 'Mood') before you can analyze your data."
+              action={{
+                label: "Create Your First Metric",
+                onClick: () => router.push('/log')
+              }}
+            />
           ) : (
             <>
               {/* 1. Chart Controls Section */}
@@ -425,15 +430,6 @@ export default function DataPage() {
                         <p className="text-secondary-text">Loading chart data...</p>
                       </div>
                     </div>
-                  ) : error ? (
-                    <div className="h-96 flex items-center justify-center">
-                      <div className="text-center">
-                        <p className="text-red-600 mb-2">Error loading chart data</p>
-                        <Button onClick={handleUpdateChart} variant="outline" size="sm">
-                          Try Again
-                        </Button>
-                      </div>
-                    </div>
                   ) : chartData.length === 0 ? (
                     <div className="h-96 flex items-center justify-center">
                       <div className="text-center">
@@ -541,5 +537,13 @@ export default function DataPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DataPage() {
+  return (
+    <PageErrorBoundary pageName="Data Analysis">
+      <DataContent />
+    </PageErrorBoundary>
   );
 }

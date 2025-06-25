@@ -7,12 +7,15 @@ import { getTrackableItems } from '@/lib/trackable-items';
 import { TrackableItem } from '@/lib/types';
 import { MetricsManagement } from '@/components/log/MetricsManagement';
 import { DailyLogger } from '@/components/log/DailyLogger';
+import { LoadingState } from '@/components/error/LoadingState';
+import { PageErrorBoundary } from '@/components/error/PageErrorBoundary';
 import { BookOpen } from 'lucide-react';
 
-export default function LogPage() {
+function LogContent() {
   const { user } = useAuth();
   const [trackableItems, setTrackableItems] = useState<TrackableItem[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // --- THE DEFINITIVE FIX IS HERE ---
   // We wrap the data fetching function in useCallback and depend ONLY
@@ -26,12 +29,14 @@ export default function LogPage() {
     };
     
     setLoadingItems(true);
+    setError(null);
     
     try {
       const items = await getTrackableItems(user.id);
       setTrackableItems(items);
     } catch (error) {
       console.error('Failed to load trackable items:', error);
+      setError('Failed to load your metrics. Please try refreshing the page.');
       setTrackableItems([]); // Set to empty array on error
     } finally {
       setLoadingItems(false);
@@ -44,6 +49,15 @@ export default function LogPage() {
   useEffect(() => {
     loadTrackableItems();
   }, [loadTrackableItems]);
+
+  // Handle errors gracefully
+  if (error) {
+    throw new Error(error);
+  }
+
+  if (loadingItems) {
+    return <LoadingState fullScreen message="Loading your metrics..." />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
@@ -71,5 +85,13 @@ export default function LogPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LogPage() {
+  return (
+    <PageErrorBoundary pageName="Log">
+      <LogContent />
+    </PageErrorBoundary>
   );
 }

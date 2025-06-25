@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
+import { PageErrorBoundary } from '@/components/error/PageErrorBoundary';
 import { Users, MessageSquare, User } from 'lucide-react';
 
-export default function CommunityPage() {
+function CommunityContent() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'community' | 'my-findings'>('community');
 
@@ -78,5 +79,13 @@ export default function CommunityPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CommunityPage() {
+  return (
+    <PageErrorBoundary pageName="Community">
+      <CommunityContent />
+    </PageErrorBoundary>
   );
 }

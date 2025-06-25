@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter, DM_Serif_Display } from 'next/font/google';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { ErrorBoundary } from '@/components/error/ErrorBoundary';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -28,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${dmSerifDisplay.variable} bg-background text-primary-text font-sans antialiased`}>
-        <QueryProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </QueryProvider>
+        <ErrorBoundary>
+          <QueryProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </QueryProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
