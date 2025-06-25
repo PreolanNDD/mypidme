@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { createClient } from './supabase/client';
 import { TrackableItem } from './types';
 
 export interface Experiment {
@@ -37,6 +37,8 @@ export async function getExperiments(userId: string): Promise<Experiment[]> {
     return [];
   }
 
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase
       .from('experiments')
@@ -68,6 +70,8 @@ export async function createExperiment(experiment: Omit<Experiment, 'id' | 'crea
     throw new Error('user_id is required to create experiment');
   }
 
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase
       .from('experiments')
@@ -98,6 +102,8 @@ export async function updateExperiment(id: string, updates: Partial<Omit<Experim
   if (!id) {
     throw new Error('id is required to update experiment');
   }
+
+  const supabase = createClient();
 
   try {
     const { data, error } = await supabase
@@ -131,6 +137,8 @@ export async function updateExperimentStatus(id: string, status: 'ACTIVE' | 'COM
     throw new Error('id is required to update experiment status');
   }
 
+  const supabase = createClient();
+
   try {
     const { data, error } = await supabase
       .from('experiments')
@@ -162,6 +170,8 @@ export async function analyzeExperimentResults(experiment: Experiment): Promise<
   if (!experiment.user_id) {
     throw new Error('user_id is required to analyze experiment results');
   }
+
+  const supabase = createClient();
 
   try {
     // Calculate total days in experiment (inclusive)
@@ -292,6 +302,8 @@ export async function deleteExperiment(id: string): Promise<void> {
   if (!id) {
     throw new Error('id is required to delete experiment');
   }
+
+  const supabase = createClient();
 
   try {
     const { error } = await supabase

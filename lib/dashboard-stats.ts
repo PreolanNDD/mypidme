@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { createClient } from './supabase/client';
 
 export interface DashboardStats {
   currentStreak: number;
@@ -18,6 +18,8 @@ export async function getDashboardStats(userId: string): Promise<DashboardStats>
       totalEntries: 0,
     };
   }
+
+  const supabase = createClient();
 
   try {
     console.log('📈 [getDashboardStats] Fetching total active metrics...');
@@ -81,6 +83,8 @@ async function calculateCurrentStreak(userId: string): Promise<number> {
     console.error('❌ [calculateCurrentStreak] No userId provided');
     return 0;
   }
+
+  const supabase = createClient();
 
   try {
     console.log('📅 [calculateCurrentStreak] Fetching entry dates...');
@@ -170,6 +174,8 @@ export async function getTodaysEntries(userId: string): Promise<Record<string, a
     console.error('❌ [getTodaysEntries] No userId provided');
     return {};
   }
+
+  const supabase = createClient();
 
   try {
     console.log('🔍 [getTodaysEntries] Querying database...');
