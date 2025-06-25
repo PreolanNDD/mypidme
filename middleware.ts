@@ -54,7 +54,15 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const pathname = request.nextUrl.pathname
+  // Normalize pathname by removing trailing slash (except for root)
+  const pathname = request.nextUrl.pathname === '/' 
+    ? '/' 
+    : request.nextUrl.pathname.replace(/\/$/, '')
+  
+  console.log('🔍 [Middleware] Processing request:', {
+    originalPathname: request.nextUrl.pathname,
+    normalizedPathname: pathname
+  })
   
   // Skip middleware for static files, API routes, and Next.js internals
   if (pathname.startsWith('/_next/') || 
@@ -87,6 +95,12 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutePrefixes.some(prefix => 
     pathname.startsWith(prefix)
   )
+
+  console.log('🔍 [Middleware] Route classification:', {
+    pathname,
+    isPublicRoute,
+    isProtectedRoute
+  })
 
   // Check for recent auth activity to avoid interfering with login flow
   const authTimestamp = request.cookies.get('auth_timestamp')?.value
@@ -133,6 +147,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  console.log('✅ [Middleware] Request allowed to proceed')
   return response
 }
 
@@ -147,3 +162,4 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
+</invoke>
