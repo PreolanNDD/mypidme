@@ -25,7 +25,11 @@ export default function ForgotPassword() {
       });
 
       if (resetError) {
-        setError(resetError.message);
+        if (resetError.message.includes('rate_limit')) {
+          setError('Too many requests. Please wait a moment before trying again.');
+        } else {
+          setError(resetError.message);
+        }
         return;
       }
 
@@ -131,8 +135,10 @@ export default function ForgotPassword() {
           disabled={!email || loading}
           loading={loading}
         >
-          <Mail className="w-4 h-4 mr-2" />
-          Send Reset Instructions
+          <span className="flex items-center">
+            <Mail className="w-4 h-4 mr-2" />
+            Send Reset Instructions
+          </span>
         </Button>
       </form>
 
