@@ -13,6 +13,12 @@ interface AuthContextType {
   refreshUserProfile: () => Promise<void>;
 }
 
+interface InitialAuthData {
+  user: User | null;
+  userProfile: any | null;
+  session: Session | null;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
@@ -25,13 +31,16 @@ export const useAuth = () => {
 
 export function AuthProvider({
   children,
+  initialAuthData,
 }: {
   children: React.ReactNode;
+  initialAuthData: InitialAuthData;
 }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Initialize state with server-provided data
+  const [session, setSession] = useState<Session | null>(initialAuthData.session);
+  const [user, setUser] = useState<User | null>(initialAuthData.user);
+  const [userProfile, setUserProfile] = useState<any | null>(initialAuthData.userProfile);
+  const [loading, setLoading] = useState(false); // Start with false since we have initial data
   const router = useRouter();
 
   // Enhanced refs for better state management
@@ -43,17 +52,23 @@ export function AuthProvider({
   const profileFetchPromiseRef = useRef<Map<string, Promise<any>>>(new Map());
   const retryCountRef = useRef<Map<string, number>>(new Map());
 
-  console.log('🔐 [AuthProvider] Component rendered with state:', {
+  console.log('🔐 [AuthProvider] Component rendered with initial data:', {
     hasUser: !!user,
     userId: user?.id,
     hasSession: !!session,
     hasProfile: !!userProfile,
     profileUserId: userProfile?.id,
     loading,
-    isInitialized: initializationRef.current,
-    cacheSize: profileCacheRef.current.size,
-    currentlyFetching: fetchingProfileRef.current
+    isInitialized: initializationRef.current
   });
+
+  // Cache the initial profile data if provided
+  useEffect(() => {
+    if (initialAuthData.userProfile && initialAuthData.user) {
+      profileCacheRef.current.set(initialAuthData.user.id, initialAuthData.userProfile);
+      console.log('🔐 [AuthProvider] Cached initial profile data for user:', initialAuthData.user.id);
+    }
+  }, [initialAuthData]);
 
   // ENHANCED: More robust profile fetching with retry logic and better error handling
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
@@ -294,12 +309,6 @@ export function AuthProvider({
         }
 
         try {
-          // ENHANCED: Handle INITIAL_SESSION event properly
-          if (event === 'INITIAL_SESSION') {
-            console.log('🔐 [AuthProvider] Initial session loaded, setting loading to false');
-            setLoading(false);
-          }
-
           // ENHANCED: Handle token refresh failures gracefully
           if (event === 'TOKEN_REFRESHED' && !session) {
             console.log('🔐 [AuthProvider] Token refresh failed, signing out and redirecting');
@@ -319,7 +328,6 @@ export function AuthProvider({
 
           // ENHANCED: Determine when to update profile based on event type
           const shouldUpdateProfile = [
-            'INITIAL_SESSION',
             'SIGNED_IN',
             'TOKEN_REFRESHED',
             'USER_UPDATED'
@@ -349,7 +357,7 @@ export function AuthProvider({
               profileMatchesUser: userProfile?.id === session.user.id
             });
             
-            // ENHANCED: Always fetch profile for new users or when explicitly needed
+            // ENHANCED: Only fetch profile if we don't have one or it's explicitly needed
             const needsProfileFetch = shouldUpdateProfile || 
                                     !userProfile || 
                                     userProfile.id !== session.user.id ||
