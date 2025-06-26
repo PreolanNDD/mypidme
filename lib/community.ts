@@ -214,25 +214,9 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
 
     console.log(`✅ [getUserFindings] Successfully fetched ${findings.length} findings for user: ${trimmedUserId}`);
 
-    // For user's findings, we don't need to fetch author details since it's the same user
-    // Explicitly map only the properties defined in CommunityFinding interface
-    const transformedData: CommunityFinding[] = (findings as Array<Omit<CommunityFinding, 'author'>>).map((finding) => ({
-      id: finding.id,
-      author_id: finding.author_id,
-      title: finding.title,
-      content: finding.content,
-      status: finding.status,
-      upvotes: finding.upvotes,
-      downvotes: finding.downvotes,
-      share_data: finding.share_data,
-      chart_config: finding.chart_config,
-      experiment_id: finding.experiment_id,
-      created_at: finding.created_at,
-      updated_at: finding.updated_at,
-      author: undefined // We don't need author details for user's own findings
-    }));
-
-    return transformedData;
+    // Since the author property is optional in CommunityFinding interface,
+    // we can directly cast the findings to CommunityFinding[]
+    return findings as CommunityFinding[];
 
   } catch (error) {
     console.error('💥 [getUserFindings] Unexpected error:', error);
