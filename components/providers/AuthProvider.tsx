@@ -124,7 +124,7 @@ export function AuthProvider({
       try {
         const supabase = createClient();
         
-        // ENHANCED: Add timeout to prevent hanging requests - increased from 10s to 30s
+        // ENHANCED: Add timeout to prevent hanging requests - reduced to 10 seconds
         const fetchWithTimeout = Promise.race([
           supabase
             .from('users')
@@ -132,7 +132,7 @@ export function AuthProvider({
             .eq('id', userId)
             .maybeSingle(),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile fetch timeout')), 30000)
+            setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
           )
         ]);
 
@@ -327,10 +327,10 @@ export function AuthProvider({
           }
 
           // ENHANCED: Determine when to update profile based on event type
+          // CRITICAL FIX: Only fetch profile for specific events that actually need it
           const shouldUpdateProfile = [
-            'SIGNED_IN',
-            'TOKEN_REFRESHED',
-            'USER_UPDATED'
+            'SIGNED_IN', // Only when user signs in
+            'USER_UPDATED' // Only when user data is updated
           ].includes(event);
 
           console.log('🔐 [AuthProvider] Should update profile:', {
@@ -357,17 +357,15 @@ export function AuthProvider({
               profileMatchesUser: userProfile?.id === session.user.id
             });
             
-            // ENHANCED: Only fetch profile if we don't have one or it's explicitly needed
+            // CRITICAL FIX: Only fetch profile if we really need to
             const needsProfileFetch = shouldUpdateProfile || 
-                                    !userProfile || 
-                                    userProfile.id !== session.user.id ||
-                                    event === 'SIGNED_IN'; // Always fetch on sign in
+                                    (!userProfile || userProfile.id !== session.user.id);
             
             if (needsProfileFetch) {
               console.log('🔐 [AuthProvider] Fetching user profile...', {
                 reason: shouldUpdateProfile ? 'shouldUpdateProfile' : 
                        !userProfile ? 'noProfile' : 
-                       userProfile.id !== session.user.id ? 'userMismatch' : 'signIn'
+                       userProfile.id !== session.user.id ? 'userMismatch' : 'unknown'
               });
               
               try {
