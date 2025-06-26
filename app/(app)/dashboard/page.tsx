@@ -89,15 +89,11 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Section 3: "Active Experiments" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-            <ExperimentProgressWidget />
-          </div>
+          {/* Section 3: "Active Experiments" - NO WHITE CONTAINER */}
+          <ExperimentProgressWidget />
 
-          {/* Section 4: "Community Insights" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-            <CommunityFeedWidget />
-          </div>
+          {/* Section 4: "Community Insights" - NO WHITE CONTAINER */}
+          <CommunityFeedWidget />
 
         </div>
       </div>
