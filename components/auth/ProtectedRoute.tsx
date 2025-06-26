@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -11,12 +11,19 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const redirectingRef = useRef(false);
 
   useEffect(() => {
     // Only redirect if loading is complete and there's no user
-    if (!loading && !user) {
-      console.log('ProtectedRoute: No authenticated user found, redirecting to login');
+    if (!loading && !user && !redirectingRef.current) {
+      console.log('🔒 [ProtectedRoute] No authenticated user found, redirecting to login');
+      redirectingRef.current = true;
       router.replace('/login'); // Use replace instead of push to avoid back button issues
+    }
+    
+    // Reset redirecting flag when user is authenticated
+    if (user && redirectingRef.current) {
+      redirectingRef.current = false;
     }
   }, [user, loading, router]);
 

@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchingProfileRef = useRef<string | null>(null);
   const profileCacheRef = useRef<Map<string, any>>(new Map());
   const initializationRef = useRef<boolean>(false);
+  const subscriptionRef = useRef<any>(null);
 
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
     // Prevent concurrent fetches for the same user
@@ -115,17 +116,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up the auth state change listener - this is our single source of truth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔐 [AuthProvider] Auth state change:', { event, hasSession: !!session, hasUser: !!session?.user });
+
         // Handle the initial session load
         if (event === 'INITIAL_SESSION') {
+          console.log('🔐 [AuthProvider] Initial session loaded');
           setLoading(false);
         }
 
         // Handle invalid refresh token errors
         if (event === 'TOKEN_REFRESHED' && !session) {
+          console.log('🔐 [AuthProvider] Token refresh failed, signing out');
           try {
             await supabase.auth.signOut();
             router.replace('/login');
           } catch (signOutError) {
+            console.error('🔐 [AuthProvider] Error during signout:', signOutError);
             router.replace('/login');
           }
           return;
@@ -143,25 +149,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          console.log('🔐 [AuthProvider] User authenticated:', session.user.id);
           // Only fetch profile in specific cases to avoid unnecessary requests
           if (shouldUpdateProfile || !userProfile || userProfile.id !== session.user.id) {
+            console.log('🔐 [AuthProvider] Fetching user profile...');
             const profile = await fetchUserProfile(session.user.id);
             setUserProfile(profile);
           }
         } else {
+          console.log('🔐 [AuthProvider] No user session, clearing profile');
           setUserProfile(null);
           // Clear profile cache when user logs out
           profileCacheRef.current.clear();
         }
 
         if (event === 'PASSWORD_RECOVERY') {
+          console.log('🔐 [AuthProvider] Password recovery detected, redirecting');
           router.push('/update-password');
         }
       }
     );
 
+    // Store subscription reference for cleanup
+    subscriptionRef.current = subscription;
+
     return () => {
+      console.log('🔐 [AuthProvider] Cleaning up auth subscription');
       subscription?.unsubscribe();
+      subscriptionRef.current = null;
       initializationRef.current = false; // Reset initialization flag
     };
   }, []); // CRITICAL: Empty dependency array to prevent re-initialization
@@ -169,11 +184,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const refreshUserProfile = useCallback(async () => {
     if (user) {
+      console.log('🔐 [AuthProvider] Refreshing user profile for:', user.id);
       const profile = await fetchUserProfile(user.id, true); // Force refresh
       setUserProfile(profile);
     }
   }, [user, fetchUserProfile]);
 
+  // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(() => {
     const contextValue = {
       user,

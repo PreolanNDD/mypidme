@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export default function AuthLayout({
   children,
@@ -12,6 +12,7 @@ export default function AuthLayout({
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const redirectingRef = useRef(false);
 
   useEffect(() => {
     // Allow access to update-password page even if user is authenticated
@@ -20,9 +21,15 @@ export default function AuthLayout({
     }
 
     // For other auth pages, redirect authenticated users to dashboard
-    if (!loading && user) {
-      console.log('AuthLayout: User is authenticated, redirecting to dashboard');
+    if (!loading && user && !redirectingRef.current) {
+      console.log('🔒 [AuthLayout] User is authenticated, redirecting to dashboard');
+      redirectingRef.current = true;
       router.replace('/dashboard'); // Use replace instead of push
+    }
+    
+    // Reset redirecting flag when user is not authenticated
+    if (!user && redirectingRef.current) {
+      redirectingRef.current = false;
     }
   }, [user, loading, router, pathname]);
 

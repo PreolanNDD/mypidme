@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,11 +12,18 @@ import { BarChart3, Eye, Settings } from 'lucide-react';
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const redirectingRef = useRef(false);
 
   useEffect(() => {
-    if (!loading && user) {
-      console.log('Home: User is authenticated, redirecting to dashboard');
+    if (!loading && user && !redirectingRef.current) {
+      console.log('🏠 [Home] User is authenticated, redirecting to dashboard');
+      redirectingRef.current = true;
       router.replace('/dashboard'); // Use replace instead of push
+    }
+    
+    // Reset redirecting flag when user is not authenticated
+    if (!user && redirectingRef.current) {
+      redirectingRef.current = false;
     }
   }, [user, loading, router]);
 
