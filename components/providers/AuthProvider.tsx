@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
@@ -300,7 +300,7 @@ export function AuthProvider({
 
     // ENHANCED: Set up the auth state change listener with better error handling
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: AuthChangeEvent, session: Session | null) => {
         console.log('🔐 [AuthProvider] === AUTH STATE CHANGE ===');
         console.log('🔐 [AuthProvider] Event:', event);
         console.log('🔐 [AuthProvider] Session details:', {
