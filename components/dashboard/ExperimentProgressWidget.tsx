@@ -119,7 +119,7 @@ export function ExperimentProgressWidget() {
             variant="ghost"
             size="sm"
             onClick={handleViewAllExperiments}
-            className="text-white hover:bg-white/10"
+            className="text-white hover:bg-white/10 hover:text-white"
           >
             View All
             <ArrowRight className="w-4 h-4 ml-1" />
@@ -237,7 +237,7 @@ export function ExperimentProgressWidget() {
                 variant="ghost"
                 size="sm"
                 onClick={handleViewAllExperiments}
-                className="text-white hover:bg-white/10"
+                className="text-white hover:bg-white/10 hover:text-white"
               >
                 +{activeExperiments.length - 2} more experiment{activeExperiments.length - 2 !== 1 ? 's' : ''}
               </Button>
