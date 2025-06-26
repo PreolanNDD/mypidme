@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, Eye, Send, Calendar, User, BarChart3, FlaskConical, Target, TrendingUp } from 'lucide-react';
+import { Edit3, Eye, Send, Calendar, User, BarChart3, FlaskConical, Target, TrendingUp, ArrowLeft } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useFormState, useFormStatus } from 'react-dom';
 
@@ -415,19 +415,34 @@ export default function CreateFindingPage() {
     return 'You';
   };
 
+  // Handle back navigation
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
-          {/* Main Page Header */}
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-              <Edit3 className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h1 className="font-heading text-3xl text-white">Create Finding</h1>
-              <p style={{ color: '#e6e2eb' }}>Share your insights with the community</p>
+          {/* Main Page Header with Back Button */}
+          <div className="mb-8">
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              className="mb-4 text-white hover:bg-white/10"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                <Edit3 className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="font-heading text-3xl text-white">Create Finding</h1>
+                <p style={{ color: '#e6e2eb' }}>Share your insights with the community</p>
+              </div>
             </div>
           </div>
 
