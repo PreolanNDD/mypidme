@@ -46,10 +46,15 @@ export default function DataPage() {
   const [selectedDateRange, setSelectedDateRange] = useState<string>('30');
   const [shouldFetchChart, setShouldFetchChart] = useState(false);
 
+  // Fetch trackable items with aggressive caching
   const { data: allItems = [], isLoading: loadingItems } = useQuery<TrackableItem[]>({
     queryKey: ['trackableItems', user?.id],
     queryFn: () => getTrackableItems(user!.id),
     enabled: !!user?.id,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 20 * 60 * 1000, // 20 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const outputMetrics = useMemo(() => allItems.filter(item => 
@@ -63,6 +68,7 @@ export default function DataPage() {
   const primaryMetric = allItems.find(item => item.id === primaryMetricId);
   const comparisonMetric = allItems.find(item => item.id === comparisonMetricId);
 
+  // Fetch chart data with enhanced caching
   const { data: rawChartData = [], isLoading: loadingChart, error } = useQuery<DualMetricChartData[]>({
     queryKey: ['dualMetricChartData', user?.id, primaryMetricId, comparisonMetricId, selectedDateRange],
     queryFn: () => getDualMetricChartData(
@@ -72,6 +78,9 @@ export default function DataPage() {
       parseInt(selectedDateRange)
     ),
     enabled: !!user?.id && !!primaryMetricId && shouldFetchChart,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnMount: false,
   });
 
   // Advanced Axis Synchronization Processing

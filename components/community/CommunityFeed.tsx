@@ -93,33 +93,41 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const queryClient = useQueryClient();
   const [reportingFindingId, setReportingFindingId] = useState<string | null>(null);
 
-  // Fetch community findings (visible only)
+  // Fetch community findings with aggressive caching
   const { data: communityFindings = [], isLoading: loadingCommunity } = useQuery<CommunityFinding[]>({
     queryKey: ['communityFindings'],
     queryFn: () => getCommunityFindings(),
     enabled: activeTab === 'community',
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes - longer stale time
+    gcTime: 15 * 60 * 1000, // 15 minutes - keep in cache longer
+    refetchOnMount: false, // Don't refetch if we have cached data
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch user's personal findings (all statuses)
+  // Fetch user's personal findings with aggressive caching
   const { data: userFindings = [], isLoading: loadingUser } = useQuery<CommunityFinding[]>({
     queryKey: ['userFindings', user?.id],
     queryFn: () => getUserFindings(user!.id),
     enabled: activeTab === 'my-findings' && !!user?.id,
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   // Determine which findings to display
   const findings = activeTab === 'community' ? communityFindings : userFindings;
   const isLoading = activeTab === 'community' ? loadingCommunity : loadingUser;
 
-  // Fetch user votes for all findings
+  // Fetch user votes for all findings with caching
   const findingIds = useMemo(() => findings.map(f => f.id), [findings]);
   const { data: userVotes = [] } = useQuery<FindingVote[]>({
     queryKey: ['userVotes', user?.id, findingIds],
     queryFn: () => getUserVotes(user!.id, findingIds),
     enabled: !!user?.id && findingIds.length > 0 && activeTab === 'community',
-    staleTime: 1 * 60 * 1000, // 1 minute
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: false,
   });
 
   // Create a map of finding ID to user's vote
@@ -275,9 +283,9 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     router.push(`/community/user/${authorId}`);
   };
 
-  // Prefetch finding details on hover for faster navigation
+  // Enhanced prefetch finding details on hover for faster navigation
   const handleFindingHover = (findingId: string) => {
-    // Prefetch the finding detail data
+    // Prefetch the finding detail data with longer cache time
     queryClient.prefetchQuery({
       queryKey: ['communityFinding', findingId],
       queryFn: async () => {
@@ -285,8 +293,22 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
         const { getCommunityFindingById } = await import('@/lib/community');
         return getCommunityFindingById(findingId);
       },
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      gcTime: 20 * 60 * 1000, // 20 minutes
     });
+
+    // Also prefetch related data that might be needed
+    if (user?.id) {
+      queryClient.prefetchQuery({
+        queryKey: ['trackableItems', user.id],
+        queryFn: async () => {
+          const { getTrackableItems } = await import('@/lib/trackable-items');
+          return getTrackableItems(user.id);
+        },
+        staleTime: 15 * 60 * 1000, // 15 minutes
+        gcTime: 30 * 60 * 1000, // 30 minutes
+      });
+    }
   };
 
   // Optimistic navigation with immediate UI feedback

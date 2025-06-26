@@ -54,6 +54,12 @@ export function Sidebar() {
     }
   };
 
+  // Enhanced prefetch function for better navigation performance
+  const handleLinkHover = (href: string) => {
+    // Prefetch the page for faster navigation
+    router.prefetch(href);
+  };
+
   return (
     <div className={cn(
       "fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50 flex flex-col",
@@ -72,6 +78,7 @@ export function Sidebar() {
               width={320}
               height={120}
               className="h-[70px] w-auto rounded-xl"
+              priority
             />
           )}
         </div>
@@ -103,6 +110,7 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 href={item.href}
+                onMouseEnter={() => handleLinkHover(item.href)}
                 className={cn(
                   'flex items-center rounded-lg transition-all duration-200 group',
                   isOpen ? 'px-3 py-2.5' : 'px-2 py-2.5 justify-center',

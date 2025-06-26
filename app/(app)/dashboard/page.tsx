@@ -18,25 +18,35 @@ export default function Dashboard() {
                    user?.email?.split('@')[0] || 
                    'there';
 
-  // Fetch trackable items
+  // Fetch trackable items with aggressive caching
   const { data: trackableItems = [], isLoading: loadingItems } = useQuery({
     queryKey: ['trackableItems', user?.id],
     queryFn: () => getTrackableItems(user!.id),
     enabled: !!user?.id,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 20 * 60 * 1000, // 20 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch today's entries
+  // Fetch today's entries with caching
   const { data: todaysEntries = {}, isLoading: loadingEntries } = useQuery({
     queryKey: ['todaysEntries', user?.id],
     queryFn: () => getTodaysEntries(user!.id),
     enabled: !!user?.id,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: false,
   });
 
-  // Fetch dashboard stats
+  // Fetch dashboard stats with caching
   const { data: dashboardStats, isLoading: loadingStats } = useQuery({
     queryKey: ['dashboardStats', user?.id],
     queryFn: () => getDashboardStats(user!.id),
     enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnMount: false,
   });
 
   const isLoading = loadingItems || loadingEntries || loadingStats;
