@@ -93,7 +93,7 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
     });
   }
 
-  return findings;
+  return findings as CommunityFinding[];
 }
 
 export async function getCommunityFindingById(findingId: string): Promise<CommunityFinding | null> {
@@ -154,7 +154,7 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
       authorData: finding.author
     });
 
-    return finding;
+    return finding as CommunityFinding;
 
   } catch (error) {
     console.error('💥 [getCommunityFindingById] Unexpected error:', error);
@@ -216,7 +216,7 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
 
     // For user's findings, we don't need to fetch author details since it's the same user
     // Explicitly map only the properties defined in CommunityFinding interface
-    const transformedData: CommunityFinding[] = findings.map((finding) => ({
+    const transformedData: CommunityFinding[] = (findings as Array<Omit<CommunityFinding, 'author'>>).map((finding) => ({
       id: finding.id,
       author_id: finding.author_id,
       title: finding.title,
@@ -318,7 +318,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
         }
         
         console.log(`✅ [getUserProfile] Successfully created profile for user: ${trimmedUserId}`, newUser);
-        return newUser;
+        return newUser as UserProfile;
       }
       console.error('❌ [getUserProfile] Error fetching user profile:', error);
       return null;
@@ -330,7 +330,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       lastName: user.last_name
     });
 
-    return user;
+    return user as UserProfile;
     
   } catch (error) {
     console.error('💥 [getUserProfile] Unexpected error:', error);
@@ -353,7 +353,7 @@ export async function getUserVotes(userId: string, findingIds: string[]): Promis
     throw new Error(`Failed to fetch user votes: ${error.message}`);
   }
 
-  return data || [];
+  return (data || []) as FindingVote[];
 }
 
 // Note: castVote and reportFinding functions have been moved to Server Actions
