@@ -3,23 +3,42 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
-import { Users, MessageSquare, User } from 'lucide-react';
+import { Users, MessageSquare, User, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
 
 export default function CommunityPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'community' | 'my-findings'>('community');
+
+  const handleNewFinding = () => {
+    router.push('/community/new');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
       <div className="px-6 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Main Page Header */}
-          <div className="mb-8">
-            <h1 className="font-heading text-3xl text-white mb-2">Community Findings</h1>
-            <p style={{ color: '#e6e2eb' }}>
-              Discover insights and patterns shared by the myPID.me community
-            </p>
+          {/* Main Page Header with New Finding Button */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="font-heading text-3xl text-white mb-2">Community Findings</h1>
+              <p style={{ color: '#e6e2eb' }}>
+                Discover insights and patterns shared by the myPID.me community
+              </p>
+            </div>
+            {user && (
+              <Button
+                onClick={handleNewFinding}
+                className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+                style={{ color: '#4a2a6d' }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                New Finding
+              </Button>
+            )}
           </div>
 
           {/* Introduction */}
