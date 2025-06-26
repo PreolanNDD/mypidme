@@ -430,3 +430,30 @@ export async function createFindingWithContext(findingData: {
     author: undefined // Author details not populated for creation operations
   } as CommunityFinding;
 }
+
+export async function deleteFinding(findingId: string): Promise<void> {
+  console.log(`🗑️ [deleteFinding] Deleting finding: ${findingId}`);
+  
+  if (!findingId) {
+    throw new Error('Finding ID is required to delete finding');
+  }
+
+  const supabase = createClient();
+
+  try {
+    const { error } = await supabase
+      .from('community_findings')
+      .delete()
+      .eq('id', findingId);
+
+    if (error) {
+      console.error('❌ [deleteFinding] Error deleting finding:', error);
+      throw new Error(`Failed to delete finding: ${error.message}`);
+    }
+
+    console.log(`✅ [deleteFinding] Successfully deleted finding: ${findingId}`);
+  } catch (error) {
+    console.error('💥 [deleteFinding] Unexpected error:', error);
+    throw error;
+  }
+}

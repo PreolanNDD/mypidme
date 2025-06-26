@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getCommunityFindingById, getUserVotes } from '@/lib/community';
-import { castVoteAction, reportFindingAction } from '@/lib/actions/community-actions';
+import { castVoteAction, reportFindingAction, deleteFindingAction } from '@/lib/actions/community-actions';
 import { CommunityFinding, FindingVote } from '@/lib/community';
 import { getTrackableItems } from '@/lib/trackable-items';
 import { getDualMetricChartData } from '@/lib/chart-data';
@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
-import { ChevronUp, ChevronDown, Flag, User, Calendar, ArrowLeft, MessageSquare, Target, TrendingUp, TrendingDown, BarChart3 } from 'lucide-react';
+import { ChevronUp, ChevronDown, Flag, User, Calendar, ArrowLeft, MessageSquare, Target, TrendingUp, TrendingDown, BarChart3, Trash2, AlertTriangle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -89,6 +89,78 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
   );
 }
 
+interface DeleteDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  loading: boolean;
+  findingTitle: string;
+}
+
+function DeleteDialog({ isOpen, onClose, onConfirm, loading, findingTitle }: DeleteDialogProps) {
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="w-full max-w-md">
+        <DialogHeader>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-white" />
+            </div>
+            <DialogTitle className="font-heading text-xl text-primary-text">
+              Delete Finding?
+            </DialogTitle>
+          </div>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-800 mb-2">
+              Are you sure you want to delete <span className="font-semibold">"{findingTitle}"</span>?
+            </p>
+          </div>
+
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start space-x-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-yellow-800 mb-1">
+                  Warning: This action cannot be undone.
+                </p>
+                <p className="text-sm text-yellow-700">
+                  The finding and all its votes will be permanently deleted.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex space-x-3 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              className="flex-1"
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={onConfirm}
+              loading={loading}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+            >
+              Yes, Delete Finding
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 interface FindingDetailClientProps {
   initialFinding: CommunityFinding;
 }
@@ -98,6 +170,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [reportingFindingId, setReportingFindingId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Use the initial finding data and set up TanStack Query for future updates
   const { data: findingData = initialFinding } = useQuery<CommunityFinding | null>({
@@ -125,6 +198,9 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   }
 
   const finding = findingData;
+
+  // Check if current user is the author
+  const isAuthor = user?.id === finding.author_id;
 
   // Fetch trackable items for chart context with better caching
   const { data: trackableItems = [] } = useQuery({
@@ -407,6 +483,23 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     },
   });
 
+  // Delete mutation using Server Action
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteFindingAction(user!.id, finding.id),
+    onSuccess: (result) => {
+      if (result?.error) {
+        alert(`Failed to delete finding: ${result.error}`);
+      } else {
+        setShowDeleteDialog(false);
+        // Redirect to community page after successful deletion
+        router.push('/community');
+      }
+    },
+    onError: (error: any) => {
+      alert(`Failed to delete finding: ${error.message}`);
+    },
+  });
+
   const handleVote = (voteType: 'upvote' | 'downvote') => {
     if (!user) return;
     voteMutation.mutate({ voteType });
@@ -419,6 +512,15 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   const handleSubmitReport = (reason: string) => {
     if (!finding.id || !user) return;
     reportMutation.mutate({ reason });
+  };
+
+  const handleDelete = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!user) return;
+    deleteMutation.mutate();
   };
 
   const handleAuthorClick = () => {
@@ -905,19 +1007,36 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                     </Button>
                   </div>
 
-                  {/* Report Button - only show for other users' posts */}
-                  {user && user.id !== finding.author_id && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={handleReport}
-                      disabled={reportMutation.isPending}
-                      className="text-secondary-text hover:text-red-600 hover:bg-red-50"
-                    >
-                      <Flag className="w-4 h-4 mr-2" />
-                      Report
-                    </Button>
-                  )}
+                  {/* Action Buttons */}
+                  <div className="flex items-center space-x-2">
+                    {/* Delete Button - only show for author */}
+                    {isAuthor && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleDelete}
+                        disabled={deleteMutation.isPending}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
+                    )}
+
+                    {/* Report Button - only show for other users' posts */}
+                    {user && user.id !== finding.author_id && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleReport}
+                        disabled={reportMutation.isPending}
+                        className="text-secondary-text hover:text-red-600 hover:bg-red-50"
+                      >
+                        <Flag className="w-4 h-4 mr-2" />
+                        Report
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -931,6 +1050,15 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
         onClose={() => setReportingFindingId(null)}
         onSubmit={handleSubmitReport}
         loading={reportMutation.isPending}
+      />
+
+      {/* Delete Dialog */}
+      <DeleteDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleConfirmDelete}
+        loading={deleteMutation.isPending}
+        findingTitle={finding.title}
       />
     </>
   );

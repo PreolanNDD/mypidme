@@ -349,6 +349,93 @@ export async function shareFindingAction(data: ShareFindingData) {
   }
 }
 
+// --- DELETE FINDING ACTION ---
+export async function deleteFindingAction(
+  userId: string,
+  findingId: string
+) {
+  console.log('🗑️ [deleteFindingAction] Starting delete finding action:', { userId, findingId });
+
+  if (!userId || !findingId) {
+    return { error: 'User and Finding ID are required.' };
+  }
+
+  try {
+    // Create authenticated Supabase client with error handling
+    let supabase;
+    try {
+      supabase = createClient();
+    } catch (clientError) {
+      console.error('❌ [deleteFindingAction] Failed to create Supabase client:', clientError);
+      return { error: 'Authentication service unavailable. Please try again.' };
+    }
+    
+    // Get the current user to verify authentication
+    let user;
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !userData?.user || userData.user.id !== userId) {
+        console.error('❌ [deleteFindingAction] Authentication failed:', userError);
+        return { error: 'You must be logged in to delete a finding.' };
+      }
+      
+      user = userData.user;
+      console.log('✅ [deleteFindingAction] User authenticated:', user.id);
+    } catch (authError) {
+      console.error('❌ [deleteFindingAction] Authentication check failed:', authError);
+      return { error: 'Authentication failed. Please try logging in again.' };
+    }
+
+    // First, verify that the user is the author of the finding
+    console.log('🔍 [deleteFindingAction] Verifying finding ownership...');
+    const { data: finding, error: fetchError } = await supabase
+      .from('community_findings')
+      .select('author_id, title')
+      .eq('id', findingId)
+      .single();
+
+    if (fetchError) {
+      console.error('❌ [deleteFindingAction] Error fetching finding:', fetchError);
+      return { error: 'Finding not found or access denied.' };
+    }
+
+    if (finding.author_id !== userId) {
+      console.error('❌ [deleteFindingAction] User is not the author of the finding');
+      return { error: 'You can only delete your own findings.' };
+    }
+
+    console.log('✅ [deleteFindingAction] User is authorized to delete finding:', finding.title);
+
+    // Delete the finding
+    console.log('🗑️ [deleteFindingAction] Deleting finding from database...');
+    const { error: deleteError } = await supabase
+      .from('community_findings')
+      .delete()
+      .eq('id', findingId);
+
+    if (deleteError) {
+      console.error('❌ [deleteFindingAction] Error deleting finding:', deleteError);
+      return { error: `Failed to delete finding: ${deleteError.message}` };
+    }
+
+    console.log('✅ [deleteFindingAction] Finding deleted successfully');
+
+    // Revalidate the cache for the pages
+    console.log('🔄 [deleteFindingAction] Revalidating page cache...');
+    revalidatePath('/community');
+    revalidatePath(`/community/${findingId}`);
+    console.log('✅ [deleteFindingAction] Cache revalidated');
+
+    console.log('🎉 [deleteFindingAction] Delete process completed successfully');
+    return { success: true };
+
+  } catch (error) {
+    console.error('❌ [deleteFindingAction] Server action failed:', error);
+    return { error: 'An unexpected error occurred while deleting the finding.' };
+  }
+}
+
 // --- VOTE ACTION ---
 export async function castVoteAction(
   userId: string,
