@@ -5,17 +5,25 @@ import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
+interface UserProfileRow {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  userProfile: any | null;
+  userProfile: UserProfileRow | null;
   refreshUserProfile: () => Promise<void>;
 }
 
 interface InitialAuthData {
   user: User | null;
-  userProfile: any | null;
+  userProfile: UserProfileRow | null;
   session: Session | null;
 }
 
@@ -39,17 +47,17 @@ export function AuthProvider({
   // Initialize state with server-provided data
   const [session, setSession] = useState<Session | null>(initialAuthData.session);
   const [user, setUser] = useState<User | null>(initialAuthData.user);
-  const [userProfile, setUserProfile] = useState<any | null>(initialAuthData.userProfile);
+  const [userProfile, setUserProfile] = useState<UserProfileRow | null>(initialAuthData.userProfile);
   const [loading, setLoading] = useState(false); // Start with false since we have initial data
   const router = useRouter();
 
   // Enhanced refs for better state management
   const fetchingProfileRef = useRef<string | null>(null);
-  const profileCacheRef = useRef<Map<string, any>>(new Map());
+  const profileCacheRef = useRef<Map<string, UserProfileRow>>(new Map());
   const initializationRef = useRef<boolean>(false);
   const subscriptionRef = useRef<any>(null);
   const mountedRef = useRef<boolean>(true);
-  const profileFetchPromiseRef = useRef<Map<string, Promise<any>>>(new Map());
+  const profileFetchPromiseRef = useRef<Map<string, Promise<UserProfileRow | null>>>(new Map());
   const retryCountRef = useRef<Map<string, number>>(new Map());
   const initialDataProcessedRef = useRef<boolean>(false);
 
@@ -74,7 +82,7 @@ export function AuthProvider({
   }, [initialAuthData]);
 
   // ENHANCED: More robust profile fetching with retry logic and better error handling
-  const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
+  const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false): Promise<UserProfileRow | null> => {
     console.log('👤 [AuthProvider] fetchUserProfile called:', {
       userId,
       forceRefresh,
@@ -95,7 +103,7 @@ export function AuthProvider({
     if (profileFetchPromiseRef.current.has(userId) && !forceRefresh) {
       console.log('👤 [AuthProvider] Profile fetch already in progress, returning existing promise');
       try {
-        return await profileFetchPromiseRef.current.get(userId);
+        return await profileFetchPromiseRef.current.get(userId)!;
       } catch (error) {
         console.error('👤 [AuthProvider] Error waiting for existing profile fetch:', error);
         // Continue with new fetch attempt
@@ -104,7 +112,7 @@ export function AuthProvider({
 
     // Return cached profile if available and not forcing refresh
     if (!forceRefresh && profileCacheRef.current.has(userId)) {
-      const cachedProfile = profileCacheRef.current.get(userId);
+      const cachedProfile = profileCacheRef.current.get(userId)!;
       console.log('👤 [AuthProvider] Returning cached profile:', {
         userId,
         hasCachedProfile: !!cachedProfile,
@@ -114,7 +122,7 @@ export function AuthProvider({
     }
 
     // ENHANCED: Create a promise for this fetch operation
-    const fetchPromise = (async () => {
+    const fetchPromise = (async (): Promise<UserProfileRow | null> => {
       fetchingProfileRef.current = userId;
       const currentRetryCount = retryCountRef.current.get(userId) || 0;
       
