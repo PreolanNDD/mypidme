@@ -85,21 +85,22 @@ export function CommunityFeedWidget() {
   }
 
   return (
-    <div 
-      className="space-y-6 hover:shadow-white/30 hover:shadow-2xl transition-shadow duration-300 rounded-2xl p-4 -m-4"
-      style={{
-        filter: 'hover:drop-shadow(0 25px 50px rgba(255, 255, 255, 0.3))'
-      }}
-    >
-      {/* Header - NOW INCLUDED IN THE BOX SHADOW */}
+    <div className="space-y-6 group">
+      {/* Header - WITH GLOW AND SIZE INCREASE ON HOVER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-            <Users className="w-4 h-4 text-primary" />
+          {/* Icon with glow and size increase */}
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-white/50">
+            <Users className="w-4 h-4 text-primary transition-all duration-300 group-hover:scale-110" />
           </div>
           <div>
-            <h3 className="font-heading text-lg text-white">Community Insights</h3>
-            <p className="text-sm" style={{ color: '#e6e2eb' }}>Top discoveries from the community</p>
+            {/* Heading with glow and size increase */}
+            <h3 className="font-heading text-lg text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
+              Community Insights
+            </h3>
+            <p className="text-sm transition-colors duration-300 group-hover:text-white" style={{ color: '#e6e2eb' }}>
+              Top discoveries from the community
+            </p>
           </div>
         </div>
         <Button
@@ -141,7 +142,7 @@ export function CommunityFeedWidget() {
           {topFindings.map((finding, index) => (
             <div 
               key={finding.id} 
-              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 cursor-pointer group border border-white/20 transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:z-10 relative"
+              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 cursor-pointer group/finding border border-white/20 transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:z-10 relative"
               onClick={() => handleFindingClick(finding.id)}
               style={{
                 // Add margin to prevent overlap when rising
@@ -152,19 +153,19 @@ export function CommunityFeedWidget() {
                 {/* Header with ranking */}
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 group-hover:scale-110 ${
-                      index === 0 ? 'bg-yellow-100 text-yellow-700 group-hover:bg-yellow-200' :
-                      index === 1 ? 'bg-gray-100 text-gray-700 group-hover:bg-gray-200' :
-                      'bg-orange-100 text-orange-700 group-hover:bg-orange-200'
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 group-hover/finding:scale-110 ${
+                      index === 0 ? 'bg-yellow-100 text-yellow-700 group-hover/finding:bg-yellow-200' :
+                      index === 1 ? 'bg-gray-100 text-gray-700 group-hover/finding:bg-gray-200' :
+                      'bg-orange-100 text-orange-700 group-hover/finding:bg-orange-200'
                     }`}>
                       {index + 1}
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-primary-text truncate group-hover:text-primary transition-colors duration-300">
+                    <h4 className="font-medium text-primary-text truncate group-hover/finding:text-primary transition-colors duration-300">
                       {finding.title}
                     </h4>
-                    <p className="text-sm text-secondary-text mt-1 group-hover:text-primary-text transition-colors duration-300">
+                    <p className="text-sm text-secondary-text mt-1 group-hover/finding:text-primary-text transition-colors duration-300">
                       {truncateContent(finding.content)}
                     </p>
                   </div>
@@ -174,19 +175,19 @@ export function CommunityFeedWidget() {
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-3">
                     <div className="flex items-center space-x-1">
-                      <User className="w-3 h-3 text-secondary-text group-hover:text-primary transition-colors duration-300" />
-                      <span className="text-secondary-text group-hover:text-primary-text transition-colors duration-300">
+                      <User className="w-3 h-3 text-secondary-text group-hover/finding:text-primary transition-colors duration-300" />
+                      <span className="text-secondary-text group-hover/finding:text-primary-text transition-colors duration-300">
                         {getAuthorName(finding)}
                       </span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3 text-secondary-text group-hover:text-primary transition-colors duration-300" />
-                      <span className="text-secondary-text group-hover:text-primary-text transition-colors duration-300">
+                      <Calendar className="w-3 h-3 text-secondary-text group-hover/finding:text-primary transition-colors duration-300" />
+                      <span className="text-secondary-text group-hover/finding:text-primary-text transition-colors duration-300">
                         {formatDate(finding.created_at)}
                       </span>
                     </div>
                     {finding.share_data && (
-                      <Badge variant="outline" className="text-xs text-blue-700 border-blue-300 group-hover:bg-blue-50 transition-colors duration-300">
+                      <Badge variant="outline" className="text-xs text-blue-700 border-blue-300 group-hover/finding:bg-blue-50 transition-colors duration-300">
                         Data
                       </Badge>
                     )}
@@ -195,17 +196,17 @@ export function CommunityFeedWidget() {
                   {/* Vote summary */}
                   <div className="flex items-center space-x-2">
                     <div className="flex items-center space-x-1">
-                      <ChevronUp className="w-3 h-3 text-green-600 group-hover:scale-110 transition-transform duration-300" />
-                      <span className="text-secondary-text group-hover:text-primary-text transition-colors duration-300">{finding.upvotes}</span>
+                      <ChevronUp className="w-3 h-3 text-green-600 group-hover/finding:scale-110 transition-transform duration-300" />
+                      <span className="text-secondary-text group-hover/finding:text-primary-text transition-colors duration-300">{finding.upvotes}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <ChevronDown className="w-3 h-3 text-red-600 group-hover:scale-110 transition-transform duration-300" />
-                      <span className="text-secondary-text group-hover:text-primary-text transition-colors duration-300">{finding.downvotes}</span>
+                      <ChevronDown className="w-3 h-3 text-red-600 group-hover/finding:scale-110 transition-transform duration-300" />
+                      <span className="text-secondary-text group-hover/finding:text-primary-text transition-colors duration-300">{finding.downvotes}</span>
                     </div>
-                    <div className={`text-xs font-medium px-2 py-1 rounded transition-all duration-300 group-hover:scale-105 ${
-                      finding.score > 0 ? 'bg-green-100 text-green-700 group-hover:bg-green-200' :
-                      finding.score < 0 ? 'bg-red-100 text-red-700 group-hover:bg-red-200' :
-                      'bg-gray-100 text-gray-700 group-hover:bg-gray-200'
+                    <div className={`text-xs font-medium px-2 py-1 rounded transition-all duration-300 group-hover/finding:scale-105 ${
+                      finding.score > 0 ? 'bg-green-100 text-green-700 group-hover/finding:bg-green-200' :
+                      finding.score < 0 ? 'bg-red-100 text-red-700 group-hover/finding:bg-red-200' :
+                      'bg-gray-100 text-gray-700 group-hover/finding:bg-gray-200'
                     }`}>
                       {finding.score > 0 ? '+' : ''}{finding.score}
                     </div>
@@ -244,6 +245,13 @@ export function CommunityFeedWidget() {
           </div>
         </div>
       )}
+
+      {/* Custom CSS for text glow effect */}
+      <style jsx>{`
+        .group:hover .group-hover\\:text-shadow-glow {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
+        }
+      `}</style>
     </div>
   );
 }
