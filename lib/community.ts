@@ -13,10 +13,10 @@ export interface CommunityFinding {
   experiment_id: string | null;
   created_at: string;
   updated_at: string;
-  author?: Array<{
+  author?: {
     first_name: string | null;
     last_name: string | null;
-  }> | null;
+  } | null;
 }
 
 export interface FindingVote {
@@ -298,7 +298,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
             created_at: authUser.user.created_at || new Date().toISOString()
           };
           console.log('🔧 [getUserProfile] Returning fallback profile:', fallbackProfile);
-          return fallbackProfile;
+          return fallbackProfile as UserProfile;
         }
         
         console.log(`✅ [getUserProfile] Successfully created profile for user: ${trimmedUserId}`, newUser);
