@@ -85,8 +85,13 @@ export function CommunityFeedWidget() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div 
+      className="space-y-6 hover:shadow-white/30 hover:shadow-2xl transition-shadow duration-300 rounded-2xl p-4 -m-4"
+      style={{
+        filter: 'hover:drop-shadow(0 25px 50px rgba(255, 255, 255, 0.3))'
+      }}
+    >
+      {/* Header - NOW INCLUDED IN THE BOX SHADOW */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
@@ -132,9 +137,7 @@ export function CommunityFeedWidget() {
         </div>
       ) : (
         // Show top findings - Individual items as white containers with interactive effects
-        <div 
-          className="space-y-6 hover:shadow-white/20 hover:shadow-lg transition-shadow duration-300 rounded-2xl p-2 -m-2"
-        >
+        <div className="space-y-6">
           {topFindings.map((finding, index) => (
             <div 
               key={finding.id} 
@@ -142,7 +145,7 @@ export function CommunityFeedWidget() {
               onClick={() => handleFindingClick(finding.id)}
               style={{
                 // Add margin to prevent overlap when rising
-                marginBottom: index < topFindings.length - 1 ? '1rem' : '0'
+                marginBottom: index < topFindings.length - 1 ? '1.5rem' : '0'
               }}
             >
               <div className="space-y-3">
