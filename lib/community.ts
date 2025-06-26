@@ -16,7 +16,7 @@ export interface CommunityFinding {
   author?: {
     first_name: string | null;
     last_name: string | null;
-  };
+  } | null;
 }
 
 export interface FindingVote {
