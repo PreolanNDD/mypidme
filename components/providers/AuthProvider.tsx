@@ -1,4 +1,3 @@
-// components/auth/AuthProvider.tsx - UPDATED
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
@@ -24,27 +23,23 @@ export const useAuth = () => {
   return context;
 };
 
-// 1. Update the component to accept the `serverSession` prop
 export function AuthProvider({
   children,
-  serverSession,
 }: {
   children: React.ReactNode;
-  serverSession: Session | null;
 }) {
-  // 2. Initialize state using the session passed from the server.
-  const [session, setSession] = useState<Session | null>(serverSession);
-  const [user, setUser] = useState<User | null>(serverSession?.user ?? null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<any | null>(null);
-  // 3. Only set `loading` to true initially if the server confirmed there was no session.
-  const [loading, setLoading] = useState(serverSession === null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // (All your refs, console logs, and useCallback hooks remain unchanged)
+  // Refs for managing state and preventing memory leaks
   const fetchingProfileRef = useRef<string | null>(null);
   const profileCacheRef = useRef<Map<string, any>>(new Map());
   const initializationRef = useRef<boolean>(false);
   const subscriptionRef = useRef<any>(null);
+  const mountedRef = useRef<boolean>(true);
 
   console.log('🔐 [AuthProvider] Component rendered with state:', {
     hasUser: !!user,
@@ -56,13 +51,19 @@ export function AuthProvider({
   });
 
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
-    // ...this entire function remains exactly the same...
     console.log('👤 [AuthProvider] fetchUserProfile called:', {
       userId,
       forceRefresh,
       currentlyFetching: fetchingProfileRef.current,
-      hasCachedProfile: profileCacheRef.current.has(userId)
+      hasCachedProfile: profileCacheRef.current.has(userId),
+      isMounted: mountedRef.current
     });
+
+    // Check if component is still mounted
+    if (!mountedRef.current) {
+      console.log('👤 [AuthProvider] Component unmounted, skipping profile fetch');
+      return null;
+    }
 
     if (fetchingProfileRef.current === userId && !forceRefresh) {
       console.log('👤 [AuthProvider] Already fetching profile for user, returning cached or waiting...');
@@ -90,6 +91,12 @@ export function AuthProvider({
         .eq('id', userId)
         .maybeSingle();
       
+      // Check if component is still mounted before updating state
+      if (!mountedRef.current) {
+        console.log('👤 [AuthProvider] Component unmounted during fetch, aborting');
+        return null;
+      }
+      
       if (error) {
         console.log('👤 [AuthProvider] Profile fetch error:', error);
         if (error.code === 'PGRST116') {
@@ -108,6 +115,12 @@ export function AuthProvider({
               .insert(insertData)
               .select()
               .single();
+            
+            // Check if component is still mounted before updating state
+            if (!mountedRef.current) {
+              console.log('👤 [AuthProvider] Component unmounted during profile creation, aborting');
+              return null;
+            }
             
             if (createError) {
               console.error('👤 [AuthProvider] Error creating profile:', createError);
@@ -148,21 +161,23 @@ export function AuthProvider({
     }
   }, [user]);
 
-  // 4. This useEffect hook is still essential for handling real-time changes
-  //    (like logging out in another tab) after the initial load.
+  // FIXED: Initialize auth state and listener early and only once
   useEffect(() => {
-    // ...this entire function remains exactly the same...
+    console.log('🔐 [AuthProvider] === INITIALIZING AUTH PROVIDER ===');
+    
+    // Prevent multiple initializations
     if (initializationRef.current) {
       console.log('🔐 [AuthProvider] Already initialized, skipping...');
       return;
     }
 
-    console.log('🔐 [AuthProvider] === INITIALIZING AUTH PROVIDER ===');
     initializationRef.current = true;
+    mountedRef.current = true;
 
     const supabase = createClient();
     console.log('🔐 [AuthProvider] Supabase client created, setting up auth listener...');
 
+    // FIXED: Set up the auth state change listener immediately
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔐 [AuthProvider] === AUTH STATE CHANGE ===');
@@ -176,11 +191,19 @@ export function AuthProvider({
           tokenType: session?.token_type
         });
 
+        // Check if component is still mounted before updating state
+        if (!mountedRef.current) {
+          console.log('🔐 [AuthProvider] Component unmounted, ignoring auth state change');
+          return;
+        }
+
+        // FIXED: Handle INITIAL_SESSION event properly
         if (event === 'INITIAL_SESSION') {
           console.log('🔐 [AuthProvider] Initial session loaded, setting loading to false');
           setLoading(false);
         }
 
+        // FIXED: Handle token refresh failures gracefully
         if (event === 'TOKEN_REFRESHED' && !session) {
           console.log('🔐 [AuthProvider] Token refresh failed, signing out and redirecting');
           try {
@@ -193,6 +216,7 @@ export function AuthProvider({
           return;
         }
 
+        // FIXED: Determine when to update profile based on event type
         const shouldUpdateProfile = [
           'INITIAL_SESSION',
           'SIGNED_IN',
@@ -202,6 +226,7 @@ export function AuthProvider({
 
         console.log('🔐 [AuthProvider] Should update profile:', shouldUpdateProfile);
 
+        // FIXED: Update session and user state atomically
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -214,10 +239,17 @@ export function AuthProvider({
             profileUserId: userProfile?.id
           });
           
+          // FIXED: Only fetch profile when necessary
           if (shouldUpdateProfile || !userProfile || userProfile.id !== session.user.id) {
             console.log('🔐 [AuthProvider] Fetching user profile...');
-            const profile = await fetchUserProfile(session.user.id);
-            setUserProfile(profile);
+            try {
+              const profile = await fetchUserProfile(session.user.id);
+              if (mountedRef.current) {
+                setUserProfile(profile);
+              }
+            } catch (profileError) {
+              console.error('🔐 [AuthProvider] Error fetching profile:', profileError);
+            }
           } else {
             console.log('🔐 [AuthProvider] Skipping profile fetch - already have current profile');
           }
@@ -227,6 +259,7 @@ export function AuthProvider({
           profileCacheRef.current.clear();
         }
 
+        // FIXED: Handle password recovery properly
         if (event === 'PASSWORD_RECOVERY') {
           console.log('🔐 [AuthProvider] Password recovery detected, redirecting to update-password');
           router.push('/update-password');
@@ -236,33 +269,40 @@ export function AuthProvider({
       }
     );
 
+    // Store subscription reference for cleanup
     subscriptionRef.current = subscription;
     console.log('🔐 [AuthProvider] Auth subscription created and stored');
 
+    // FIXED: Cleanup function to prevent memory leaks
     return () => {
       console.log('🔐 [AuthProvider] === CLEANING UP AUTH PROVIDER ===');
-      subscription?.unsubscribe();
-      subscriptionRef.current = null;
+      mountedRef.current = false;
+      
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
+      
+      // Reset initialization flag for potential remount
       initializationRef.current = false;
       console.log('🔐 [AuthProvider] Cleanup completed');
     };
-  }, [fetchUserProfile, userProfile, router]); // Adjusted dependencies for correctness, though your original was likely fine.
-
+  }, []); // FIXED: Empty dependency array to ensure this runs only once
 
   const refreshUserProfile = useCallback(async () => {
-    // ...this entire function remains exactly the same...
-    if (user) {
+    if (user && mountedRef.current) {
       console.log('🔐 [AuthProvider] Refreshing user profile for:', user.id);
       const profile = await fetchUserProfile(user.id, true);
-      setUserProfile(profile);
+      if (mountedRef.current) {
+        setUserProfile(profile);
+      }
       console.log('🔐 [AuthProvider] Profile refresh completed');
     } else {
-      console.log('🔐 [AuthProvider] Cannot refresh profile - no user');
+      console.log('🔐 [AuthProvider] Cannot refresh profile - no user or component unmounted');
     }
   }, [user, fetchUserProfile]);
   
   const value = useMemo(() => {
-    // ...this entire function remains exactly the same...
     const contextValue = {
       user,
       session,
