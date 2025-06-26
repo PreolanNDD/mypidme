@@ -1,4 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr'
+import type { Database } from '../supabase'
 
 // Create a singleton client instance for the browser
 export const createClient = () => {
@@ -57,7 +58,7 @@ export const createClient = () => {
   
   console.log('✅ [Supabase Client] Environment variables validated successfully');
   
-  const client = createBrowserClient(
+  const client = createBrowserClient<Database>(
     clientUrl,
     clientKey,
     {

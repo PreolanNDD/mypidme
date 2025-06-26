@@ -1,7 +1,13 @@
 import { createClient } from './supabase/client';
 
-// Remove the global instance - each function should create its own client
-// This ensures proper authentication context in browser environments
+// Export the Database type and add complete schema
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
   public: {
@@ -25,6 +31,50 @@ export type Database = {
           id?: string;
           first_name?: string | null;
           last_name?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      community_findings: {
+        Row: {
+          id: string;
+          author_id: string;
+          title: string;
+          content: string;
+          status: string;
+          upvotes: number;
+          downvotes: number;
+          share_data: Json | null;
+          chart_config: Json | null;
+          experiment_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id: string;
+          title: string;
+          content: string;
+          status?: string;
+          upvotes?: number;
+          downvotes?: number;
+          share_data?: Json | null;
+          chart_config?: Json | null;
+          experiment_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          author_id?: string;
+          title?: string;
+          content?: string;
+          status?: string;
+          upvotes?: number;
+          downvotes?: number;
+          share_data?: Json | null;
+          chart_config?: Json | null;
+          experiment_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
