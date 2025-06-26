@@ -394,7 +394,7 @@ export async function createFinding(userId: string, title: string, content: stri
   return {
     ...data,
     author: undefined // Author details not populated for creation operations
-  };
+  } as CommunityFinding;
 }
 
 export async function createFindingWithContext(findingData: {
@@ -444,5 +444,5 @@ export async function createFindingWithContext(findingData: {
   return {
     ...data,
     author: undefined // Author details not populated for creation operations
-  };
+  } as CommunityFinding;
 }
