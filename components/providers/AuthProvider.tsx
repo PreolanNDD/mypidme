@@ -109,7 +109,7 @@ export function AuthProvider({
       try {
         const supabase = createClient();
         
-        // ENHANCED: Add timeout to prevent hanging requests
+        // ENHANCED: Add timeout to prevent hanging requests - increased from 10s to 30s
         const fetchWithTimeout = Promise.race([
           supabase
             .from('users')
@@ -117,7 +117,7 @@ export function AuthProvider({
             .eq('id', userId)
             .maybeSingle(),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+            setTimeout(() => reject(new Error('Profile fetch timeout')), 30000)
           )
         ]);
 
