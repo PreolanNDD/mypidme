@@ -261,4 +261,3 @@ export function CommunityFeedWidget() {
     </div>
   );
 }
-</invoke>
