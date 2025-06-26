@@ -440,12 +440,13 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
       authorData: finding.author
     });
 
-    if (!finding.author) {
+    if (!finding.author || !Array.isArray(finding.author) || finding.author.length === 0) {
       console.log('⚠️ [getAuthorName] No author data found, returning Anonymous');
       return 'Anonymous';
     }
 
-    const { first_name, last_name } = finding.author;
+    const authorData = finding.author[0];
+    const { first_name, last_name } = authorData;
     
     console.log('📝 [getAuthorName] Author name components:', {
       firstName: first_name,

@@ -13,10 +13,10 @@ export interface CommunityFinding {
   experiment_id: string | null;
   created_at: string;
   updated_at: string;
-  author?: {
+  author?: Array<{
     first_name: string | null;
     last_name: string | null;
-  } | null;
+  }> | null;
 }
 
 export interface FindingVote {
