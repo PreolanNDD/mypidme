@@ -86,11 +86,11 @@ export function CommunityFeedWidget() {
 
   return (
     <div className="space-y-6 group">
-      {/* Header - WITH ENHANCED GLOW AND SIZE INCREASE ON HOVER */}
+      {/* Header - WITH REDUCED GLOW ON ICON */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          {/* Icon with glow and size increase */}
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-white/50 flex-shrink-0">
+          {/* Icon with reduced glow and size increase */}
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-md group-hover:shadow-white/30 flex-shrink-0">
             <Users className="w-4 h-4 text-primary transition-all duration-300 group-hover:scale-110" />
           </div>
           
@@ -261,3 +261,4 @@ export function CommunityFeedWidget() {
     </div>
   );
 }
+</invoke>
