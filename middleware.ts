@@ -90,22 +90,38 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  console.log('🔧 [Middleware] Refreshing user authentication...');
+  console.log('🔧 [Middleware] Checking authentication state...');
   
-  // CHANGED: Use getUser() instead of getSession() for better authentication validation
+  // FIXED: Handle auth session missing gracefully - this is expected for unauthenticated users
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
     
-    console.log('🔧 [Middleware] User authentication result:', {
-      hasUser: !!user,
-      userId: user?.id,
-      email: user?.email,
-      lastSignIn: user?.last_sign_in_at,
-      error: error?.message
-    });
-
     if (error) {
-      console.error('❌ [Middleware] User authentication error:', error);
+      // Check if it's the expected "Auth session missing" error for unauthenticated users
+      if (error.message === 'Auth session missing!' || error.name === 'AuthSessionMissingError') {
+        console.log('🔧 [Middleware] No auth session found (user not authenticated) - this is normal for public pages');
+        console.log('🔧 [Middleware] User authentication result:', {
+          hasUser: false,
+          authenticated: false,
+          reason: 'No session'
+        });
+      } else {
+        // Log other types of auth errors
+        console.error('❌ [Middleware] Unexpected authentication error:', {
+          error: error.message,
+          name: error.name,
+          status: error.status
+        });
+      }
+    } else {
+      // Successfully got user (or confirmed no user)
+      console.log('🔧 [Middleware] User authentication result:', {
+        hasUser: !!user,
+        userId: user?.id,
+        email: user?.email,
+        lastSignIn: user?.last_sign_in_at,
+        authenticated: !!user
+      });
     }
   } catch (authError) {
     console.error('❌ [Middleware] Unexpected error during user authentication:', authError);
