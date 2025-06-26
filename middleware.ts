@@ -90,26 +90,25 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  console.log('🔧 [Middleware] Refreshing session...');
+  console.log('🔧 [Middleware] Refreshing user authentication...');
   
-  // Refresh session if expired - required for Server Components
+  // CHANGED: Use getUser() instead of getSession() for better authentication validation
   try {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { user }, error } = await supabase.auth.getUser();
     
-    console.log('🔧 [Middleware] Session refresh result:', {
-      hasSession: !!session,
-      hasUser: !!session?.user,
-      userId: session?.user?.id,
-      email: session?.user?.email,
-      expiresAt: session?.expires_at,
+    console.log('🔧 [Middleware] User authentication result:', {
+      hasUser: !!user,
+      userId: user?.id,
+      email: user?.email,
+      lastSignIn: user?.last_sign_in_at,
       error: error?.message
     });
 
     if (error) {
-      console.error('❌ [Middleware] Session refresh error:', error);
+      console.error('❌ [Middleware] User authentication error:', error);
     }
-  } catch (sessionError) {
-    console.error('❌ [Middleware] Unexpected error during session refresh:', sessionError);
+  } catch (authError) {
+    console.error('❌ [Middleware] Unexpected error during user authentication:', authError);
   }
 
   console.log('🔧 [Middleware] === REQUEST PROCESSING COMPLETED ===');

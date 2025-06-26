@@ -37,7 +37,7 @@ export async function createFindingAction(
     
     console.log('🔐 [createFindingAction] Step 2: Getting authenticated user...');
     
-    // Get the current user with comprehensive error handling
+    // Get the current user with comprehensive error handling - CHANGED FROM getSession() to getUser()
     let user;
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -262,7 +262,7 @@ export async function shareFindingAction(data: ShareFindingData) {
       throw new Error('Authentication service unavailable. Please try again.');
     }
     
-    // Get the current user with error handling
+    // Get the current user with error handling - CHANGED FROM getSession() to getUser()
     let user;
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -371,7 +371,7 @@ export async function castVoteAction(
       return { error: 'Authentication service unavailable. Please try again.' };
     }
     
-    // Get the current user to verify authentication
+    // Get the current user to verify authentication - CHANGED FROM getSession() to getUser()
     let user;
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -509,7 +509,7 @@ export async function reportFindingAction(
       return { error: 'Authentication service unavailable. Please try again.' };
     }
     
-    // Get the current user to verify authentication
+    // Get the current user to verify authentication - CHANGED FROM getSession() to getUser()
     let user;
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
