@@ -503,4 +503,3 @@ export function AuthProvider({
     </AuthContext.Provider>
   );
 }
-```
