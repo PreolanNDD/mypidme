@@ -86,19 +86,22 @@ export function CommunityFeedWidget() {
 
   return (
     <div className="space-y-6 group">
-      {/* Header - WITH GLOW AND SIZE INCREASE ON HOVER */}
+      {/* Header - WITH ENHANCED GLOW AND SIZE INCREASE ON HOVER */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           {/* Icon with glow and size increase */}
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-white/50">
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-white/50 flex-shrink-0">
             <Users className="w-4 h-4 text-primary transition-all duration-300 group-hover:scale-110" />
           </div>
-          <div>
+          
+          {/* Text content moved to the right with enhanced effects */}
+          <div className="transition-all duration-300 group-hover:translate-x-2">
             {/* Heading with glow and size increase */}
             <h3 className="font-heading text-lg text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
               Community Insights
             </h3>
-            <p className="text-sm transition-colors duration-300 group-hover:text-white" style={{ color: '#e6e2eb' }}>
+            {/* Description with glow and size increase */}
+            <p className="text-sm transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
               Top discoveries from the community
             </p>
           </div>
@@ -246,12 +249,16 @@ export function CommunityFeedWidget() {
         </div>
       )}
 
-      {/* Custom CSS for text glow effect */}
+      {/* Enhanced Custom CSS for text glow effects */}
       <style jsx>{`
         .group:hover .group-hover\\:text-shadow-glow {
           text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
+        }
+        .group:hover .group-hover\\:text-shadow-glow-subtle {
+          text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 16px rgba(255, 255, 255, 0.4), 0 0 24px rgba(255, 255, 255, 0.2);
         }
       `}</style>
     </div>
   );
 }
+</invoke>
