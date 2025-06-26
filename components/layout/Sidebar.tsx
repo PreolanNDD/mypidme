@@ -39,6 +39,16 @@ export function Sidebar() {
     setIsOpen(!isOpen);
   };
 
+  // Enhanced prefetch function for better navigation performance
+  const handleLinkHover = (href: string) => {
+    try {
+      // Prefetch the page for faster navigation
+      router.prefetch(href);
+    } catch (error) {
+      console.warn('Failed to prefetch route:', href, error);
+    }
+  };
+
   const handleLogout = async () => {
     if (loggingOut) return;
     
@@ -52,12 +62,6 @@ export function Sidebar() {
     } finally {
       setLoggingOut(false);
     }
-  };
-
-  // Enhanced prefetch function for better navigation performance
-  const handleLinkHover = (href: string) => {
-    // Prefetch the page for faster navigation
-    router.prefetch(href);
   };
 
   return (

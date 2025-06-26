@@ -31,24 +31,72 @@ export default function LabPage() {
   const [experimentToDelete, setExperimentToDelete] = useState<Experiment | null>(null);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
 
-  // Fetch trackable items
-  const { data: trackableItems = [], isLoading: loadingItems } = useQuery<TrackableItem[]>({
+  // Enhanced error handling for trackable items
+  const { data: trackableItems = [], isLoading: loadingItems, error: itemsError } = useQuery<TrackableItem[]>({
     queryKey: ['trackableItems', user?.id],
-    queryFn: () => getTrackableItems(user!.id),
+    queryFn: async () => {
+      if (!user?.id) {
+        console.warn('No user ID available for trackable items fetch');
+        return [];
+      }
+      try {
+        return await getTrackableItems(user.id);
+      } catch (error) {
+        console.error('Error fetching trackable items:', error);
+        throw error;
+      }
+    },
     enabled: !!user?.id,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 20 * 60 * 1000, // 20 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors
+      if (error?.message?.includes('auth') || error?.message?.includes('unauthorized')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 
-  // Fetch experiments
-  const { data: experiments = [], isLoading: loadingExperiments } = useQuery<Experiment[]>({
+  // Enhanced error handling for experiments
+  const { data: experiments = [], isLoading: loadingExperiments, error: experimentsError } = useQuery<Experiment[]>({
     queryKey: ['experiments', user?.id],
-    queryFn: () => getExperiments(user!.id),
+    queryFn: async () => {
+      if (!user?.id) {
+        console.warn('No user ID available for experiments fetch');
+        return [];
+      }
+      try {
+        return await getExperiments(user.id);
+      } catch (error) {
+        console.error('Error fetching experiments:', error);
+        throw error;
+      }
+    },
     enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry on auth errors
+      if (error?.message?.includes('auth') || error?.message?.includes('unauthorized')) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 
-  // Fetch experiment progress data for all experiments
+  // Enhanced error handling for experiment progress data
   const { data: experimentProgressData = {} } = useQuery({
     queryKey: ['experimentProgress', user?.id, experiments.map(e => e.id)],
     queryFn: async () => {
+      if (!user?.id || experiments.length === 0) {
+        return {};
+      }
+
       const progressMap: Record<string, { daysWithData: number; totalDays: number }> = {};
       
       for (const experiment of experiments) {
@@ -66,7 +114,7 @@ export default function LabPage() {
           const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
           progressMap[experiment.id] = {
             daysWithData: 0,
-            totalDays
+            totalDays: Math.max(totalDays, 1) // Ensure at least 1 day
           };
         }
       }
@@ -75,66 +123,123 @@ export default function LabPage() {
     },
     enabled: !!user?.id && experiments.length > 0,
     staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnMount: false,
+    retry: 1,
   });
 
-  // Update experiment status mutation
+  // Update experiment status mutation with enhanced error handling
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'ACTIVE' | 'COMPLETED' }) => 
-      updateExperimentStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: 'ACTIVE' | 'COMPLETED' }) => {
+      if (!id || !status) {
+        throw new Error('Invalid experiment ID or status');
+      }
+      return updateExperimentStatus(id, status);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['experiments', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['experimentProgress', user?.id] });
     },
+    onError: (error) => {
+      console.error('Error updating experiment status:', error);
+      alert(`Failed to update experiment status: ${error.message}`);
+    },
   });
 
-  // Delete experiment mutation
+  // Delete experiment mutation with enhanced error handling
   const deleteMutation = useMutation({
-    mutationFn: deleteExperiment,
+    mutationFn: (id: string) => {
+      if (!id) {
+        throw new Error('Invalid experiment ID');
+      }
+      return deleteExperiment(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['experiments', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['experimentProgress', user?.id] });
       setShowDeleteDialog(false);
       setExperimentToDelete(null);
     },
+    onError: (error) => {
+      console.error('Error deleting experiment:', error);
+      alert(`Failed to delete experiment: ${error.message}`);
+      setShowDeleteDialog(false);
+      setExperimentToDelete(null);
+    },
   });
 
-  // Separate metrics by category
-  const inputMetrics = useMemo(() => 
-    trackableItems.filter(item => item.category === 'INPUT'), 
-    [trackableItems]
-  );
+  // Separate metrics by category with null checks
+  const inputMetrics = useMemo(() => {
+    if (!Array.isArray(trackableItems)) {
+      console.warn('trackableItems is not an array:', trackableItems);
+      return [];
+    }
+    return trackableItems.filter(item => item && item.category === 'INPUT');
+  }, [trackableItems]);
   
-  const outputMetrics = useMemo(() => 
-    trackableItems.filter(item => item.category === 'OUTPUT' && (item.type === 'SCALE_1_10' || item.type === 'NUMERIC')), 
-    [trackableItems]
-  );
+  const outputMetrics = useMemo(() => {
+    if (!Array.isArray(trackableItems)) {
+      console.warn('trackableItems is not an array:', trackableItems);
+      return [];
+    }
+    return trackableItems.filter(item => 
+      item && 
+      item.category === 'OUTPUT' && 
+      (item.type === 'SCALE_1_10' || item.type === 'NUMERIC')
+    );
+  }, [trackableItems]);
 
-  // Separate experiments by status
+  // Separate experiments by status with enhanced error handling
   const activeExperiments = useMemo(() => {
+    if (!Array.isArray(experiments)) {
+      console.warn('experiments is not an array:', experiments);
+      return [];
+    }
+
     const today = new Date().toISOString().split('T')[0];
     return experiments.filter(exp => {
+      if (!exp || !exp.id || !exp.status) {
+        console.warn('Invalid experiment object:', exp);
+        return false;
+      }
+
       // Auto-update status if end date has passed
-      if (exp.status === 'ACTIVE' && exp.end_date < today) {
-        updateStatusMutation.mutate({ id: exp.id, status: 'COMPLETED' });
+      if (exp.status === 'ACTIVE' && exp.end_date && exp.end_date < today) {
+        // Only update if mutation is not already pending
+        if (!updateStatusMutation.isPending) {
+          updateStatusMutation.mutate({ id: exp.id, status: 'COMPLETED' });
+        }
         return false; // Don't show in active until refetch
       }
       return exp.status === 'ACTIVE';
     });
   }, [experiments, updateStatusMutation]);
 
-  const completedExperiments = useMemo(() => 
-    experiments.filter(exp => exp.status === 'COMPLETED'), 
-    [experiments]
-  );
+  const completedExperiments = useMemo(() => {
+    if (!Array.isArray(experiments)) {
+      console.warn('experiments is not an array:', experiments);
+      return [];
+    }
+    return experiments.filter(exp => exp && exp.status === 'COMPLETED');
+  }, [experiments]);
 
   const experimentsToDisplay = activeTab === 'active' ? activeExperiments : completedExperiments;
 
   const handleEditExperiment = (experiment: Experiment) => {
+    if (!experiment || !experiment.id) {
+      console.error('Invalid experiment for editing:', experiment);
+      return;
+    }
     setSelectedExperiment(experiment);
     setShowEditDialog(true);
   };
 
   const handleViewResults = async (experiment: Experiment) => {
+    if (!experiment || !experiment.id) {
+      console.error('Invalid experiment for viewing results:', experiment);
+      return;
+    }
+
     setAnalyzingId(experiment.id);
     try {
       const results = await analyzeExperimentResults(experiment);
@@ -142,46 +247,70 @@ export default function LabPage() {
       setShowResultsDialog(true);
     } catch (error) {
       console.error('Failed to analyze experiment:', error);
-      alert('Failed to analyze experiment results');
+      alert(`Failed to analyze experiment results: ${error.message}`);
     } finally {
       setAnalyzingId(null);
     }
   };
 
   const handleViewProgress = async (experiment: Experiment) => {
+    if (!experiment || !experiment.id) {
+      console.error('Invalid experiment for viewing progress:', experiment);
+      return;
+    }
+
     setAnalyzingId(experiment.id);
     try {
       const results = await analyzeExperimentResults(experiment);
       setSelectedResults(results);
       setShowResultsDialog(true);
     } catch (error) {
-      console.error('Failed to analyze experiment:', error);
-      alert('Failed to analyze experiment progress');
+      console.error('Failed to analyze experiment progress:', error);
+      alert(`Failed to analyze experiment progress: ${error.message}`);
     } finally {
       setAnalyzingId(null);
     }
   };
 
   const handleCompleteExperiment = (id: string) => {
+    if (!id) {
+      console.error('Invalid experiment ID for completion');
+      return;
+    }
     updateStatusMutation.mutate({ id, status: 'COMPLETED' });
   };
 
   const handleReactivateExperiment = (id: string) => {
+    if (!id) {
+      console.error('Invalid experiment ID for reactivation');
+      return;
+    }
     updateStatusMutation.mutate({ id, status: 'ACTIVE' });
   };
 
   const handleDeleteExperiment = (experiment: Experiment) => {
+    if (!experiment || !experiment.id) {
+      console.error('Invalid experiment for deletion:', experiment);
+      return;
+    }
     setExperimentToDelete(experiment);
     setShowDeleteDialog(true);
   };
 
   const handleConfirmDelete = () => {
-    if (experimentToDelete) {
+    if (experimentToDelete && experimentToDelete.id) {
       deleteMutation.mutate(experimentToDelete.id);
+    } else {
+      console.error('No experiment to delete or invalid experiment ID');
     }
   };
 
   const handleShareFinding = (results: ExperimentResults) => {
+    if (!results || !results.experiment || !results.experiment.id) {
+      console.error('Invalid experiment results for sharing:', results);
+      return;
+    }
+
     // Navigate to community/new with experiment context and prepopulated data
     const params = new URLSearchParams({
       type: 'experiment',
@@ -192,21 +321,55 @@ export default function LabPage() {
   };
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+    if (!dateStr) return 'Invalid Date';
+    try {
+      return new Date(dateStr).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+    } catch (error) {
+      console.error('Error formatting date:', dateStr, error);
+      return 'Invalid Date';
+    }
   };
 
   const getExperimentDuration = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    return `${days} day${days !== 1 ? 's' : ''}`;
+    if (!startDate || !endDate) return '0 days';
+    try {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      return `${Math.max(days, 1)} day${days !== 1 ? 's' : ''}`;
+    } catch (error) {
+      console.error('Error calculating experiment duration:', startDate, endDate, error);
+      return '0 days';
+    }
   };
 
   const isLoading = loadingItems || loadingExperiments;
+
+  // Handle errors gracefully
+  if (itemsError || experimentsError) {
+    console.error('Lab page errors:', { itemsError, experimentsError });
+    return (
+      <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="font-heading text-2xl text-white mb-4">Unable to Load Lab</h1>
+          <p style={{ color: '#e6e2eb' }} className="mb-6">
+            There was an error loading your lab data. Please try refreshing the page.
+          </p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+            style={{ color: '#4a2a6d' }}
+          >
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -252,7 +415,7 @@ export default function LabPage() {
                   <p>✓ Input metrics: {inputMetrics.length} created</p>
                   <p>✓ Output metrics: {outputMetrics.length} created</p>
                 </div>
-                <Button onClick={() => window.location.href = '/log'}>
+                <Button onClick={() => router.push('/log')}>
                   Create Your Metrics
                 </Button>
               </CardContent>
@@ -305,6 +468,11 @@ export default function LabPage() {
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {experimentsToDisplay.map((experiment) => {
+                    if (!experiment || !experiment.id) {
+                      console.warn('Skipping invalid experiment:', experiment);
+                      return null;
+                    }
+
                     const progressData = experimentProgressData[experiment.id];
                     
                     return (
@@ -314,7 +482,7 @@ export default function LabPage() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h4 className="font-heading text-lg text-primary-text mb-2">
-                                {experiment.title}
+                                {experiment.title || 'Untitled Experiment'}
                               </h4>
                               <div className="flex items-center space-x-2 mb-3">
                                 {experiment.status === 'ACTIVE' ? (
@@ -346,13 +514,13 @@ export default function LabPage() {
                                 <div 
                                   className="h-2 rounded-full transition-all duration-500 ease-out bg-primary"
                                   style={{ 
-                                    width: `${progressData.totalDays > 0 ? (progressData.daysWithData / progressData.totalDays) * 100 : 0}%` 
+                                    width: `${progressData.totalDays > 0 ? Math.min(100, (progressData.daysWithData / progressData.totalDays) * 100) : 0}%` 
                                   }}
                                 ></div>
                               </div>
                               {progressData.totalDays > 0 && (
                                 <p className="text-xs text-secondary-text">
-                                  {Math.round((progressData.daysWithData / progressData.totalDays) * 100)}% data completeness
+                                  {Math.round(Math.min(100, (progressData.daysWithData / progressData.totalDays) * 100))}% data completeness
                                 </p>
                               )}
                             </div>
@@ -370,24 +538,26 @@ export default function LabPage() {
                               <Target className="w-4 h-4 text-accent-1" />
                               <span className="text-secondary-text">Cause:</span>
                               <span className="font-medium text-primary-text">
-                                {experiment.independent_variable?.name}
+                                {experiment.independent_variable?.name || 'Unknown Variable'}
                               </span>
                             </div>
                             <div className="flex items-center space-x-2 text-sm">
                               <TrendingUp className="w-4 h-4 text-accent-2" />
                               <span className="text-secondary-text">Effect:</span>
                               <span className="font-medium text-primary-text">
-                                {experiment.dependent_variable?.name}
+                                {experiment.dependent_variable?.name || 'Unknown Variable'}
                               </span>
                             </div>
                           </div>
 
                           {/* Hypothesis */}
-                          <div className="p-3 bg-gray-50 rounded-lg">
-                            <p className="text-sm text-secondary-text italic">
-                              "{experiment.hypothesis}"
-                            </p>
-                          </div>
+                          {experiment.hypothesis && (
+                            <div className="p-3 bg-gray-50 rounded-lg">
+                              <p className="text-sm text-secondary-text italic">
+                                "{experiment.hypothesis}"
+                              </p>
+                            </div>
+                          )}
 
                           {/* Actions */}
                           <div className="flex items-center justify-between pt-2">

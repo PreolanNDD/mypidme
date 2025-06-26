@@ -55,8 +55,17 @@ export async function getExperiments(userId: string): Promise<Experiment[]> {
       throw new Error(`Failed to fetch experiments: ${error.message}`);
     }
 
-    console.log('Fetched experiments:', data?.length || 0);
-    return data || [];
+    // Validate and filter out any invalid experiments
+    const validExperiments = (data || []).filter(experiment => {
+      if (!experiment || !experiment.id) {
+        console.warn('Filtering out invalid experiment:', experiment);
+        return false;
+      }
+      return true;
+    });
+
+    console.log('Fetched experiments:', validExperiments.length);
+    return validExperiments;
   } catch (error) {
     console.error('Unexpected error in getExperiments:', error);
     throw error;
@@ -68,6 +77,26 @@ export async function createExperiment(experiment: Omit<Experiment, 'id' | 'crea
   
   if (!experiment.user_id) {
     throw new Error('user_id is required to create experiment');
+  }
+
+  // Validate required fields
+  if (!experiment.title?.trim()) {
+    throw new Error('Title is required');
+  }
+  if (!experiment.hypothesis?.trim()) {
+    throw new Error('Hypothesis is required');
+  }
+  if (!experiment.independent_variable_id) {
+    throw new Error('Independent variable is required');
+  }
+  if (!experiment.dependent_variable_id) {
+    throw new Error('Dependent variable is required');
+  }
+  if (!experiment.start_date) {
+    throw new Error('Start date is required');
+  }
+  if (!experiment.end_date) {
+    throw new Error('End date is required');
   }
 
   const supabase = createClient();
@@ -86,6 +115,10 @@ export async function createExperiment(experiment: Omit<Experiment, 'id' | 'crea
     if (error) {
       console.error('Error creating experiment:', error);
       throw new Error(`Failed to create experiment: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('No data returned from experiment creation');
     }
 
     console.log('Created experiment:', data);
@@ -122,6 +155,10 @@ export async function updateExperiment(id: string, updates: Partial<Omit<Experim
       throw new Error(`Failed to update experiment: ${error.message}`);
     }
 
+    if (!data) {
+      throw new Error('No data returned from experiment update');
+    }
+
     console.log('Updated experiment:', data);
     return data;
   } catch (error) {
@@ -135,6 +172,10 @@ export async function updateExperimentStatus(id: string, status: 'ACTIVE' | 'COM
   
   if (!id) {
     throw new Error('id is required to update experiment status');
+  }
+
+  if (!status || !['ACTIVE', 'COMPLETED'].includes(status)) {
+    throw new Error('Valid status is required (ACTIVE or COMPLETED)');
   }
 
   const supabase = createClient();
@@ -156,6 +197,10 @@ export async function updateExperimentStatus(id: string, status: 'ACTIVE' | 'COM
       throw new Error(`Failed to update experiment status: ${error.message}`);
     }
 
+    if (!data) {
+      throw new Error('No data returned from experiment status update');
+    }
+
     console.log('Updated experiment status:', data);
     return data;
   } catch (error) {
@@ -171,13 +216,22 @@ export async function analyzeExperimentResults(experiment: Experiment): Promise<
     throw new Error('user_id is required to analyze experiment results');
   }
 
+  if (!experiment.start_date || !experiment.end_date) {
+    throw new Error('Start and end dates are required for analysis');
+  }
+
   const supabase = createClient();
 
   try {
-    // Calculate total days in experiment (inclusive)
+    // Calculate total days in experiment (inclusive) with validation
     const startDate = new Date(experiment.start_date);
     const endDate = new Date(experiment.end_date);
-    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      throw new Error('Invalid start or end date');
+    }
+
+    const totalDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
 
     // Generate array of all expected dates
     const expectedDates: string[] = [];
@@ -204,7 +258,7 @@ export async function analyzeExperimentResults(experiment: Experiment): Promise<
 
     // Group entries by date
     const entriesByDate = new Map<string, Map<string, number>>();
-    entries?.forEach(entry => {
+    (entries || []).forEach(entry => {
       let value: number | null = null;
       
       if (entry.numeric_value !== null && entry.numeric_value !== undefined) {
