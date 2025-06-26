@@ -68,8 +68,8 @@ export function CommunityFeedWidget() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Users className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <Users className="w-4 h-4 text-primary" />
           </div>
           <h3 className="font-heading text-lg text-white">Community Insights</h3>
         </div>
@@ -89,8 +89,8 @@ export function CommunityFeedWidget() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Users className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <Users className="w-4 h-4 text-primary" />
           </div>
           <div>
             <h3 className="font-heading text-lg text-white">Community Insights</h3>
@@ -123,7 +123,8 @@ export function CommunityFeedWidget() {
           </p>
           <Button 
             onClick={handleViewCommunity} 
-            className="w-full sm:w-auto bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+            className="w-full sm:w-auto bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+            style={{ color: '#4a2a6d' }}
           >
             <Users className="w-4 h-4 mr-2" />
             Explore Community
@@ -225,7 +226,8 @@ export function CommunityFeedWidget() {
               variant="outline"
               size="sm"
               onClick={handleViewCommunity}
-              className="w-full bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+              className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+              style={{ color: '#4a2a6d' }}
             >
               <TrendingUp className="w-4 h-4 mr-2" />
               Discover More Insights
