@@ -110,7 +110,7 @@ export function CommunityFeedWidget() {
           variant="ghost"
           size="sm"
           onClick={handleViewCommunity}
-          className="text-white hover:bg-white/10"
+          className="text-white hover:bg-white/10 hover:text-white"
         >
           View All
           <ArrowRight className="w-4 h-4 ml-1" />
@@ -226,7 +226,7 @@ export function CommunityFeedWidget() {
                 variant="ghost"
                 size="sm"
                 onClick={handleViewCommunity}
-                className="text-white hover:bg-white/10"
+                className="text-white hover:bg-white/10 hover:text-white"
               >
                 +{findings.length - 3} more finding{findings.length - 3 !== 1 ? 's' : ''}
               </Button>
