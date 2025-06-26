@@ -3,7 +3,6 @@
 import React from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getCommunityFindings } from '@/lib/community';
-import { CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { Users, ChevronUp, ChevronDown, User, Calendar, ArrowRight, MessageSquare, TrendingUp } from 'lucide-react';
@@ -66,176 +65,174 @@ export function CommunityFeedWidget() {
 
   if (isLoading) {
     return (
-      <>
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-white" />
-            </div>
-            <h3 className="font-heading text-lg text-primary-text">Community Insights</h3>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <Users className="w-4 h-4 text-white" />
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
-            ))}
-          </div>
-        </CardContent>
-      </>
+          <h3 className="font-heading text-lg text-white">Community Insights</h3>
+        </div>
+
+        {/* Loading State */}
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
+          ))}
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <h3 className="font-heading text-lg text-primary-text">Community Insights</h3>
-              <p className="text-sm text-secondary-text">Top discoveries from the community</p>
-            </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <Users className="w-4 h-4 text-white" />
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleViewCommunity}
-            className="text-primary hover:text-primary/80"
+          <div>
+            <h3 className="font-heading text-lg text-white">Community Insights</h3>
+            <p className="text-sm" style={{ color: '#e6e2eb' }}>Top discoveries from the community</p>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleViewCommunity}
+          className="text-white hover:bg-white/10"
+        >
+          View All
+          <ArrowRight className="w-4 h-4 ml-1" />
+        </Button>
+      </div>
+
+      {/* Content */}
+      {topFindings.length === 0 ? (
+        // No findings available
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center border border-white/20">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageSquare className="w-8 h-8 text-gray-400" />
+          </div>
+          <h4 className="font-heading text-lg text-primary-text mb-2">
+            No Community Findings Yet
+          </h4>
+          <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
+            Be the first to share your insights and discoveries with the community!
+          </p>
+          <Button 
+            onClick={handleViewCommunity} 
+            className="w-full sm:w-auto bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
           >
-            View All
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <Users className="w-4 h-4 mr-2" />
+            Explore Community
           </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        {topFindings.length === 0 ? (
-          // No findings available
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageSquare className="w-8 h-8 text-gray-400" />
-            </div>
-            <h4 className="font-heading text-lg text-primary-text mb-2">
-              No Community Findings Yet
-            </h4>
-            <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
-              Be the first to share your insights and discoveries with the community!
-            </p>
-            <Button 
-              onClick={handleViewCommunity} 
-              className="w-full sm:w-auto bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+      ) : (
+        // Show top findings - Individual items as white containers
+        <div className="space-y-4">
+          {topFindings.map((finding, index) => (
+            <div 
+              key={finding.id} 
+              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 hover:shadow-3xl transition-all duration-200 cursor-pointer group border border-white/20"
+              onClick={() => handleFindingClick(finding.id)}
             >
-              <Users className="w-4 h-4 mr-2" />
-              Explore Community
-            </Button>
-          </div>
-        ) : (
-          // Show top findings - Remove container and style individual items
-          <div className="space-y-4">
-            {topFindings.map((finding, index) => (
-              <div 
-                key={finding.id} 
-                className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 hover:shadow-3xl transition-all duration-200 cursor-pointer group border border-white/20"
-                onClick={() => handleFindingClick(finding.id)}
-              >
-                <div className="space-y-3">
-                  {/* Header with ranking */}
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                        index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                        index === 1 ? 'bg-gray-100 text-gray-700' :
-                        'bg-orange-100 text-orange-700'
-                      }`}>
-                        {index + 1}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-primary-text truncate group-hover:text-primary transition-colors">
-                        {finding.title}
-                      </h4>
-                      <p className="text-sm text-secondary-text mt-1">
-                        {truncateContent(finding.content)}
-                      </p>
+              <div className="space-y-3">
+                {/* Header with ranking */}
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                      index === 1 ? 'bg-gray-100 text-gray-700' :
+                      'bg-orange-100 text-orange-700'
+                    }`}>
+                      {index + 1}
                     </div>
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-primary-text truncate group-hover:text-primary transition-colors">
+                      {finding.title}
+                    </h4>
+                    <p className="text-sm text-secondary-text mt-1">
+                      {truncateContent(finding.content)}
+                    </p>
+                  </div>
+                </div>
 
-                  {/* Meta information */}
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-1">
-                        <User className="w-3 h-3 text-secondary-text" />
-                        <span className="text-secondary-text">
-                          {getAuthorName(finding)}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-3 h-3 text-secondary-text" />
-                        <span className="text-secondary-text">
-                          {formatDate(finding.created_at)}
-                        </span>
-                      </div>
-                      {finding.share_data && (
-                        <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
-                          Data
-                        </Badge>
-                      )}
+                {/* Meta information */}
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-1">
+                      <User className="w-3 h-3 text-secondary-text" />
+                      <span className="text-secondary-text">
+                        {getAuthorName(finding)}
+                      </span>
                     </div>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-3 h-3 text-secondary-text" />
+                      <span className="text-secondary-text">
+                        {formatDate(finding.created_at)}
+                      </span>
+                    </div>
+                    {finding.share_data && (
+                      <Badge variant="outline" className="text-xs text-blue-700 border-blue-300">
+                        Data
+                      </Badge>
+                    )}
+                  </div>
 
-                    {/* Vote summary */}
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center space-x-1">
-                        <ChevronUp className="w-3 h-3 text-green-600" />
-                        <span className="text-secondary-text">{finding.upvotes}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <ChevronDown className="w-3 h-3 text-red-600" />
-                        <span className="text-secondary-text">{finding.downvotes}</span>
-                      </div>
-                      <div className={`text-xs font-medium px-2 py-1 rounded ${
-                        finding.score > 0 ? 'bg-green-100 text-green-700' :
-                        finding.score < 0 ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {finding.score > 0 ? '+' : ''}{finding.score}
-                      </div>
+                  {/* Vote summary */}
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
+                      <ChevronUp className="w-3 h-3 text-green-600" />
+                      <span className="text-secondary-text">{finding.upvotes}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <ChevronDown className="w-3 h-3 text-red-600" />
+                      <span className="text-secondary-text">{finding.downvotes}</span>
+                    </div>
+                    <div className={`text-xs font-medium px-2 py-1 rounded ${
+                      finding.score > 0 ? 'bg-green-100 text-green-700' :
+                      finding.score < 0 ? 'bg-red-100 text-red-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {finding.score > 0 ? '+' : ''}{finding.score}
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
 
-            {/* Show more findings indicator */}
-            {findings.length > 3 && (
-              <div className="text-center pt-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleViewCommunity}
-                  className="text-primary hover:text-primary/80"
-                >
-                  +{findings.length - 3} more finding{findings.length - 3 !== 1 ? 's' : ''}
-                </Button>
-              </div>
-            )}
-
-            {/* Trending insights footer */}
-            <div className="pt-2 border-t border-gray-200">
+          {/* Show more findings indicator */}
+          {findings.length > 3 && (
+            <div className="text-center pt-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={handleViewCommunity}
-                className="w-full bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+                className="text-white hover:bg-white/10"
               >
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Discover More Insights
+                +{findings.length - 3} more finding{findings.length - 3 !== 1 ? 's' : ''}
               </Button>
             </div>
+          )}
+
+          {/* Trending insights footer */}
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleViewCommunity}
+              className="w-full bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Discover More Insights
+            </Button>
           </div>
-        )}
-      </CardContent>
-    </>
+        </div>
+      )}
+    </div>
   );
 }
