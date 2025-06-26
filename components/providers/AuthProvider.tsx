@@ -51,6 +51,7 @@ export function AuthProvider({
   const mountedRef = useRef<boolean>(true);
   const profileFetchPromiseRef = useRef<Map<string, Promise<any>>>(new Map());
   const retryCountRef = useRef<Map<string, number>>(new Map());
+  const initialDataProcessedRef = useRef<boolean>(false);
 
   console.log('🔐 [AuthProvider] Component rendered with initial data:', {
     hasUser: !!user,
@@ -59,13 +60,15 @@ export function AuthProvider({
     hasProfile: !!userProfile,
     profileUserId: userProfile?.id,
     loading,
-    isInitialized: initializationRef.current
+    isInitialized: initializationRef.current,
+    initialDataProcessed: initialDataProcessedRef.current
   });
 
   // Cache the initial profile data if provided
   useEffect(() => {
-    if (initialAuthData.userProfile && initialAuthData.user) {
+    if (initialAuthData.userProfile && initialAuthData.user && !initialDataProcessedRef.current) {
       profileCacheRef.current.set(initialAuthData.user.id, initialAuthData.userProfile);
+      initialDataProcessedRef.current = true;
       console.log('🔐 [AuthProvider] Cached initial profile data for user:', initialAuthData.user.id);
     }
   }, [initialAuthData]);
@@ -124,7 +127,7 @@ export function AuthProvider({
       try {
         const supabase = createClient();
         
-        // ENHANCED: Add timeout to prevent hanging requests - reduced to 10 seconds
+        // ENHANCED: Add timeout to prevent hanging requests - reduced to 5 seconds for faster failure
         const fetchWithTimeout = Promise.race([
           supabase
             .from('users')
@@ -132,7 +135,7 @@ export function AuthProvider({
             .eq('id', userId)
             .maybeSingle(),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+            setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
           )
         ]);
 
@@ -230,7 +233,7 @@ export function AuthProvider({
         });
         
         // ENHANCED: Implement retry logic for transient errors
-        const maxRetries = 3;
+        const maxRetries = 2; // Reduced from 3 to 2 for faster failure
         if (currentRetryCount < maxRetries && mountedRef.current) {
           const newRetryCount = currentRetryCount + 1;
           retryCountRef.current.set(userId, newRetryCount);
@@ -326,19 +329,17 @@ export function AuthProvider({
             return;
           }
 
-          // ENHANCED: Determine when to update profile based on event type
-          // CRITICAL FIX: Only fetch profile for specific events that actually need it
-          const shouldUpdateProfile = [
-            'SIGNED_IN', // Only when user signs in
-            'USER_UPDATED' // Only when user data is updated
-          ].includes(event);
+          // CRITICAL FIX: Be much more selective about when to fetch profiles
+          // Only fetch profile in very specific cases where we absolutely need fresh data
+          const shouldUpdateProfile = event === 'USER_UPDATED'; // Only when user data is explicitly updated
 
           console.log('🔐 [AuthProvider] Should update profile:', {
             shouldUpdateProfile,
             event,
             hasUser: !!session?.user,
             currentProfileUserId: userProfile?.id,
-            sessionUserId: session?.user?.id
+            sessionUserId: session?.user?.id,
+            hasInitialProfile: !!initialAuthData.userProfile
           });
 
           // ENHANCED: Update session and user state atomically
@@ -357,15 +358,20 @@ export function AuthProvider({
               profileMatchesUser: userProfile?.id === session.user.id
             });
             
-            // CRITICAL FIX: Only fetch profile if we really need to
+            // CRITICAL FIX: Only fetch profile if we absolutely need to
+            // 1. If shouldUpdateProfile is true (USER_UPDATED event)
+            // 2. If we have no profile at all AND no cached profile
+            // 3. If the profile user ID doesn't match the session user ID
+            const hasCachedProfile = profileCacheRef.current.has(session.user.id);
             const needsProfileFetch = shouldUpdateProfile || 
-                                    (!userProfile || userProfile.id !== session.user.id);
+                                    (!userProfile && !hasCachedProfile) || 
+                                    (userProfile && userProfile.id !== session.user.id);
             
             if (needsProfileFetch) {
               console.log('🔐 [AuthProvider] Fetching user profile...', {
                 reason: shouldUpdateProfile ? 'shouldUpdateProfile' : 
-                       !userProfile ? 'noProfile' : 
-                       userProfile.id !== session.user.id ? 'userMismatch' : 'unknown'
+                       (!userProfile && !hasCachedProfile) ? 'noProfile' : 
+                       'userMismatch'
               });
               
               try {
@@ -385,7 +391,16 @@ export function AuthProvider({
                 // Don't clear the profile on error, keep existing one if available
               }
             } else {
-              console.log('🔐 [AuthProvider] Skipping profile fetch - already have current profile');
+              console.log('🔐 [AuthProvider] Skipping profile fetch - already have current profile or cached data');
+              
+              // If we have cached profile but no current profile, use the cached one
+              if (!userProfile && hasCachedProfile) {
+                const cachedProfile = profileCacheRef.current.get(session.user.id);
+                if (cachedProfile && mountedRef.current) {
+                  console.log('🔐 [AuthProvider] Using cached profile data');
+                  setUserProfile(cachedProfile);
+                }
+              }
             }
           } else if (!session?.user && mountedRef.current) {
             console.log('🔐 [AuthProvider] No user session, clearing profile and cache');
@@ -488,3 +503,4 @@ export function AuthProvider({
     </AuthContext.Provider>
   );
 }
+```
