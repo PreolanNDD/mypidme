@@ -34,29 +34,37 @@ export function AuthProvider({
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Refs for managing state and preventing memory leaks
+  // Enhanced refs for better state management
   const fetchingProfileRef = useRef<string | null>(null);
   const profileCacheRef = useRef<Map<string, any>>(new Map());
   const initializationRef = useRef<boolean>(false);
   const subscriptionRef = useRef<any>(null);
   const mountedRef = useRef<boolean>(true);
+  const profileFetchPromiseRef = useRef<Map<string, Promise<any>>>(new Map());
+  const retryCountRef = useRef<Map<string, number>>(new Map());
 
   console.log('🔐 [AuthProvider] Component rendered with state:', {
     hasUser: !!user,
     userId: user?.id,
     hasSession: !!session,
     hasProfile: !!userProfile,
+    profileUserId: userProfile?.id,
     loading,
     isInitialized: initializationRef.current,
+    cacheSize: profileCacheRef.current.size,
+    currentlyFetching: fetchingProfileRef.current
   });
 
+  // ENHANCED: More robust profile fetching with retry logic and better error handling
   const fetchUserProfile = useCallback(async (userId: string, forceRefresh = false) => {
     console.log('👤 [AuthProvider] fetchUserProfile called:', {
       userId,
       forceRefresh,
       currentlyFetching: fetchingProfileRef.current,
       hasCachedProfile: profileCacheRef.current.has(userId),
-      isMounted: mountedRef.current
+      isMounted: mountedRef.current,
+      hasActivePromise: profileFetchPromiseRef.current.has(userId),
+      retryCount: retryCountRef.current.get(userId) || 0
     });
 
     // Check if component is still mounted
@@ -65,103 +73,182 @@ export function AuthProvider({
       return null;
     }
 
-    if (fetchingProfileRef.current === userId && !forceRefresh) {
-      console.log('👤 [AuthProvider] Already fetching profile for user, returning cached or waiting...');
-      return profileCacheRef.current.get(userId) || null;
+    // FIXED: Return existing promise if already fetching for this user
+    if (profileFetchPromiseRef.current.has(userId) && !forceRefresh) {
+      console.log('👤 [AuthProvider] Profile fetch already in progress, returning existing promise');
+      try {
+        return await profileFetchPromiseRef.current.get(userId);
+      } catch (error) {
+        console.error('👤 [AuthProvider] Error waiting for existing profile fetch:', error);
+        // Continue with new fetch attempt
+      }
     }
 
+    // Return cached profile if available and not forcing refresh
     if (!forceRefresh && profileCacheRef.current.has(userId)) {
       const cachedProfile = profileCacheRef.current.get(userId);
       console.log('👤 [AuthProvider] Returning cached profile:', {
         userId,
-        hasCachedProfile: !!cachedProfile
+        hasCachedProfile: !!cachedProfile,
+        profileData: cachedProfile ? { id: cachedProfile.id, firstName: cachedProfile.first_name } : null
       });
       return cachedProfile;
     }
 
-    fetchingProfileRef.current = userId;
-    console.log('👤 [AuthProvider] Starting profile fetch for user:', userId);
+    // ENHANCED: Create a promise for this fetch operation
+    const fetchPromise = (async () => {
+      fetchingProfileRef.current = userId;
+      const currentRetryCount = retryCountRef.current.get(userId) || 0;
+      
+      console.log('👤 [AuthProvider] Starting profile fetch for user:', {
+        userId,
+        attempt: currentRetryCount + 1,
+        forceRefresh
+      });
 
-    try {
-      const supabase = createClient();
-      
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-      
-      // Check if component is still mounted before updating state
-      if (!mountedRef.current) {
-        console.log('👤 [AuthProvider] Component unmounted during fetch, aborting');
-        return null;
-      }
-      
-      if (error) {
-        console.log('👤 [AuthProvider] Profile fetch error:', error);
-        if (error.code === 'PGRST116') {
-          console.log('👤 [AuthProvider] No profile found, creating new profile...');
-          try {
+      try {
+        const supabase = createClient();
+        
+        // ENHANCED: Add timeout to prevent hanging requests
+        const fetchWithTimeout = Promise.race([
+          supabase
+            .from('users')
+            .select('*')
+            .eq('id', userId)
+            .maybeSingle(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+          )
+        ]);
+
+        const { data, error } = await fetchWithTimeout as any;
+        
+        // Check if component is still mounted before proceeding
+        if (!mountedRef.current) {
+          console.log('👤 [AuthProvider] Component unmounted during fetch, aborting');
+          return null;
+        }
+        
+        if (error) {
+          console.log('👤 [AuthProvider] Profile fetch error:', {
+            error,
+            code: error.code,
+            message: error.message,
+            userId
+          });
+          
+          if (error.code === 'PGRST116') {
+            console.log('👤 [AuthProvider] No profile found, creating new profile...');
+            
+            // ENHANCED: Get user metadata more safely
+            const userMetadata = user?.user_metadata || {};
             const insertData = {
               id: userId,
-              first_name: user?.user_metadata?.first_name || null,
-              last_name: user?.user_metadata?.last_name || null
+              first_name: userMetadata.first_name || null,
+              last_name: userMetadata.last_name || null
             };
             
             console.log('👤 [AuthProvider] Creating profile with data:', insertData);
             
-            const { data: newProfile, error: createError } = await supabase
-              .from('users')
-              .insert(insertData)
-              .select()
-              .single();
-            
-            // Check if component is still mounted before updating state
-            if (!mountedRef.current) {
-              console.log('👤 [AuthProvider] Component unmounted during profile creation, aborting');
-              return null;
+            try {
+              const { data: newProfile, error: createError } = await supabase
+                .from('users')
+                .insert(insertData)
+                .select()
+                .single();
+              
+              // Check if component is still mounted before updating state
+              if (!mountedRef.current) {
+                console.log('👤 [AuthProvider] Component unmounted during profile creation, aborting');
+                return null;
+              }
+              
+              if (createError) {
+                console.error('👤 [AuthProvider] Error creating profile:', createError);
+                throw createError;
+              }
+              
+              console.log('👤 [AuthProvider] Profile created successfully:', {
+                id: newProfile.id,
+                firstName: newProfile.first_name,
+                lastName: newProfile.last_name
+              });
+              
+              // Cache the new profile
+              profileCacheRef.current.set(userId, newProfile);
+              retryCountRef.current.delete(userId); // Reset retry count on success
+              return newProfile;
+              
+            } catch (createErr) {
+              console.error('👤 [AuthProvider] Error creating profile:', createErr);
+              throw createErr;
             }
-            
-            if (createError) {
-              console.error('👤 [AuthProvider] Error creating profile:', createError);
-              return null;
-            }
-            
-            console.log('👤 [AuthProvider] Profile created successfully:', newProfile);
-            profileCacheRef.current.set(userId, newProfile);
-            return newProfile;
-          } catch (createErr) {
-            console.error('👤 [AuthProvider] Unexpected error creating profile:', createErr);
-            return null;
+          } else {
+            // For other errors, throw to trigger retry logic
+            throw error;
           }
         }
         
-        console.error('👤 [AuthProvider] Profile fetch failed with error:', error);
-        return null;
-      }
-      
-      if (data) {
-        console.log('👤 [AuthProvider] Profile fetched successfully:', {
-          userId: data.id,
-          firstName: data.first_name,
-          lastName: data.last_name
+        if (data) {
+          console.log('👤 [AuthProvider] Profile fetched successfully:', {
+            userId: data.id,
+            firstName: data.first_name,
+            lastName: data.last_name,
+            createdAt: data.created_at
+          });
+          
+          // Cache the profile
+          profileCacheRef.current.set(userId, data);
+          retryCountRef.current.delete(userId); // Reset retry count on success
+          return data;
+        } else {
+          console.log('👤 [AuthProvider] No profile data returned, but no error');
+          return null;
+        }
+        
+      } catch (error) {
+        console.error('👤 [AuthProvider] Error in fetchUserProfile:', {
+          error,
+          userId,
+          attempt: currentRetryCount + 1,
+          errorMessage: error instanceof Error ? error.message : 'Unknown error'
         });
-        profileCacheRef.current.set(userId, data);
-      } else {
-        console.log('👤 [AuthProvider] No profile data returned');
+        
+        // ENHANCED: Implement retry logic for transient errors
+        const maxRetries = 3;
+        if (currentRetryCount < maxRetries && mountedRef.current) {
+          const newRetryCount = currentRetryCount + 1;
+          retryCountRef.current.set(userId, newRetryCount);
+          
+          console.log(`👤 [AuthProvider] Retrying profile fetch (${newRetryCount}/${maxRetries}) in 1 second...`);
+          
+          // Wait 1 second before retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          if (mountedRef.current) {
+            // Recursive retry
+            return fetchUserProfile(userId, forceRefresh);
+          }
+        } else {
+          console.error('👤 [AuthProvider] Max retries exceeded or component unmounted, giving up');
+          retryCountRef.current.delete(userId);
+        }
+        
+        return null;
+      } finally {
+        fetchingProfileRef.current = null;
+        profileFetchPromiseRef.current.delete(userId);
+        console.log('👤 [AuthProvider] Profile fetch completed for user:', userId);
       }
-      
-      return data;
-    } catch (error) {
-      console.error('👤 [AuthProvider] Unexpected error in fetchUserProfile:', error);
-      return null;
-    } finally {
-      fetchingProfileRef.current = null;
-      console.log('👤 [AuthProvider] Profile fetch completed for user:', userId);
-    }
+    })();
+
+    // Store the promise for potential reuse
+    profileFetchPromiseRef.current.set(userId, fetchPromise);
+    
+    return fetchPromise;
   }, [user]);
 
-  // FIXED: Initialize auth state and listener early and only once
+  // ENHANCED: Initialize auth state and listener with better error handling
   useEffect(() => {
     console.log('🔐 [AuthProvider] === INITIALIZING AUTH PROVIDER ===');
     
@@ -174,10 +261,18 @@ export function AuthProvider({
     initializationRef.current = true;
     mountedRef.current = true;
 
-    const supabase = createClient();
-    console.log('🔐 [AuthProvider] Supabase client created, setting up auth listener...');
+    let supabase: any;
+    
+    try {
+      supabase = createClient();
+      console.log('🔐 [AuthProvider] Supabase client created successfully');
+    } catch (clientError) {
+      console.error('🔐 [AuthProvider] Failed to create Supabase client:', clientError);
+      setLoading(false);
+      return;
+    }
 
-    // FIXED: Set up the auth state change listener immediately
+    // ENHANCED: Set up the auth state change listener with better error handling
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔐 [AuthProvider] === AUTH STATE CHANGE ===');
@@ -188,7 +283,8 @@ export function AuthProvider({
           userId: session?.user?.id,
           email: session?.user?.email,
           expiresAt: session?.expires_at,
-          tokenType: session?.token_type
+          tokenType: session?.token_type,
+          userMetadata: session?.user?.user_metadata
         });
 
         // Check if component is still mounted before updating state
@@ -197,75 +293,114 @@ export function AuthProvider({
           return;
         }
 
-        // FIXED: Handle INITIAL_SESSION event properly
-        if (event === 'INITIAL_SESSION') {
-          console.log('🔐 [AuthProvider] Initial session loaded, setting loading to false');
-          setLoading(false);
-        }
-
-        // FIXED: Handle token refresh failures gracefully
-        if (event === 'TOKEN_REFRESHED' && !session) {
-          console.log('🔐 [AuthProvider] Token refresh failed, signing out and redirecting');
-          try {
-            await supabase.auth.signOut();
-            router.replace('/login');
-          } catch (signOutError) {
-            console.error('🔐 [AuthProvider] Error during signout:', signOutError);
-            router.replace('/login');
+        try {
+          // ENHANCED: Handle INITIAL_SESSION event properly
+          if (event === 'INITIAL_SESSION') {
+            console.log('🔐 [AuthProvider] Initial session loaded, setting loading to false');
+            setLoading(false);
           }
-          return;
-        }
 
-        // FIXED: Determine when to update profile based on event type
-        const shouldUpdateProfile = [
-          'INITIAL_SESSION',
-          'SIGNED_IN',
-          'TOKEN_REFRESHED',
-          'USER_UPDATED'
-        ].includes(event);
-
-        console.log('🔐 [AuthProvider] Should update profile:', shouldUpdateProfile);
-
-        // FIXED: Update session and user state atomically
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          console.log('🔐 [AuthProvider] User authenticated:', {
-            userId: session.user.id,
-            email: session.user.email,
-            shouldUpdateProfile,
-            hasCurrentProfile: !!userProfile,
-            profileUserId: userProfile?.id
-          });
-          
-          // FIXED: Only fetch profile when necessary
-          if (shouldUpdateProfile || !userProfile || userProfile.id !== session.user.id) {
-            console.log('🔐 [AuthProvider] Fetching user profile...');
+          // ENHANCED: Handle token refresh failures gracefully
+          if (event === 'TOKEN_REFRESHED' && !session) {
+            console.log('🔐 [AuthProvider] Token refresh failed, signing out and redirecting');
             try {
-              const profile = await fetchUserProfile(session.user.id);
+              await supabase.auth.signOut();
               if (mountedRef.current) {
-                setUserProfile(profile);
+                router.replace('/login');
               }
-            } catch (profileError) {
-              console.error('🔐 [AuthProvider] Error fetching profile:', profileError);
+            } catch (signOutError) {
+              console.error('🔐 [AuthProvider] Error during signout:', signOutError);
+              if (mountedRef.current) {
+                router.replace('/login');
+              }
             }
-          } else {
-            console.log('🔐 [AuthProvider] Skipping profile fetch - already have current profile');
+            return;
           }
-        } else {
-          console.log('🔐 [AuthProvider] No user session, clearing profile and cache');
-          setUserProfile(null);
-          profileCacheRef.current.clear();
-        }
 
-        // FIXED: Handle password recovery properly
-        if (event === 'PASSWORD_RECOVERY') {
-          console.log('🔐 [AuthProvider] Password recovery detected, redirecting to update-password');
-          router.push('/update-password');
-        }
+          // ENHANCED: Determine when to update profile based on event type
+          const shouldUpdateProfile = [
+            'INITIAL_SESSION',
+            'SIGNED_IN',
+            'TOKEN_REFRESHED',
+            'USER_UPDATED'
+          ].includes(event);
 
-        console.log('🔐 [AuthProvider] Auth state change processing completed');
+          console.log('🔐 [AuthProvider] Should update profile:', {
+            shouldUpdateProfile,
+            event,
+            hasUser: !!session?.user,
+            currentProfileUserId: userProfile?.id,
+            sessionUserId: session?.user?.id
+          });
+
+          // ENHANCED: Update session and user state atomically
+          if (mountedRef.current) {
+            setSession(session);
+            setUser(session?.user ?? null);
+          }
+          
+          if (session?.user && mountedRef.current) {
+            console.log('🔐 [AuthProvider] User authenticated:', {
+              userId: session.user.id,
+              email: session.user.email,
+              shouldUpdateProfile,
+              hasCurrentProfile: !!userProfile,
+              profileUserId: userProfile?.id,
+              profileMatchesUser: userProfile?.id === session.user.id
+            });
+            
+            // ENHANCED: Always fetch profile for new users or when explicitly needed
+            const needsProfileFetch = shouldUpdateProfile || 
+                                    !userProfile || 
+                                    userProfile.id !== session.user.id ||
+                                    event === 'SIGNED_IN'; // Always fetch on sign in
+            
+            if (needsProfileFetch) {
+              console.log('🔐 [AuthProvider] Fetching user profile...', {
+                reason: shouldUpdateProfile ? 'shouldUpdateProfile' : 
+                       !userProfile ? 'noProfile' : 
+                       userProfile.id !== session.user.id ? 'userMismatch' : 'signIn'
+              });
+              
+              try {
+                const profile = await fetchUserProfile(session.user.id, shouldUpdateProfile);
+                if (mountedRef.current && profile) {
+                  console.log('🔐 [AuthProvider] Setting user profile:', {
+                    profileId: profile.id,
+                    firstName: profile.first_name,
+                    lastName: profile.last_name
+                  });
+                  setUserProfile(profile);
+                } else if (mountedRef.current && !profile) {
+                  console.warn('🔐 [AuthProvider] Profile fetch returned null, user may appear as public');
+                }
+              } catch (profileError) {
+                console.error('🔐 [AuthProvider] Error fetching profile:', profileError);
+                // Don't clear the profile on error, keep existing one if available
+              }
+            } else {
+              console.log('🔐 [AuthProvider] Skipping profile fetch - already have current profile');
+            }
+          } else if (!session?.user && mountedRef.current) {
+            console.log('🔐 [AuthProvider] No user session, clearing profile and cache');
+            setUserProfile(null);
+            profileCacheRef.current.clear();
+            profileFetchPromiseRef.current.clear();
+            retryCountRef.current.clear();
+          }
+
+          // ENHANCED: Handle password recovery properly
+          if (event === 'PASSWORD_RECOVERY' && mountedRef.current) {
+            console.log('🔐 [AuthProvider] Password recovery detected, redirecting to update-password');
+            router.push('/update-password');
+          }
+
+          console.log('🔐 [AuthProvider] Auth state change processing completed');
+          
+        } catch (stateChangeError) {
+          console.error('🔐 [AuthProvider] Error processing auth state change:', stateChangeError);
+          // Don't break the auth flow on errors
+        }
       }
     );
 
@@ -273,30 +408,47 @@ export function AuthProvider({
     subscriptionRef.current = subscription;
     console.log('🔐 [AuthProvider] Auth subscription created and stored');
 
-    // FIXED: Cleanup function to prevent memory leaks
+    // ENHANCED: Cleanup function to prevent memory leaks
     return () => {
       console.log('🔐 [AuthProvider] === CLEANING UP AUTH PROVIDER ===');
       mountedRef.current = false;
       
       if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
+        try {
+          subscriptionRef.current.unsubscribe();
+        } catch (unsubError) {
+          console.error('🔐 [AuthProvider] Error unsubscribing:', unsubError);
+        }
         subscriptionRef.current = null;
       }
+      
+      // Clear all refs
+      profileCacheRef.current.clear();
+      profileFetchPromiseRef.current.clear();
+      retryCountRef.current.clear();
+      fetchingProfileRef.current = null;
       
       // Reset initialization flag for potential remount
       initializationRef.current = false;
       console.log('🔐 [AuthProvider] Cleanup completed');
     };
-  }, []); // FIXED: Empty dependency array to ensure this runs only once
+  }, []); // Empty dependency array to ensure this runs only once
 
+  // ENHANCED: Refresh user profile with better error handling
   const refreshUserProfile = useCallback(async () => {
     if (user && mountedRef.current) {
       console.log('🔐 [AuthProvider] Refreshing user profile for:', user.id);
-      const profile = await fetchUserProfile(user.id, true);
-      if (mountedRef.current) {
-        setUserProfile(profile);
+      try {
+        const profile = await fetchUserProfile(user.id, true);
+        if (mountedRef.current && profile) {
+          setUserProfile(profile);
+          console.log('🔐 [AuthProvider] Profile refresh completed successfully');
+        } else {
+          console.warn('🔐 [AuthProvider] Profile refresh returned null');
+        }
+      } catch (refreshError) {
+        console.error('🔐 [AuthProvider] Error refreshing profile:', refreshError);
       }
-      console.log('🔐 [AuthProvider] Profile refresh completed');
     } else {
       console.log('🔐 [AuthProvider] Cannot refresh profile - no user or component unmounted');
     }
@@ -316,7 +468,9 @@ export function AuthProvider({
       userId: contextValue.user?.id,
       hasSession: !!contextValue.session,
       hasProfile: !!contextValue.userProfile,
-      loading: contextValue.loading
+      profileUserId: contextValue.userProfile?.id,
+      loading: contextValue.loading,
+      profileMatchesUser: contextValue.userProfile?.id === contextValue.user?.id
     });
     
     return contextValue;
