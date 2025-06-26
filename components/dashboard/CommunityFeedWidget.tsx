@@ -78,7 +78,7 @@ export function CommunityFeedWidget() {
         <CardContent>
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
+              <div key={i} className="h-16 bg-gray-100 rounded animate-pulse"></div>
             ))}
           </div>
         </CardContent>
@@ -132,12 +132,12 @@ export function CommunityFeedWidget() {
             </Button>
           </div>
         ) : (
-          // Show top findings
+          // Show top findings - Remove container and style individual items
           <div className="space-y-4">
             {topFindings.map((finding, index) => (
               <div 
                 key={finding.id} 
-                className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group border border-[#8245b5]"
+                className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 hover:shadow-3xl transition-all duration-200 cursor-pointer group border border-white/20"
                 onClick={() => handleFindingClick(finding.id)}
               >
                 <div className="space-y-3">

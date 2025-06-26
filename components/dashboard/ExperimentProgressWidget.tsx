@@ -142,7 +142,7 @@ export function ExperimentProgressWidget() {
             </Button>
           </div>
         ) : (
-          // Show active experiments
+          // Show active experiments - Remove container and style individual items
           <div className="space-y-4">
             {activeExperiments.slice(0, 2).map((experiment) => {
               const progress = getExperimentProgress(experiment.start_date, experiment.end_date);
@@ -150,7 +150,7 @@ export function ExperimentProgressWidget() {
               return (
                 <div 
                   key={experiment.id} 
-                  className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-[#8245b5]" 
+                  className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 hover:shadow-3xl transition-all duration-200 cursor-pointer border border-white/20" 
                   onClick={handleViewAllExperiments}
                 >
                   <div className="space-y-3">
