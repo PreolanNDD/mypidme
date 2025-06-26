@@ -20,8 +20,25 @@ export default function SignUp() {
   const [success, setSuccess] = useState('');
   const router = useRouter();
 
+  console.log('🔐 [SignUp] Component rendered with state:', {
+    email: formData.email,
+    firstName: formData.firstName,
+    lastName: formData.lastName,
+    loading,
+    hasError: !!error,
+    hasSuccess: !!success
+  });
+
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
+  console.log('🔐 [SignUp] === SIGNUP ATTEMPT STARTED ===');
+  console.log('🔐 [SignUp] Form data:', {
+    email: formData.email,
+    firstName: formData.firstName,
+    lastName: formData.lastName,
+    passwordLength: formData.password.length
+  });
+  
   setLoading(true);
   setError('');
   setSuccess('');
@@ -50,8 +67,13 @@ const handleSubmit = async (e: React.FormEvent) => {
     
     console.log('📊 [SignUp] Sign up response:', {
       hasUser: !!data.user,
+      userId: data.user?.id,
+      email: data.user?.email,
       hasSession: !!data.session,
-      identitiesCount: data.user?.identities?.length || 0
+      identitiesCount: data.user?.identities?.length || 0,
+      sessionExpiresAt: data.session?.expires_at,
+      accessTokenLength: data.session?.access_token?.length || 0,
+      refreshTokenLength: data.session?.refresh_token?.length || 0
     });
 
     // Case 1: User already exists.
@@ -80,13 +102,16 @@ const handleSubmit = async (e: React.FormEvent) => {
     setError('An unexpected error occurred. Please try again.');
   } finally {
     setLoading(false);
+    console.log('🔐 [SignUp] === SIGNUP ATTEMPT COMPLETED ===');
   }
 };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    console.log('🔐 [SignUp] Input changed:', { name, valueLength: value.length });
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 

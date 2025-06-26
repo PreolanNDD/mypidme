@@ -13,22 +13,38 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
   const redirectingRef = useRef(false);
 
+  console.log('🔒 [ProtectedRoute] Component rendered with state:', {
+    hasUser: !!user,
+    userId: user?.id,
+    loading,
+    isRedirecting: redirectingRef.current
+  });
+
   useEffect(() => {
+    console.log('🔒 [ProtectedRoute] useEffect triggered:', {
+      loading,
+      hasUser: !!user,
+      userId: user?.id,
+      isRedirecting: redirectingRef.current
+    });
+
     // Only redirect if loading is complete and there's no user
     if (!loading && !user && !redirectingRef.current) {
-      console.log('🔒 [ProtectedRoute] No authenticated user found, redirecting to login');
+      console.log('🔒 [ProtectedRoute] No authenticated user found, initiating redirect to login');
       redirectingRef.current = true;
       router.replace('/login'); // Use replace instead of push to avoid back button issues
     }
     
     // Reset redirecting flag when user is authenticated
     if (user && redirectingRef.current) {
+      console.log('🔒 [ProtectedRoute] User authenticated, resetting redirect flag');
       redirectingRef.current = false;
     }
   }, [user, loading, router]);
 
   // Show loading spinner while auth is being determined
   if (loading) {
+    console.log('🔒 [ProtectedRoute] Showing loading spinner - auth state being determined');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
@@ -41,6 +57,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Show loading spinner while redirecting (no user)
   if (!user) {
+    console.log('🔒 [ProtectedRoute] Showing redirect spinner - no user found');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
@@ -52,5 +69,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   // If we have a user, render the protected content
+  console.log('🔒 [ProtectedRoute] Rendering protected content for user:', user.id);
   return <>{children}</>;
 }

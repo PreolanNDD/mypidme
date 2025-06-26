@@ -17,8 +17,20 @@ export default function Login() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  console.log('🔐 [Login] Component rendered with state:', {
+    email: formData.email,
+    loading,
+    hasError: !!error
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🔐 [Login] === LOGIN ATTEMPT STARTED ===');
+    console.log('🔐 [Login] Form data:', {
+      email: formData.email,
+      passwordLength: formData.password.length
+    });
+    
     setLoading(true);
     setError('');
 
@@ -41,25 +53,31 @@ export default function Login() {
       console.log('✅ [Login] Sign in successful:', {
         userId: data.user?.id,
         email: data.user?.email,
-        hasSession: !!data.session
+        hasSession: !!data.session,
+        sessionExpiresAt: data.session?.expires_at,
+        accessTokenLength: data.session?.access_token?.length || 0,
+        refreshTokenLength: data.session?.refresh_token?.length || 0
       });
 
       // Don't force redirect here - let the AuthProvider handle it
       // The auth state change will trigger the redirect automatically
-      console.log('🔄 [Login] Authentication successful, waiting for redirect...');
+      console.log('🔄 [Login] Authentication successful, waiting for AuthProvider redirect...');
       
     } catch (err) {
       console.error('💥 [Login] Unexpected error:', err);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
+      console.log('🔐 [Login] === LOGIN ATTEMPT COMPLETED ===');
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    console.log('🔐 [Login] Input changed:', { name, valueLength: value.length });
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 

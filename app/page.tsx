@@ -14,20 +14,36 @@ export default function Home() {
   const router = useRouter();
   const redirectingRef = useRef(false);
 
+  console.log('🏠 [Home] Component rendered with state:', {
+    hasUser: !!user,
+    userId: user?.id,
+    loading,
+    isRedirecting: redirectingRef.current
+  });
+
   useEffect(() => {
+    console.log('🏠 [Home] useEffect triggered:', {
+      loading,
+      hasUser: !!user,
+      userId: user?.id,
+      isRedirecting: redirectingRef.current
+    });
+
     if (!loading && user && !redirectingRef.current) {
-      console.log('🏠 [Home] User is authenticated, redirecting to dashboard');
+      console.log('🏠 [Home] User is authenticated, initiating redirect to dashboard');
       redirectingRef.current = true;
       router.replace('/dashboard'); // Use replace instead of push
     }
     
     // Reset redirecting flag when user is not authenticated
     if (!user && redirectingRef.current) {
+      console.log('🏠 [Home] User not authenticated, resetting redirect flag');
       redirectingRef.current = false;
     }
   }, [user, loading, router]);
 
   if (loading) {
+    console.log('🏠 [Home] Showing loading spinner - auth state being determined');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -36,12 +52,15 @@ export default function Home() {
   }
 
   if (user) {
+    console.log('🏠 [Home] User authenticated, showing redirect spinner');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
+
+  console.log('🏠 [Home] Rendering landing page for unauthenticated user');
 
   return (
     <div className="min-h-screen w-full flex overflow-hidden relative">

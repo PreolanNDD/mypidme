@@ -8,6 +8,12 @@ export const createClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
+  console.log('🔧 [Supabase Server Client] Environment check:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    nodeEnv: process.env.NODE_ENV
+  });
+  
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('❌ [Supabase Server Client] Missing environment variables:', {
       hasUrl: !!supabaseUrl,
@@ -34,6 +40,7 @@ export const createClient = () => {
   let cookieStore: ReturnType<typeof cookies>;
   try {
     cookieStore = cookies();
+    console.log('✅ [Supabase Server Client] Cookie store accessed successfully');
   } catch (cookieError) {
     console.error('❌ [Supabase Server Client] Failed to access cookies:', cookieError);
     throw new Error('Failed to access request cookies. This function must be called in a server context.');
@@ -49,7 +56,11 @@ export const createClient = () => {
             try {
               const value = cookieStore.get(name)?.value;
               if (name.includes('supabase') || name.includes('auth')) {
-                console.log('🍪 [Supabase Server Client] Getting cookie:', { name, hasValue: !!value });
+                console.log('🍪 [Supabase Server Client] Getting cookie:', { 
+                  name, 
+                  hasValue: !!value,
+                  valueLength: value?.length || 0
+                });
               }
               return value;
             } catch (error) {
@@ -59,7 +70,16 @@ export const createClient = () => {
           },
           set(name: string, value: string, options: CookieOptions) {
             if (name.includes('supabase') || name.includes('auth')) {
-              console.log('🍪 [Supabase Server Client] Setting cookie:', { name, hasValue: !!value, options });
+              console.log('🍪 [Supabase Server Client] Setting cookie:', { 
+                name, 
+                hasValue: !!value,
+                valueLength: value?.length || 0,
+                options: {
+                  ...options,
+                  // Don't log the actual value for security
+                  value: value ? '[REDACTED]' : 'empty'
+                }
+              });
             }
             try {
               cookieStore.set({ 
@@ -70,6 +90,7 @@ export const createClient = () => {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax'
               })
+              console.log('✅ [Supabase Server Client] Cookie set successfully:', name);
             } catch (error) { 
               console.error('❌ [Supabase Server Client] Error setting cookie:', { name, error });
             }
@@ -84,6 +105,7 @@ export const createClient = () => {
                 maxAge: 0,
                 expires: new Date(0)
               })
+              console.log('✅ [Supabase Server Client] Cookie removed successfully:', name);
             } catch (error) { 
               console.error('❌ [Supabase Server Client] Error removing cookie:', { name, error });
             }
