@@ -287,10 +287,10 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
   
   return (
     <div className="space-y-6">
-      {/* Daily Logger Header - Increased size */}
-      <div className="mb-6 group">
-        <h2 className="font-heading text-4xl text-white transition-all duration-300 group-hover:scale-105">Daily Logger</h2>
-        <p className="text-xl" style={{ color: '#e6e2eb' }}>Log your daily habits and goals</p>
+      {/* Daily Logger Header - Reduced size by 2 and removed hover animation */}
+      <div className="mb-6">
+        <h2 className="font-heading text-2xl text-white">Daily Logger</h2>
+        <p className="text-base" style={{ color: '#e6e2eb' }}>Log your daily habits and goals</p>
       </div>
 
       {/* Date Selection Card - Enhanced styling with clickable area */}
