@@ -13,7 +13,7 @@ import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog'
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
 import { DeleteExperimentDialog } from '@/components/lab/DeleteExperimentDialog';
-import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3 } from 'lucide-react';
+import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3, ArrowRight, Beaker } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -385,7 +385,12 @@ export default function LabPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 relative">
+          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <FlaskConical className="w-6 h-6 text-white" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -397,85 +402,177 @@ export default function LabPage() {
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Main Page Header with Start New Experiment Button */}
           <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="font-heading text-3xl text-white mb-2">Experimentation Lab</h1>
-              <p style={{ color: '#e6e2eb' }}>Design and track personal experiments to optimize your life</p>
+            <div className="group/header">
+              <h1 className="font-heading text-3xl text-white mb-2 bg-gradient-to-r from-purple-300 to-indigo-300 bg-clip-text text-transparent">
+                Experimentation Lab
+              </h1>
+              <p style={{ color: '#e6e2eb' }} className="text-lg">
+                Design and track personal experiments to optimize your life
+              </p>
             </div>
             <div className="flex space-x-3">
-              <Button
+              <button
                 onClick={() => setShowCreateDialog(true)}
-                className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
-                style={{ color: '#4a2a6d' }}
+                className="group/new relative overflow-hidden px-6 py-3 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white/60 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:border-white hover:shadow-xl hover:shadow-white/30"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Start New Experiment
-              </Button>
+                {/* Sliding highlight effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/50 to-transparent -translate-x-full group-hover/new:translate-x-full transition-transform duration-500 ease-out"></div>
+                
+                {/* Content */}
+                <div className="relative flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-purple-500/20 transition-all duration-300 group-hover/new:scale-110 group-hover/new:rotate-12">
+                    <Plus className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="font-medium text-base transition-all duration-300 group-hover/new:tracking-wide">
+                    Start New Experiment
+                  </span>
+                </div>
+                
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 rounded-xl bg-purple-100/20 opacity-0 group-hover/new:opacity-100 transition-opacity duration-300"></div>
+              </button>
             </div>
           </div>
 
           {/* Check if user has required metrics */}
           {inputMetrics.length === 0 || outputMetrics.length === 0 ? (
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-              <CardContent className="text-center py-12">
-                <FlaskConical className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-heading text-xl text-primary-text mb-2">Ready to Start Experimenting?</h3>
-                <p className="text-secondary-text mb-6 max-w-md mx-auto">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/empty">
+              <div className="text-center py-16 px-8">
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 group-hover/empty:scale-110 group-hover/empty:rotate-12 group-hover/empty:shadow-xl">
+                  <FlaskConical className="w-12 h-12 text-purple-400 transition-all duration-500 group-hover/empty:text-indigo-500" />
+                </div>
+                <h3 className="font-heading text-2xl text-primary-text mb-4 transition-all duration-500 group-hover/empty:scale-105 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  Ready to Start Experimenting?
+                </h3>
+                <p className="text-secondary-text mb-8 max-w-lg mx-auto text-lg">
                   To create experiments, you need both input metrics (things you control) and output metrics (things you measure).
                 </p>
-                <div className="space-y-2 text-sm text-secondary-text mb-6">
-                  <p>✓ Input metrics: {inputMetrics.length} created</p>
-                  <p>✓ Output metrics: {outputMetrics.length} created</p>
+                <div className="space-y-3 text-sm text-secondary-text mb-8 max-w-md mx-auto">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm transition-all duration-300 group-hover/empty:shadow-md">
+                    <span>Input metrics (habits):</span>
+                    <span className={`px-3 py-1 rounded-full ${inputMetrics.length > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {inputMetrics.length} created
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm transition-all duration-300 group-hover/empty:shadow-md">
+                    <span>Output metrics (goals):</span>
+                    <span className={`px-3 py-1 rounded-full ${outputMetrics.length > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      {outputMetrics.length} created
+                    </span>
+                  </div>
                 </div>
-                <Button onClick={() => router.push('/log')}>
-                  Create Your Metrics
-                </Button>
-              </CardContent>
-            </Card>
+                <button
+                  onClick={() => router.push('/log')}
+                  className="group/metric relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+                >
+                  {/* Animated background gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/metric:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Sliding highlight effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/metric:translate-x-full transition-transform duration-700 ease-out"></div>
+                  
+                  {/* Content */}
+                  <div className="relative flex items-center justify-center space-x-3">
+                    {/* Icon with bounce animation */}
+                    <div className="transform group-hover/metric:scale-110 group-hover/metric:rotate-12 transition-transform duration-300">
+                      <Plus className="w-6 h-6" />
+                    </div>
+                    
+                    {/* Text with enhanced styling */}
+                    <span className="tracking-wide group-hover/metric:tracking-wider transition-all duration-300">
+                      Create Your Metrics
+                    </span>
+                  </div>
+                  
+                  {/* Pulse ring effect */}
+                  <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/metric:opacity-100 group-hover/metric:scale-110 transition-all duration-500"></div>
+                </button>
+              </div>
+            </div>
           ) : (
             <>
-              {/* Tabs */}
-              <div className="flex space-x-1 p-1 rounded-lg" style={{ backgroundColor: '#cdc1db' }}>
+              {/* Tabs - Enhanced with animations */}
+              <div className="flex space-x-1 p-1 rounded-lg transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: '#cdc1db' }}>
                 <button
                   onClick={() => setActiveTab('active')}
-                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                     activeTab === 'active'
-                      ? 'bg-white shadow-sm'
-                      : 'hover:bg-white/50'
+                      ? 'bg-white shadow-md transform scale-105'
+                      : 'hover:bg-white/50 hover:scale-105'
                   }`}
                   style={{ 
                     color: activeTab === 'active' ? '#4a2a6d' : '#9992a2'
                   }}
                 >
-                  Active ({activeExperiments.length})
+                  <div className="flex items-center justify-center space-x-2">
+                    <Beaker className={`w-4 h-4 ${activeTab === 'active' ? 'text-purple-600' : 'text-purple-400'}`} />
+                    <span>Active ({activeExperiments.length})</span>
+                  </div>
                 </button>
                 <button
                   onClick={() => setActiveTab('completed')}
-                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                     activeTab === 'completed'
-                      ? 'bg-white shadow-sm'
-                      : 'hover:bg-white/50'
+                      ? 'bg-white shadow-md transform scale-105'
+                      : 'hover:bg-white/50 hover:scale-105'
                   }`}
                   style={{ 
                     color: activeTab === 'completed' ? '#4a2a6d' : '#9992a2'
                   }}
                 >
-                  Completed ({completedExperiments.length})
+                  <div className="flex items-center justify-center space-x-2">
+                    <FlaskConical className={`w-4 h-4 ${activeTab === 'completed' ? 'text-green-600' : 'text-green-400'}`} />
+                    <span>Completed ({completedExperiments.length})</span>
+                  </div>
                 </button>
               </div>
 
-              {/* Experiments List */}
+              {/* Experiments List - Enhanced with animations */}
               {experimentsToDisplay.length === 0 ? (
-                <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                  <CardContent className="text-center py-8">
-                    <FlaskConical className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-secondary-text">
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/empty">
+                  <div className="text-center py-12 px-8">
+                    <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 group-hover/empty:scale-110 group-hover/empty:rotate-12 group-hover/empty:shadow-xl">
+                      <FlaskConical className="w-10 h-10 text-gray-400 transition-all duration-500 group-hover/empty:text-gray-600" />
+                    </div>
+                    <h3 className="font-heading text-2xl text-primary-text mb-4 transition-all duration-500 group-hover/empty:scale-105">
                       {activeTab === 'active' 
-                        ? "No active experiments. Start your first experiment to begin optimizing!"
-                        : "No completed experiments yet."
+                        ? "No active experiments" 
+                        : "No completed experiments yet"
+                      }
+                    </h3>
+                    <p className="text-secondary-text mb-6 max-w-md mx-auto text-lg">
+                      {activeTab === 'active' 
+                        ? "Start your first experiment to begin optimizing your life!" 
+                        : "Complete an active experiment to see it here."
                       }
                     </p>
-                  </CardContent>
-                </Card>
+                    {activeTab === 'active' && (
+                      <button
+                        onClick={() => setShowCreateDialog(true)}
+                        className="group/start relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+                      >
+                        {/* Animated background gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/start:opacity-100 transition-opacity duration-500"></div>
+                        
+                        {/* Sliding highlight effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/start:translate-x-full transition-transform duration-700 ease-out"></div>
+                        
+                        {/* Content */}
+                        <div className="relative flex items-center justify-center space-x-3">
+                          <div className="transform group-hover/start:scale-110 group-hover/start:rotate-12 transition-transform duration-300">
+                            <Plus className="w-6 h-6" />
+                          </div>
+                          <span className="tracking-wide group-hover/start:tracking-wider transition-all duration-300">
+                            Start Your First Experiment
+                          </span>
+                        </div>
+                        
+                        {/* Pulse ring effect */}
+                        <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/start:opacity-100 group-hover/start:scale-110 transition-all duration-500"></div>
+                      </button>
+                    )}
+                  </div>
+                </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {experimentsToDisplay.map((experiment) => {
@@ -485,93 +582,113 @@ export default function LabPage() {
                     }
 
                     const progressData = experimentProgressData[experiment.id];
+                    const isActive = experiment.status === 'ACTIVE';
                     
                     return (
-                      <div key={experiment.id} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6">
-                        <div className="space-y-4">
-                          {/* Header */}
+                      <div 
+                        key={experiment.id} 
+                        className="group/experiment relative overflow-hidden bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10"
+                      >
+                        {/* Gradient overlay on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover/experiment:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                        
+                        {/* Animated border glow */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 opacity-0 group-hover/experiment:opacity-100 transition-opacity duration-500 blur-sm"></div>
+                        
+                        <div className="relative p-6 space-y-5">
+                          {/* Enhanced Header */}
                           <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-heading text-lg text-primary-text mb-2">
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-heading text-xl text-primary-text group-hover/experiment:text-purple-700 transition-colors duration-300 leading-tight mb-3">
                                 {experiment.title || 'Untitled Experiment'}
                               </h4>
-                              <div className="flex items-center space-x-2 mb-3">
-                                {experiment.status === 'ACTIVE' ? (
-                                  <Badge className="bg-primary text-white">
+                              <div className="flex flex-wrap items-center gap-2 mb-3">
+                                {isActive ? (
+                                  <Badge className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-none shadow-sm transition-all duration-300 group-hover/experiment:shadow-md group-hover/experiment:scale-105">
                                     ACTIVE
                                   </Badge>
                                 ) : (
-                                  <Badge className="bg-green-500 text-black">
+                                  <Badge className="bg-gradient-to-r from-green-500 to-teal-600 text-white border-none shadow-sm transition-all duration-300 group-hover/experiment:shadow-md group-hover/experiment:scale-105">
                                     COMPLETED
                                   </Badge>
                                 )}
-                                <span className="text-sm text-secondary-text">
+                                <span className="text-sm text-secondary-text group-hover/experiment:text-gray-700 transition-colors duration-300 px-2 py-1 bg-gray-100 rounded-full">
                                   {getExperimentDuration(experiment.start_date, experiment.end_date)}
                                 </span>
                               </div>
                             </div>
                           </div>
 
-                          {/* Progress Bar - Now shows data completeness */}
+                          {/* Progress Bar - Now shows data completeness with enhanced styling */}
                           {progressData && (
-                            <div className="space-y-2">
+                            <div className="space-y-2 group/progress">
                               <div className="flex items-center justify-between text-sm">
-                                <span className="font-medium text-primary-text">Progress</span>
-                                <span className="text-secondary-text">
+                                <span className="font-medium text-primary-text group-hover/experiment:text-purple-700 transition-colors duration-300">Progress</span>
+                                <span className="text-secondary-text group-hover/experiment:text-purple-600 transition-colors duration-300">
                                   {progressData.daysWithData} of {progressData.totalDays} days logged
                                 </span>
                               </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div className="w-full bg-gray-200 rounded-full h-3 group-hover/experiment:bg-gray-300 transition-colors duration-300 overflow-hidden">
                                 <div 
-                                  className="h-2 rounded-full transition-all duration-500 ease-out bg-primary"
-                                  style={{ 
-                                    width: `${progressData.totalDays > 0 ? Math.min(100, (progressData.daysWithData / progressData.totalDays) * 100) : 0}%` 
-                                  }}
+                                  className={`h-3 rounded-full transition-all duration-700 ease-out ${
+                                    isActive 
+                                      ? 'bg-gradient-to-r from-purple-500 to-indigo-500 group-hover/experiment:from-purple-600 group-hover/experiment:to-indigo-600' 
+                                      : 'bg-gradient-to-r from-green-500 to-teal-500 group-hover/experiment:from-green-600 group-hover/experiment:to-teal-600'
+                                  }`}
+                                  style={{ width: `${progressData.totalDays > 0 ? Math.min(100, (progressData.daysWithData / progressData.totalDays) * 100) : 0}%` }}
                                 ></div>
                               </div>
                               {progressData.totalDays > 0 && (
-                                <p className="text-xs text-secondary-text">
+                                <p className="text-xs text-secondary-text group-hover/experiment:text-purple-600 transition-colors duration-300">
                                   {Math.round(Math.min(100, (progressData.daysWithData / progressData.totalDays) * 100))}% data completeness
                                 </p>
                               )}
                             </div>
                           )}
 
-                          {/* Date Range */}
-                          <div className="flex items-center space-x-2 text-sm text-secondary-text">
-                            <Calendar className="w-4 h-4" />
-                            <span>{formatDate(experiment.start_date)} - {formatDate(experiment.end_date)}</span>
+                          {/* Date Range with enhanced styling */}
+                          <div className="flex items-center space-x-2 text-sm text-secondary-text group-hover/experiment:text-gray-700 transition-colors duration-300 p-3 bg-gray-50 rounded-lg group-hover/experiment:bg-gray-100">
+                            <Calendar className="w-4 h-4 text-purple-500" />
+                            <span className="font-medium">{formatDate(experiment.start_date)} - {formatDate(experiment.end_date)}</span>
                           </div>
 
-                          {/* Variables */}
-                          <div className="space-y-2">
-                            <div className="flex items-center space-x-2 text-sm">
-                              <Target className="w-4 h-4 text-accent-1" />
-                              <span className="text-secondary-text">Cause:</span>
-                              <span className="font-medium text-primary-text">
-                                {experiment.independent_variable?.name || 'Unknown Variable'}
-                              </span>
+                          {/* Variables with enhanced styling */}
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div className="flex items-center space-x-2 p-3 bg-orange-50 rounded-lg transition-all duration-300 group-hover/experiment:bg-orange-100 group-hover/experiment:shadow-sm">
+                              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center group-hover/experiment:scale-110 transition-transform duration-300 shadow-sm shadow-orange-400/20">
+                                <Target className="w-4 h-4 text-white" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs text-orange-700 group-hover/experiment:text-orange-800 transition-colors duration-300">Cause</p>
+                                <p className="font-medium text-orange-900 truncate group-hover/experiment:text-orange-950 transition-colors duration-300">
+                                  {experiment.independent_variable?.name || 'Unknown Variable'}
+                                </p>
+                              </div>
                             </div>
-                            <div className="flex items-center space-x-2 text-sm">
-                              <TrendingUp className="w-4 h-4 text-accent-2" />
-                              <span className="text-secondary-text">Effect:</span>
-                              <span className="font-medium text-primary-text">
-                                {experiment.dependent_variable?.name || 'Unknown Variable'}
-                              </span>
+                            <div className="flex items-center space-x-2 p-3 bg-green-50 rounded-lg transition-all duration-300 group-hover/experiment:bg-green-100 group-hover/experiment:shadow-sm">
+                              <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center group-hover/experiment:scale-110 transition-transform duration-300 shadow-sm shadow-green-400/20">
+                                <TrendingUp className="w-4 h-4 text-white" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs text-green-700 group-hover/experiment:text-green-800 transition-colors duration-300">Effect</p>
+                                <p className="font-medium text-green-900 truncate group-hover/experiment:text-green-950 transition-colors duration-300">
+                                  {experiment.dependent_variable?.name || 'Unknown Variable'}
+                                </p>
+                              </div>
                             </div>
                           </div>
 
-                          {/* Hypothesis */}
+                          {/* Hypothesis with enhanced styling */}
                           {experiment.hypothesis && (
-                            <div className="p-3 bg-gray-50 rounded-lg">
-                              <p className="text-sm text-secondary-text italic">
+                            <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-100 transition-all duration-300 group-hover/experiment:bg-indigo-100 group-hover/experiment:border-indigo-200 group-hover/experiment:shadow-sm">
+                              <p className="text-sm text-indigo-800 italic leading-relaxed group-hover/experiment:text-indigo-900 transition-colors duration-300">
                                 "{experiment.hypothesis}"
                               </p>
                             </div>
                           )}
 
-                          {/* Actions */}
-                          <div className="flex items-center justify-between pt-2">
+                          {/* Actions with enhanced styling */}
+                          <div className="flex items-center justify-between pt-3 border-t border-gray-200 group-hover/experiment:border-purple-100 transition-colors duration-300">
                             <div className="flex space-x-2">
                               {experiment.status === 'COMPLETED' && (
                                 <Button
@@ -579,7 +696,7 @@ export default function LabPage() {
                                   onClick={() => handleViewResults(experiment)}
                                   loading={analyzingId === experiment.id}
                                   disabled={analyzingId === experiment.id}
-                                  className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+                                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none shadow-md transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-105"
                                 >
                                   <Eye className="w-4 h-4 mr-2" />
                                   View Results
@@ -594,7 +711,7 @@ export default function LabPage() {
                                       onClick={() => handleViewProgress(experiment)}
                                       loading={analyzingId === experiment.id}
                                       disabled={analyzingId === experiment.id}
-                                      className="bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+                                      className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none shadow-md transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-105"
                                     >
                                       <BarChart3 className="w-4 h-4 mr-2" />
                                       View Progress
@@ -605,6 +722,7 @@ export default function LabPage() {
                                     variant="outline"
                                     onClick={() => handleCompleteExperiment(experiment.id)}
                                     disabled={updateStatusMutation.isPending}
+                                    className="border-gray-300 text-gray-700 transition-all duration-300 hover:bg-gray-100 hover:border-gray-400 hover:scale-105"
                                   >
                                     <Square className="w-4 h-4 mr-2" />
                                     Complete
@@ -617,20 +735,21 @@ export default function LabPage() {
                                   variant="outline"
                                   onClick={() => handleReactivateExperiment(experiment.id)}
                                   disabled={updateStatusMutation.isPending}
+                                  className="border-green-300 text-green-700 transition-all duration-300 hover:bg-green-50 hover:border-green-400 hover:scale-105"
                                 >
                                   <Play className="w-4 h-4 mr-2" />
                                   Reactivate
                                 </Button>
                               )}
                             </div>
-                            <div className="flex space-x-1">
+                            <div className="flex space-x-2">
                               {/* Only show edit button for active experiments */}
                               {experiment.status === 'ACTIVE' && (
                                 <Button
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => handleEditExperiment(experiment)}
-                                  className="text-primary hover:text-primary hover:bg-primary/10"
+                                  className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 transition-all duration-300 hover:scale-110"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </Button>
@@ -640,7 +759,7 @@ export default function LabPage() {
                                 variant="ghost"
                                 onClick={() => handleDeleteExperiment(experiment)}
                                 disabled={deleteMutation.isPending}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300 hover:scale-110"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -650,6 +769,33 @@ export default function LabPage() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+              
+              {/* Start New Experiment Button - Fixed at bottom for easy access */}
+              {experimentsToDisplay.length > 0 && (
+                <div className="pt-6">
+                  <button
+                    onClick={() => setShowCreateDialog(true)}
+                    className="group/discover relative overflow-hidden w-full px-6 py-4 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white/60 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:border-white hover:shadow-xl hover:shadow-white/30"
+                  >
+                    {/* Sliding highlight effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/50 to-transparent -translate-x-full group-hover/discover:translate-x-full transition-transform duration-500 ease-out"></div>
+                    
+                    {/* Content */}
+                    <div className="relative flex items-center justify-center space-x-3">
+                      <Plus className="w-5 h-5 text-purple-600" />
+                      <span className="font-semibold text-lg transition-all duration-300 group-hover/discover:tracking-wide text-gray-800">
+                        Start New Experiment
+                      </span>
+                      <div className="transform group-hover/discover:translate-x-1 transition-transform duration-300">
+                        <ArrowRight className="w-5 h-5 text-purple-600" />
+                      </div>
+                    </div>
+                    
+                    {/* Subtle glow effect */}
+                    <div className="absolute inset-0 rounded-xl bg-purple-100/20 opacity-0 group-hover/discover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
                 </div>
               )}
             </>
@@ -693,6 +839,30 @@ export default function LabPage() {
         experiment={experimentToDelete}
         loading={deleteMutation.isPending}
       />
+      
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 0.6; }
+          50% { opacity: 1; }
+          100% { opacity: 0.6; }
+        }
+        
+        @keyframes spin-slow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        .animate-spin-slow {
+          animation: spin-slow 3s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
