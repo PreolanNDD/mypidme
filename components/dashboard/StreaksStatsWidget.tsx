@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Flame, Target, BarChart3 } from 'lucide-react';
+import { Flame, Target, BarChart3, BookOpen } from 'lucide-react';
 
 interface StreaksStatsWidgetProps {
   currentStreak: number;
@@ -20,7 +20,12 @@ export function StreaksStatsWidget({
     return (
       <div className="space-y-6">
         <div className="mb-6">
-          <h2 className="font-heading text-2xl text-white">Streaks & Stats</h2>
+          <div className="flex items-center space-x-4">
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md border border-gray-100">
+              <BookOpen className="w-5 h-5 text-primary" />
+            </div>
+            <h2 className="font-heading text-2xl text-white">Streaks & Stats</h2>
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
@@ -37,7 +42,12 @@ export function StreaksStatsWidget({
   return (
     <div className="space-y-6 group">
       <div className="mb-6">
-        <h2 className="font-heading text-2xl text-white">Streaks & Stats</h2>
+        <div className="flex items-center space-x-4">
+          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md border border-gray-100 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg flex-shrink-0">
+            <BookOpen className="w-5 h-5 text-primary transition-all duration-300 group-hover:scale-110" />
+          </div>
+          <h2 className="font-heading text-2xl text-white transition-all duration-300 group-hover:translate-x-1">Streaks & Stats</h2>
+        </div>
       </div>
       
       <div className="grid grid-cols-3 gap-6">

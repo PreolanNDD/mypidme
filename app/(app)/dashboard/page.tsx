@@ -87,11 +87,11 @@ export default function Dashboard() {
             <div 
               ref={welcomeRef}
               onMouseMove={handleMouseMove}
-              className="flex flex-col justify-center relative overflow-hidden h-full min-h-[200px] rounded-2xl p-8 group"
+              className="flex flex-col justify-center relative overflow-hidden h-full min-h-[200px] rounded-2xl p-8"
             >
               {/* Animated gradient spotlight that follows cursor */}
               <div 
-                className="absolute pointer-events-none w-[500px] h-[500px] bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="absolute pointer-events-none w-[500px] h-[500px] bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-full blur-3xl opacity-0 transition-opacity duration-300"
                 style={{
                   left: `${mousePosition.x - 250}px`,
                   top: `${mousePosition.y - 250}px`,
@@ -101,21 +101,23 @@ export default function Dashboard() {
               ></div>
               
               <h1 className="text-4xl font-heading mb-2 relative z-10">
-                <span className="text-accent-1 group-hover:text-shadow-glow transition-all duration-300">Hello, {firstName}!</span>
+                <span 
+                  className="text-accent-1 transition-all duration-300"
+                  style={{
+                    textShadow: `0 0 ${Math.min(10, Math.max(0, (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 100)) / 50)}px rgba(255, 255, 255, ${Math.max(0.1, 0.5 - (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 100)) / 1000)})`
+                  }}
+                >
+                  Hello, {firstName}!
+                </span>
               </h1>
-              <p className="text-xl text-white relative z-10 group-hover:text-shadow-glow-subtle transition-all duration-300">
+              <p 
+                className="text-xl text-white relative z-10 transition-all duration-300"
+                style={{
+                  textShadow: `0 0 ${Math.min(8, Math.max(0, (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 150)) / 60)}px rgba(255, 255, 255, ${Math.max(0.05, 0.3 - (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 150)) / 1200)})`
+                }}
+              >
                 Ready to unlock your potential today?
               </p>
-              
-              {/* Custom CSS for text glow effects */}
-              <style jsx>{`
-                .group-hover\\:text-shadow-glow {
-                  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.2);
-                }
-                .group-hover\\:text-shadow-glow-subtle {
-                  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 0 0 16px rgba(255, 255, 255, 0.1);
-                }
-              `}</style>
             </div>
           </div>
 
