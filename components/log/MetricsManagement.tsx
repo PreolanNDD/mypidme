@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DataTypeInfoDialog } from './DataTypeInfoDialog';
 import { ReactivateMetricDialog } from '@/components/trackable-items/ReactivateMetricDialog';
-import { Edit2, Trash2, Plus, Loader2, RotateCw, X, Save, Check, AlertTriangle, Info, Target, TrendingUp, Settings } from 'lucide-react';
+import { Edit2, Trash2, Plus, Loader2, RotateCw, X, Save, Check, AlertTriangle, Info } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const DATA_TYPE_LABELS: Record<DataType, string> = {
@@ -649,15 +649,10 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
     <div className="space-y-6">
       {/* Manage Metrics Header - Enhanced with animation */}
       <div className="mb-6 group">
-        <div className="flex items-center space-x-4 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transform transition-transform duration-300 group-hover:scale-110">
-            <Settings className="w-5 h-5 text-white transition-transform duration-300 group-hover:rotate-90" />
-          </div>
-          <h2 className="font-heading text-2xl text-white bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent transition-all duration-300 group-hover:tracking-wider">
-            Manage Metrics
-          </h2>
-        </div>
-        <p style={{ color: '#e6e2eb' }} className="ml-14 transition-all duration-300 group-hover:translate-x-1">
+        <h2 className="font-heading text-2xl text-white bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent transition-all duration-300 group-hover:tracking-wider">
+          Manage Metrics
+        </h2>
+        <p style={{ color: '#e6e2eb' }} className="transition-all duration-300 group-hover:translate-x-1">
           Create and organize your trackable habits and goals
         </p>
       </div>
@@ -695,12 +690,9 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 group/category">
-                <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
-                  <div className="w-5 h-5 bg-gradient-to-br from-orange-400 to-orange-500 rounded-md flex items-center justify-center transition-transform duration-300 group-hover/category:scale-110">
-                    <Target className="w-3 h-3 text-white" />
-                  </div>
-                  <span className="transition-all duration-300 group-hover/category:text-primary">Habit/Goal</span>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-primary-text">
+                  Habit/Goal
                 </label>
                 <Select
                   value={addFormData.category}
@@ -720,13 +712,10 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                 </Select>
               </div>
 
-              <div className="space-y-2 group/type">
+              <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
-                    <div className="w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-500 rounded-md flex items-center justify-center transition-transform duration-300 group-hover/type:scale-110">
-                      <TrendingUp className="w-3 h-3 text-white" />
-                    </div>
-                    <span className="transition-all duration-300 group-hover/type:text-primary">Data Type</span>
+                  <label className="block text-sm font-medium text-primary-text">
+                    Data Type
                   </label>
                   <button 
                     type="button" 
@@ -808,7 +797,6 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           }}
         >
           <div className="flex items-center justify-center space-x-2">
-            <Target className={`w-4 h-4 transition-transform duration-300 ${activeTab === 'active' ? 'scale-110' : ''}`} />
             <span>Active ({activeItems.length})</span>
           </div>
         </button>
@@ -828,7 +816,6 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           }}
         >
           <div className="flex items-center justify-center space-x-2">
-            <RotateCw className={`w-4 h-4 transition-transform duration-300 ${activeTab === 'archived' ? 'scale-110' : ''}`} />
             <span>Archived ({archivedItems.length})</span>
           </div>
         </button>
@@ -838,7 +825,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center border border-white/20 transition-all duration-500 hover:shadow-purple-500/20 hover:border-purple-200/30">
           <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 transition-transform duration-500 hover:scale-110 hover:rotate-12">
             {activeTab === 'active' ? (
-              <Target className="w-8 h-8 text-purple-400" />
+              <Plus className="w-8 h-8 text-purple-400" />
             ) : (
               <RotateCw className="w-8 h-8 text-purple-400" />
             )}
@@ -853,13 +840,10 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           {inputItems.length > 0 && (
             <div className="space-y-3 group/habits">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-400/20 transform transition-transform duration-300 group-hover/habits:scale-110 group-hover/habits:rotate-6">
-                  <Target className="w-4 h-4 text-white" />
-                </div>
                 <h3 className="font-heading text-lg text-white bg-gradient-to-r from-orange-400 to-orange-300 bg-clip-text text-transparent transition-all duration-300 group-hover/habits:tracking-wider">Habits</h3>
                 <Badge variant="secondary" className="text-xs bg-white/20 text-white border-orange-300/30 transition-all duration-300 group-hover/habits:scale-110">{inputItems.length}</Badge>
               </div>
-              <div className="space-y-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-3">
                 {inputItems.map(renderMetricCard)}
               </div>
             </div>
@@ -869,13 +853,10 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           {outputItems.length > 0 && (
             <div className="space-y-3 group/goals">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-green-400/20 transform transition-transform duration-300 group-hover/goals:scale-110 group-hover/goals:rotate-6">
-                  <TrendingUp className="w-4 h-4 text-white" />
-                </div>
                 <h3 className="font-heading text-lg text-white bg-gradient-to-r from-green-400 to-teal-300 bg-clip-text text-transparent transition-all duration-300 group-hover/goals:tracking-wider">Goals</h3>
                 <Badge variant="secondary" className="text-xs bg-white/20 text-white border-green-300/30 transition-all duration-300 group-hover/goals:scale-110">{outputItems.length}</Badge>
               </div>
-              <div className="space-y-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-3">
                 {outputItems.map(renderMetricCard)}
               </div>
             </div>
@@ -885,9 +866,6 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           {inputItems.length === 0 && outputItems.length > 0 && (
             <div className="space-y-3 group/empty-habits">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-300/30 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover/empty-habits:scale-110">
-                  <Target className="w-4 h-4 text-gray-400" />
-                </div>
                 <h3 className="font-heading text-lg text-gray-400 transition-all duration-300 group-hover/empty-habits:tracking-wider">Habits</h3>
                 <Badge variant="outline" className="text-xs text-gray-400 border-gray-400/30 transition-all duration-300 group-hover/empty-habits:scale-110">0</Badge>
               </div>
@@ -900,9 +878,6 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
           {outputItems.length === 0 && inputItems.length > 0 && (
             <div className="space-y-3 group/empty-goals">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-300/30 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover/empty-goals:scale-110">
-                  <TrendingUp className="w-4 h-4 text-gray-400" />
-                </div>
                 <h3 className="font-heading text-lg text-gray-400 transition-all duration-300 group-hover/empty-goals:tracking-wider">Goals</h3>
                 <Badge variant="outline" className="text-xs text-gray-400 border-gray-400/30 transition-all duration-300 group-hover/empty-goals:scale-110">0</Badge>
               </div>
