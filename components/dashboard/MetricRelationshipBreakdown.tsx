@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Zap, BarChart2, CalendarCheck2, TrendingUp, TrendingDown, AlertCircle, Search, LineChart, Sparkles } from 'lucide-react';
+import { Zap, BarChart2, CalendarCheck2, TrendingUp, TrendingDown, AlertCircle, Search, LineChart, Sparkles, Calendar } from 'lucide-react';
 import { TrackableItem } from '@/lib/types';
 
 interface DualMetricChartData {
