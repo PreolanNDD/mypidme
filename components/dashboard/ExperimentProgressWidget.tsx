@@ -5,7 +5,7 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { getExperiments } from '@/lib/experiments';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
-import { FlaskConical, Plus, Calendar, Target, TrendingUp, ArrowRight } from 'lucide-react';
+import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -94,10 +94,10 @@ export function ExperimentProgressWidget() {
 
   return (
     <div className="space-y-6 group">
-      {/* Header - WITH ENHANCED LAB ICON CENTERED */}
+      {/* Header - WITH ENHANCED LAB ICON */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center justify-center space-x-4 flex-1">
-          {/* Enhanced Lab Icon with reduced glow and size increase - CENTERED */}
+        <div className="flex items-center space-x-4">
+          {/* Enhanced Lab Icon with reduced glow and size increase */}
           <div className="relative">
             {/* Outer glow ring */}
             <div className="absolute inset-0 w-8 h-8 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-lg opacity-20 blur-md group-hover:opacity-30 transition-opacity duration-300"></div>

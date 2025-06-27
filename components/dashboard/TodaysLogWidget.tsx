@@ -7,7 +7,7 @@ import { TrackableItem } from '@/lib/types';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { LogEntryField } from '@/components/log/LogEntryField';
-import { Calendar, Save, CheckCircle, Target, TrendingUp, Edit, Plus, Minus, BookOpen } from 'lucide-react';
+import { Calendar, Save, CheckCircle, Target, TrendingUp, Edit, Plus, Minus } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFormState, useFormStatus } from 'react-dom';
 
@@ -330,29 +330,13 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
   return (
     <CardContent className="p-8">
       <div className="space-y-6">
-        {/* Header - ENHANCED WITH ICON AND STYLING */}
+        {/* Header */}
         <div className="flex items-center space-x-3">
-          {/* Enhanced Logging Icon */}
-          <div className="relative">
-            {/* Outer glow ring */}
-            <div className="absolute inset-0 w-10 h-10 bg-gradient-to-r from-green-400 to-blue-400 rounded-lg opacity-20 blur-md"></div>
-            
-            {/* Main icon container with gradient background */}
-            <div className="relative w-10 h-10 bg-gradient-to-br from-green-100 via-blue-50 to-green-50 rounded-lg flex items-center justify-center border border-green-200/50 shadow-md">
-              {/* Inner gradient overlay */}
-              <div className="absolute inset-1 bg-gradient-to-br from-green-500/10 to-blue-500/10 rounded"></div>
-              
-              {/* Icon with enhanced styling */}
-              <BookOpen className="relative w-5 h-5 text-green-600 drop-shadow-sm" />
-              
-              {/* Subtle sparkle effect */}
-              <div className="absolute top-1 right-1.5 w-1 h-1 bg-gradient-to-r from-green-400 to-blue-400 rounded-full opacity-60 animate-pulse"></div>
-              <div className="absolute bottom-1.5 left-1 w-0.5 h-0.5 bg-gradient-to-r from-blue-400 to-green-400 rounded-full opacity-40 animate-pulse delay-300"></div>
-            </div>
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+            <Calendar className="w-5 h-5 text-white" />
           </div>
-          
           <div className="flex-1">
-            <h2 className="font-heading text-2xl text-primary-text bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">Today's Log</h2>
+            <h2 className="font-heading text-2xl text-primary-text">Today's Log</h2>
             <p className="text-secondary-text">
               {new Date().toLocaleDateString('en-US', { 
                 weekday: 'long', 
