@@ -4,12 +4,11 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { upsertLoggedEntry } from '@/lib/logged-entries';
 import { TrackableItem } from '@/lib/types';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { LogEntryField } from '@/components/log/LogEntryField';
 import { Calendar, Save, CheckCircle, Target, TrendingUp, Edit, Plus, Minus, BookOpen } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFormState, useFormStatus } from 'react-dom';
 
 interface TodaysLogWidgetProps {
   trackableItems: TrackableItem[];
@@ -156,12 +155,10 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     const completedMetrics = trackableItems.filter(item => 
       todaysEntries[item.id] !== undefined
     ).length;
-    const progressPercentage = totalMetrics > 0 ? (completedMetrics / totalMetrics) * 100 : 0;
     
     return {
       total: totalMetrics,
-      completed: completedMetrics,
-      percentage: progressPercentage
+      completed: completedMetrics
     };
   }, [trackableItems, todaysEntries]);
 
@@ -491,77 +488,6 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
 
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
         <div className="space-y-6">
-          {/* Progress Bar - ENHANCED */}
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-primary-text">Today's Progress</span>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-primary">
-                  {progressMetrics.completed}
-                </span>
-                <span className="text-sm text-secondary-text">
-                  / {progressMetrics.total} metrics logged
-                </span>
-              </div>
-            </div>
-            
-            {/* Enhanced Progress Bar with Animation */}
-            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-400/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
-              </div>
-              
-              {/* Progress Fill */}
-              <div 
-                className={`h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden ${
-                  progressMetrics.percentage === 100 
-                    ? 'bg-gradient-to-r from-green-400 to-teal-500' 
-                    : 'bg-gradient-to-r from-purple-500 to-indigo-500'
-                }`}
-                style={{ width: `${progressMetrics.percentage}%` }}
-              >
-                {/* Animated Shine Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
-              </div>
-              
-              {/* Pulsing Dot at Progress End - Only show if not complete */}
-              {progressMetrics.percentage > 0 && progressMetrics.percentage < 100 && (
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-md border-2 border-indigo-500 animate-pulse"
-                  style={{ left: `calc(${progressMetrics.percentage}% - 10px)` }}
-                ></div>
-              )}
-              
-              {/* Completion Star - Only show if 100% */}
-              {progressMetrics.percentage === 100 && (
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 right-0 w-5 h-5 rounded-full bg-white shadow-md border-2 border-green-500 flex items-center justify-center animate-pulse"
-                >
-                  <CheckCircle className="w-3 h-3 text-green-500" />
-                </div>
-              )}
-            </div>
-            
-            {/* Percentage Text - Only show if in progress */}
-            {progressMetrics.percentage > 0 && progressMetrics.percentage < 100 && (
-              <div className="mt-2 flex justify-end">
-                <div className="text-xs font-medium px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 animate-pulse">
-                  {Math.round(progressMetrics.percentage)}% complete
-                </div>
-              </div>
-            )}
-            
-            {/* Completion Text - Only show if 100% */}
-            {progressMetrics.percentage === 100 && (
-              <div className="mt-2 flex justify-end">
-                <div className="text-xs font-medium px-2 py-1 rounded-full bg-green-50 text-green-700">
-                  All metrics logged! ✓
-                </div>
-              </div>
-            )}
-          </div>
-
           {message && (
             <div className={`p-4 rounded-lg text-sm ${
               message.includes('successfully') 
@@ -595,6 +521,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
                     {inputItems.map(item => (
                       <div key={item.id} className="bg-white rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-orange-200 hover:bg-orange-50/20">
                         <EnhancedLogEntryField 
+                          key={`${item.id}-field`}
                           item={item} 
                           value={formData[item.id]} 
                           onChange={handleFieldChange}
@@ -620,6 +547,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
                     {outputItems.map(item => (
                       <div key={item.id} className="bg-white rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:bg-green-50/20">
                         <EnhancedLogEntryField 
+                          key={`${item.id}-field`}
                           item={item} 
                           value={formData[item.id]} 
                           onChange={handleFieldChange}

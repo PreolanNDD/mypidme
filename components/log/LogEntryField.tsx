@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { TrackableItem } from '@/lib/types';
 import { Input } from '@/components/ui/Input';
 import { Switch } from '@/components/ui/switch';
@@ -14,20 +14,20 @@ interface LogEntryFieldProps {
 }
 
 export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
-  const handleSliderChange = React.useCallback((values: number[]) => {
+  const handleSliderChange = useCallback((values: number[]) => {
     onChange(item.id, values[0]);
   }, [item.id, onChange]);
 
-  const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value ? parseFloat(e.target.value) : null;
     onChange(item.id, newValue);
   }, [item.id, onChange]);
 
-  const handleSwitchChange = React.useCallback((checked: boolean) => {
+  const handleSwitchChange = useCallback((checked: boolean) => {
     onChange(item.id, checked);
   }, [item.id, onChange]);
 
-  const handleTextChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(item.id, e.target.value);
   }, [item.id, onChange]);
 
