@@ -465,7 +465,7 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
                           <Calendar className="w-4 h-4" />
                           <span>{formatDate(finding.created_at)}</span>
                         </div>
-                        {finding.share_data && (
+                        {finding.share_data === true && (
                           <Badge variant="outline" className="text-blue-700 border-blue-300">
                             Data Shared
                           </Badge>

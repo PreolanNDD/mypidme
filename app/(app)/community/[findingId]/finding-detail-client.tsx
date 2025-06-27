@@ -206,7 +206,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   const { data: trackableItems = [] } = useQuery({
     queryKey: ['trackableItems', user?.id],
     queryFn: () => getTrackableItems(user!.id),
-    enabled: !!user?.id && finding.share_data && (!!finding.chart_config || !!finding.experiment_id),
+    enabled: !!user?.id && finding.share_data === true && (!!finding.chart_config || !!finding.experiment_id),
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
   });
@@ -225,7 +225,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
         dateRange || 30
       );
     },
-    enabled: !!user?.id && finding.share_data && !!finding.chart_config,
+    enabled: !!user?.id && finding.share_data === true && !!finding.chart_config,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -234,7 +234,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   const { data: experiments = [] } = useQuery({
     queryKey: ['experiments', user?.id],
     queryFn: () => getExperiments(user!.id),
-    enabled: !!user?.id && finding.share_data && !!finding.experiment_id,
+    enabled: !!user?.id && finding.share_data === true && !!finding.experiment_id,
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
   });
@@ -246,7 +246,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   const { data: experimentResults } = useQuery({
     queryKey: ['experimentResults', finding.experiment_id],
     queryFn: () => analyzeExperimentResults(experiment!),
-    enabled: !!experiment && finding.share_data && !!finding.experiment_id,
+    enabled: !!experiment && finding.share_data === true && !!finding.experiment_id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -676,7 +676,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                   <Badge variant="outline" className="text-xs bg-white/10 border-white/20 text-white">
                     Score: {score > 0 ? '+' : ''}{score}
                   </Badge>
-                  {finding.share_data && (
+                  {finding.share_data === true && (
                     <Badge variant="outline" className="text-blue-200 border-blue-300 bg-blue-500/20">
                       Data Shared
                     </Badge>
@@ -697,7 +697,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
             </Card>
 
             {/* Data Visualization - Chart Analysis */}
-            {finding.share_data && finding.chart_config && primaryMetric && (
+            {finding.share_data === true && finding.chart_config && primaryMetric && (
               <div className="space-y-6">
                 {/* Chart Display */}
                 <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
@@ -811,7 +811,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
             )}
 
             {/* Data Visualization - Experiment Results */}
-            {finding.share_data && finding.experiment_id && experiment && experimentResults && (
+            {finding.share_data === true && finding.experiment_id && experiment && experimentResults && (
               <div className="space-y-6">
                 {/* Experiment Overview */}
                 <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
@@ -942,7 +942,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
             )}
 
             {/* Data Visualization Placeholder for Experiment without results */}
-            {finding.share_data && finding.experiment_id && experiment && !experimentResults && (
+            {finding.share_data === true && finding.experiment_id && experiment && !experimentResults && (
               <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
                 <CardContent className="p-8">
                   <h3 className="font-heading text-xl text-primary-text mb-4">
