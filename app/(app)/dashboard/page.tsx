@@ -104,8 +104,7 @@ export default function Dashboard() {
                 <span 
                   className="text-accent-1 transition-all duration-300"
                   style={{
-                    textShadow: `0 0 ${Math.min(10, Math.max(0, (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 100)) / 50)}px rgba(255, 255, 255, ${Math.max(0.1, 0.5 - (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 100)) / 1000)})`
-                    )
+                    textShadow: `0 0 ${Math.min(10, Math.max(0, (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 100)) / 50))}px rgba(255, 255, 255, ${Math.max(0.1, 0.5 - (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 100)) / 1000)})`
                   }}
                 >
                   Hello, {firstName}!
@@ -114,8 +113,7 @@ export default function Dashboard() {
               <p 
                 className="text-xl text-white relative z-10 transition-all duration-300"
                 style={{
-                  textShadow: `0 0 ${Math.min(8, Math.max(0, (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 150)) / 60)}px rgba(255, 255, 255, ${Math.max(0.05, 0.3 - (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 150)) / 1200)})`
-                  )
+                  textShadow: `0 0 ${Math.min(8, Math.max(0, (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 150)) / 60))}px rgba(255, 255, 255, ${Math.max(0.05, 0.3 - (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 150)) / 1200)})`
                 }}
               >
                 Ready to unlock your potential today?
