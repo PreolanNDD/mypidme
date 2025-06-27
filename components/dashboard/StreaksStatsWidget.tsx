@@ -18,12 +18,9 @@ export function StreaksStatsWidget({
 }: StreaksStatsWidgetProps) {
   if (loading) {
     return (
-      <div className="p-8 space-y-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-            <Flame className="w-5 h-5 text-white" />
-          </div>
-          <h3 className="font-heading text-xl text-white">Streaks & Stats</h3>
+      <div className="space-y-6">
+        <div className="mb-6">
+          <h2 className="font-heading text-2xl text-white">Streaks & Stats</h2>
         </div>
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
@@ -38,14 +35,9 @@ export function StreaksStatsWidget({
   }
 
   return (
-    <div className="p-8 space-y-6 group">
-      <div className="flex items-center space-x-3 mb-6">
-        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-md border border-white/10 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg">
-          <Flame className="w-5 h-5 text-white transition-all duration-300 group-hover:scale-110" />
-        </div>
-        <h3 className="font-heading text-xl text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
-          Streaks & Stats
-        </h3>
+    <div className="space-y-6 group">
+      <div className="mb-6">
+        <h2 className="font-heading text-2xl text-white">Streaks & Stats</h2>
       </div>
       
       <div className="grid grid-cols-3 gap-6">

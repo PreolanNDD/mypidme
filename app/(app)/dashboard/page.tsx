@@ -8,9 +8,12 @@ import { StreaksStatsWidget } from '@/components/dashboard/StreaksStatsWidget';
 import { ExperimentProgressWidget } from '@/components/dashboard/ExperimentProgressWidget';
 import { CommunityFeedWidget } from '@/components/dashboard/CommunityFeedWidget';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Dashboard() {
   const { userProfile, user } = useAuth();
+  const welcomeRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // Extract first name with fallback logic
   const firstName = userProfile?.first_name || 
@@ -49,6 +52,17 @@ export default function Dashboard() {
     refetchOnMount: false,
   });
 
+  // Handle mouse movement for welcome section animation
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (welcomeRef.current) {
+      const rect = welcomeRef.current.getBoundingClientRect();
+      setMousePosition({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      });
+    }
+  };
+
   const isLoading = loadingItems || loadingEntries || loadingStats;
 
   return (
@@ -69,14 +83,39 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Right: Welcome Message */}
-            <div className="flex flex-col justify-center">
-              <h1 className="text-4xl font-heading mb-2">
-                <span className="text-accent-1">Hello, {firstName}!</span>
+            {/* Right: Welcome Message with cursor-following animation */}
+            <div 
+              ref={welcomeRef}
+              onMouseMove={handleMouseMove}
+              className="flex flex-col justify-center relative overflow-hidden h-full min-h-[200px] rounded-2xl p-8 group"
+            >
+              {/* Animated gradient spotlight that follows cursor */}
+              <div 
+                className="absolute pointer-events-none w-[500px] h-[500px] bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  left: `${mousePosition.x - 250}px`,
+                  top: `${mousePosition.y - 250}px`,
+                  transform: 'translate(-50%, -50%)',
+                  transition: 'opacity 0.3s ease'
+                }}
+              ></div>
+              
+              <h1 className="text-4xl font-heading mb-2 relative z-10">
+                <span className="text-accent-1 group-hover:text-shadow-glow transition-all duration-300">Hello, {firstName}!</span>
               </h1>
-              <p className="text-xl text-white">
+              <p className="text-xl text-white relative z-10 group-hover:text-shadow-glow-subtle transition-all duration-300">
                 Ready to unlock your potential today?
               </p>
+              
+              {/* Custom CSS for text glow effects */}
+              <style jsx>{`
+                .group-hover\\:text-shadow-glow {
+                  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.2);
+                }
+                .group-hover\\:text-shadow-glow-subtle {
+                  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 0 0 16px rgba(255, 255, 255, 0.1);
+                }
+              `}</style>
             </div>
           </div>
 
