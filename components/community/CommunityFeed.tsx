@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { ChevronUp, ChevronDown, Flag, User, Calendar, MessageSquare, ArrowRight, Sparkles, BarChart3, Share2 } from 'lucide-react';
+import { ChevronUp, ChevronDown, Flag, User, Calendar, MessageSquare, ArrowRight, Sparkles, BarChart3, Share2, Plus } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -337,6 +337,10 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
     router.push(`/community/${findingId}`);
   };
 
+  const handleNewFinding = () => {
+    router.push('/community/new');
+  };
+
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', { 
       month: 'short', 
@@ -656,6 +660,36 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
             </div>
           );
         })}
+        
+        {/* Create New Finding button for My Findings tab */}
+        {activeTab === 'my-findings' && findings.length > 0 && (
+          <button
+            onClick={handleNewFinding}
+            className="group/create relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+          >
+            {/* Animated background gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/create:opacity-100 transition-opacity duration-500"></div>
+            
+            {/* Sliding highlight effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/create:translate-x-full transition-transform duration-700 ease-out"></div>
+            
+            {/* Content */}
+            <div className="relative flex items-center justify-center space-x-3">
+              {/* Icon with bounce animation */}
+              <div className="transform group-hover/create:scale-110 group-hover/create:rotate-12 transition-transform duration-300">
+                <Plus className="w-6 h-6" />
+              </div>
+              
+              {/* Text with enhanced styling */}
+              <span className="tracking-wide group-hover/create:tracking-wider transition-all duration-300">
+                Create New Finding
+              </span>
+            </div>
+            
+            {/* Pulse ring effect */}
+            <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/create:opacity-100 group-hover/create:scale-110 transition-all duration-500"></div>
+          </button>
+        )}
       </div>
 
       {/* Report Dialog */}
