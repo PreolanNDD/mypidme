@@ -127,6 +127,7 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
   const [loadingEntries, setLoadingEntries] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   // NEW ROBUST USEEFFECT - Replace all existing data loading useEffect hooks with this single one
   useEffect(() => {
@@ -264,6 +265,13 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
     saveMutation.mutate();
   }, [saveMutation, trackableItems.length]);
 
+  // Function to open the date picker when clicking anywhere in the date container
+  const handleDateContainerClick = useCallback(() => {
+    if (dateInputRef.current && !saveMutation.isPending) {
+      dateInputRef.current.showPicker();
+    }
+  }, [saveMutation.isPending]);
+
   if (loading || loadingEntries) {
     return (
       <div className="space-y-6">
@@ -280,9 +288,9 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
   return (
     <div className="space-y-6">
       {/* Daily Logger Header - Increased size */}
-      <div className="mb-6">
-        <h2 className="font-heading text-3xl text-white">Daily Logger</h2>
-        <p style={{ color: '#e6e2eb' }}>Log your daily habits and goals</p>
+      <div className="mb-6 group">
+        <h2 className="font-heading text-4xl text-white transition-all duration-300 group-hover:scale-105">Daily Logger</h2>
+        <p className="text-xl" style={{ color: '#e6e2eb' }}>Log your daily habits and goals</p>
       </div>
 
       {/* Date Selection Card - Enhanced styling with clickable area */}
@@ -296,9 +304,13 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
               <label className="block text-lg font-heading text-primary-text mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                 Select Date
               </label>
-              {/* Make the entire input clickable for date picker */}
-              <div className="relative">
+              {/* Make the entire input container clickable */}
+              <div 
+                className="relative cursor-pointer" 
+                onClick={handleDateContainerClick}
+              >
                 <input
+                  ref={dateInputRef}
                   type="date"
                   value={selectedDate}
                   onChange={handleDateChange}
@@ -306,6 +318,10 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
                   className="w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 text-lg font-medium bg-white hover:bg-white hover:shadow-md cursor-pointer"
                   disabled={saveMutation.isPending}
                 />
+                {/* Overlay to ensure the entire area is clickable */}
+                <div className="absolute inset-0 opacity-0">
+                  {/* This invisible overlay ensures the entire area is clickable */}
+                </div>
               </div>
             </div>
           </div>
