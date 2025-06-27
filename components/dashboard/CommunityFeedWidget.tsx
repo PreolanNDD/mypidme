@@ -106,26 +106,32 @@ export function CommunityFeedWidget() {
             </p>
           </div>
         </div>
-        {/* Enhanced View All Button */}
+        {/* Enhanced View All Button with Glass Morphism */}
         <button
           onClick={handleViewCommunity}
-          className="group/viewall relative overflow-hidden px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-lg hover:shadow-white/20"
+          className="group/viewall relative overflow-hidden px-6 py-3 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium transition-all duration-500 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-xl hover:shadow-white/25"
         >
+          {/* Animated background gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-indigo-500/20 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-500"></div>
+          
           {/* Sliding highlight effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/viewall:translate-x-full transition-transform duration-500 ease-out"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/viewall:translate-x-full transition-transform duration-700 ease-out"></div>
           
           {/* Content */}
-          <div className="relative flex items-center space-x-2">
-            <span className="text-sm font-medium transition-all duration-300 group-hover/viewall:tracking-wide">
+          <div className="relative flex items-center space-x-3">
+            <span className="text-sm font-medium tracking-wide group-hover/viewall:tracking-wider transition-all duration-300">
               View All
             </span>
-            <div className="transform group-hover/viewall:translate-x-1 transition-transform duration-300">
+            <div className="transform group-hover/viewall:translate-x-2 group-hover/viewall:scale-110 transition-all duration-300">
               <ArrowRight className="w-4 h-4" />
             </div>
           </div>
           
-          {/* Glow effect */}
-          <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-300"></div>
+          {/* Pulse ring effect */}
+          <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/viewall:opacity-100 group-hover/viewall:scale-110 transition-all duration-500"></div>
+          
+          {/* Inner glow effect */}
+          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/5 via-white/10 to-white/5 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-300"></div>
         </button>
       </div>
 
