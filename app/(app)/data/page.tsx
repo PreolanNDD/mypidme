@@ -291,8 +291,8 @@ export default function DataPage() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
-      <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
           {/* Main Page Header - Removed hover animation and star icon */}
           <div className="mb-4">
             <h1 className="font-heading text-3xl text-white mb-2">
@@ -353,21 +353,21 @@ export default function DataPage() {
             <>
               {/* 1. Chart Controls Section - Enhanced with animations */}
               <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/controls">
-                <div className="p-6">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 transition-all duration-500 group-hover/controls:scale-110 group-hover/controls:rotate-6">
-                      <BarChart3 className="w-6 h-6 text-white" />
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-center space-x-4 mb-4 sm:mb-6">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 transition-all duration-500 group-hover/controls:scale-110 group-hover/controls:rotate-6">
+                      <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <h3 className="font-heading text-2xl text-primary-text bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500 group-hover/controls:tracking-wider">
+                    <h3 className="font-heading text-xl sm:text-2xl text-primary-text bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500 group-hover/controls:tracking-wider">
                       Chart Controls
                     </h3>
                   </div>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {/* Form Fields in a Grid Layout */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                       {/* Output Metric Selector */}
-                      <div className="space-y-3 group/goal">
+                      <div className="space-y-2 sm:space-y-3 group/goal">
                         <label className="flex items-center space-x-2 text-sm font-medium text-primary-text transition-all duration-300 group-hover/goal:text-purple-600">
                           <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center shadow-md shadow-green-400/20 transition-all duration-300 group-hover/goal:scale-110 group-hover/goal:rotate-6">
                             <TrendingUp className="w-3 h-3 text-white" />
@@ -396,7 +396,7 @@ export default function DataPage() {
                       </div>
 
                       {/* Input Metric Selector */}
-                      <div className="space-y-3 group/habit">
+                      <div className="space-y-2 sm:space-y-3 group/habit">
                         <label className="flex items-center space-x-2 text-sm font-medium text-primary-text transition-all duration-300 group-hover/habit:text-purple-600">
                           <div className="w-6 h-6 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-md shadow-orange-400/20 transition-all duration-300 group-hover/habit:scale-110 group-hover/habit:rotate-6">
                             <Target className="w-3 h-3 text-white" />
@@ -434,7 +434,7 @@ export default function DataPage() {
                       </div>
 
                       {/* Date Range Selector */}
-                      <div className="space-y-3 group/date">
+                      <div className="space-y-2 sm:space-y-3 group/date">
                         <label className="flex items-center space-x-2 text-sm font-medium text-primary-text transition-all duration-300 group-hover/date:text-purple-600">
                           <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center shadow-md shadow-blue-400/20 transition-all duration-300 group-hover/date:scale-110 group-hover/date:rotate-6">
                             <Calendar className="w-3 h-3 text-white" />
@@ -467,7 +467,7 @@ export default function DataPage() {
                     <button 
                       onClick={handleUpdateChart}
                       disabled={!primaryMetricId || loadingChart}
-                      className="group/update relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="group/update relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-3 sm:px-8 sm:py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {/* Animated background gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/update:opacity-100 transition-opacity duration-500"></div>
@@ -483,7 +483,7 @@ export default function DataPage() {
                         </div>
                         
                         {/* Text with enhanced styling */}
-                        <span className="tracking-wide group-hover/update:tracking-wider transition-all duration-300 text-lg">
+                        <span className="tracking-wide group-hover/update:tracking-wider transition-all duration-300 text-base sm:text-lg">
                           {loadingChart ? 'Loading...' : 'Update Chart'}
                         </span>
                       </div>
@@ -497,35 +497,35 @@ export default function DataPage() {
 
               {/* 2. Visual Analysis Section - Enhanced with animations */}
               <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/chart">
-                <div className="p-6">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 transition-all duration-500 group-hover/chart:scale-110 group-hover/chart:rotate-6">
-                      <Calendar className="w-6 h-6 text-white" />
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-center space-x-4 mb-4 sm:mb-6">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 transition-all duration-500 group-hover/chart:scale-110 group-hover/chart:rotate-6">
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <h3 className="font-heading text-2xl text-primary-text bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500 group-hover/chart:tracking-wider">
+                    <h3 className="font-heading text-xl sm:text-2xl text-primary-text bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500 group-hover/chart:tracking-wider">
                       Visual Analysis
                     </h3>
                   </div>
                   
                   {!shouldFetchChart ? (
-                    <div className="h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200 transition-all duration-500 group-hover/chart:border-indigo-200 group-hover/chart:shadow-inner">
-                      <div className="text-center max-w-md px-6 py-10 transition-all duration-500 group-hover/chart:scale-105">
-                        <BarChart3 className="w-20 h-20 text-gray-300 mx-auto mb-6 transition-all duration-500 group-hover/chart:text-indigo-300 group-hover/chart:scale-110" />
-                        <p className="text-secondary-text text-lg mb-2 transition-all duration-500 group-hover/chart:text-indigo-600">Select a metric and click "Update Chart" to begin</p>
+                    <div className="h-64 sm:h-80 md:h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200 transition-all duration-500 group-hover/chart:border-indigo-200 group-hover/chart:shadow-inner">
+                      <div className="text-center max-w-md px-4 sm:px-6 py-8 sm:py-10 transition-all duration-500 group-hover/chart:scale-105">
+                        <BarChart3 className="w-16 h-16 sm:w-20 sm:h-20 text-gray-300 mx-auto mb-6 transition-all duration-500 group-hover/chart:text-indigo-300 group-hover/chart:scale-110" />
+                        <p className="text-secondary-text text-base sm:text-lg mb-2 transition-all duration-500 group-hover/chart:text-indigo-600">Select a metric and click "Update Chart" to begin</p>
                         <p className="text-gray-400 text-sm transition-all duration-500 group-hover/chart:text-indigo-400">
                           Your data visualization will appear here
                         </p>
                       </div>
                     </div>
                   ) : loadingChart ? (
-                    <div className="h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
+                    <div className="h-64 sm:h-80 md:h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
                       <div className="text-center">
                         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
                         <p className="text-secondary-text text-lg">Loading chart data...</p>
                       </div>
                     </div>
                   ) : error ? (
-                    <div className="h-96 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-2 border-dashed border-red-200">
+                    <div className="h-64 sm:h-80 md:h-96 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-2 border-dashed border-red-200">
                       <div className="text-center">
                         <p className="text-red-600 mb-4 text-lg">Error loading chart data</p>
                         <Button onClick={handleUpdateChart} variant="outline" size="lg" className="bg-white hover:bg-red-50 border-red-300 text-red-600">
@@ -535,19 +535,27 @@ export default function DataPage() {
                       </div>
                     </div>
                   ) : chartData.length === 0 ? (
-                    <div className="h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
-                      <div className="text-center max-w-md px-6 py-10">
-                        <BarChart3 className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                        <p className="text-secondary-text text-lg mb-2">No data available for the selected time period</p>
+                    <div className="h-64 sm:h-80 md:h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
+                      <div className="text-center max-w-md px-4 sm:px-6 py-8 sm:py-10">
+                        <BarChart3 className="w-16 h-16 sm:w-20 sm:h-20 text-gray-300 mx-auto mb-6" />
+                        <p className="text-secondary-text text-base sm:text-lg mb-2">No data available for the selected time period</p>
                         <p className="text-gray-400 text-sm">
                           Try selecting a different date range or log some data first
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="h-96 transition-all duration-500 transform group-hover/chart:scale-[1.01]">
+                    <div className="h-64 sm:h-80 md:h-96 transition-all duration-500 transform group-hover/chart:scale-[1.01]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 10 }}>
+                        <LineChart 
+                          data={chartData} 
+                          margin={{ 
+                            top: 5, 
+                            right: 10, 
+                            left: 0, 
+                            bottom: 5 
+                          }}
+                        >
                           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                           <XAxis 
                             dataKey="formattedDate" 
@@ -556,7 +564,7 @@ export default function DataPage() {
                             tickLine={false}
                             axisLine={{ stroke: '#e0e0e0' }}
                             tick={{ fill: '#708090' }}
-                            padding={{ left: 10, right: 10 }}
+                            padding={{ left: 5, right: 5 }}
                           />
                           
                           {/* Left Y-Axis */}
@@ -568,6 +576,7 @@ export default function DataPage() {
                             axisLine={{ stroke: '#e0e0e0' }}
                             tick={{ fill: '#7ed984' }}
                             domain={axisConfig?.leftDomain || ['auto', 'auto']}
+                            width={25}
                           />
                           
                           {/* Right Y-Axis (only if comparison metric exists) */}
@@ -583,6 +592,7 @@ export default function DataPage() {
                               domain={axisConfig.rightDomain}
                               tickFormatter={axisConfig.rightTickFormatter}
                               ticks={axisConfig.rightTicks}
+                              width={25}
                             />
                           )}
                           
