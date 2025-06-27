@@ -285,105 +285,130 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
         <p style={{ color: '#e6e2eb' }}>Log your daily habits and goals</p>
       </div>
 
-      {/* Date Selection Card */}
-      <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-3">
-            <Calendar className="w-5 h-5 text-primary" />
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-primary-text mb-2">Select Date</label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={handleDateChange}
-                max={new Date().toISOString().split('T')[0]}
-                className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                disabled={saveMutation.isPending}
-              />
-            </div>
+      {/* Date Selection Card - Enhanced styling */}
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:shadow-white/20">
+        {/* Gradient overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+        
+        <div className="relative flex items-center space-x-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transform transition-transform duration-300 hover:scale-110">
+            <Calendar className="w-6 h-6 text-white" />
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex-1">
+            <label className="block text-lg font-heading text-primary-text mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Select Date
+            </label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              max={new Date().toISOString().split('T')[0]}
+              className="w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 text-lg font-medium bg-white/90 hover:bg-white hover:shadow-md"
+              disabled={saveMutation.isPending}
+            />
+          </div>
+        </div>
+      </div>
 
       {(message || error) && (
-        <div className={`p-3 rounded-lg text-sm ${
+        <div className={`p-4 rounded-xl text-sm transition-all duration-300 ${
           message 
-            ? 'bg-green-50 border border-green-200 text-green-600' 
-            : 'bg-red-50 border border-red-200 text-red-600'
+            ? 'bg-green-50 border-2 border-green-200 text-green-600 shadow-lg shadow-green-500/20' 
+            : 'bg-red-50 border-2 border-red-200 text-red-600 shadow-lg shadow-red-500/20'
         }`}>
-          <p>{message || error}</p>
+          <p className="font-medium">{message || error}</p>
         </div>
       )}
 
       {trackableItems.length === 0 ? (
-        <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-          <CardContent className="text-center py-8">
-            <p className="text-secondary-text mb-4">No metrics to track yet. Create some metrics first!</p>
-          </CardContent>
-        </Card>
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center border border-white/20">
+          <p className="text-secondary-text mb-4">No metrics to track yet. Create some metrics first!</p>
+        </div>
       ) : (
         <>
+          {/* Habits Section - Enhanced styling matching dashboard */}
           {trackableItems.filter(item => item.category === 'INPUT').length > 0 && (
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-              <CardHeader>
+            <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px]">
+              <div className="space-y-5">
                 <div className="flex items-center space-x-3">
-                   <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
-                    <Target className="w-4 h-4 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-400/20 transform transition-transform duration-300 hover:scale-110">
+                    <Target className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="font-heading text-xl text-primary-text">Habits</h3>
+                  <h3 className="font-heading text-xl text-white bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">Habits</h3>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {trackableItems.filter(item => item.category === 'INPUT').map(item => {
-                  return (
-                    <EnhancedLogEntryField 
-                      key={`${item.id}-${selectedDate}`} 
-                      item={item} 
-                      value={formData[item.id]} 
-                      onChange={handleFieldChange}
-                    />
-                  );
-                })}
-              </CardContent>
-            </Card>
+                <div className="space-y-6">
+                  {trackableItems.filter(item => item.category === 'INPUT').map(item => (
+                    <div key={item.id} className="bg-white/95 backdrop-blur-sm rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-orange-200 hover:bg-orange-50/20">
+                      <EnhancedLogEntryField 
+                        key={`${item.id}-${selectedDate}`} 
+                        item={item} 
+                        value={formData[item.id]} 
+                        onChange={handleFieldChange}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
 
+          {/* Goals Section - Enhanced styling matching dashboard */}
           {trackableItems.filter(item => item.category === 'OUTPUT').length > 0 && (
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-              <CardHeader>
+            <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px]">
+              <div className="space-y-5">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-white" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-green-400/20 transform transition-transform duration-300 hover:scale-110">
+                    <TrendingUp className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="font-heading text-xl text-primary-text">Goals</h3>
+                  <h3 className="font-heading text-xl text-white bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">Goals</h3>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {trackableItems.filter(item => item.category === 'OUTPUT').map(item => {
-                  return (
-                    <EnhancedLogEntryField 
-                      key={`${item.id}-${selectedDate}`} 
-                      item={item} 
-                      value={formData[item.id]} 
-                      onChange={handleFieldChange}
-                    />
-                  );
-                })}
-              </CardContent>
-            </Card>
+                <div className="space-y-6">
+                  {trackableItems.filter(item => item.category === 'OUTPUT').map(item => (
+                    <div key={item.id} className="bg-white/95 backdrop-blur-sm rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:bg-green-50/20">
+                      <EnhancedLogEntryField 
+                        key={`${item.id}-${selectedDate}`} 
+                        item={item} 
+                        value={formData[item.id]} 
+                        onChange={handleFieldChange}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
           
-          <Button 
-            onClick={handleSave} 
-            loading={saveMutation.isPending} 
-            className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200" 
-            style={{ color: '#4a2a6d' }}
-            size="lg"
-            disabled={saveMutation.isPending}
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save Changes
-          </Button>
+          {/* Enhanced Save Button - Styled like "Discover More Insights" button */}
+          <div className="pt-4">
+            <button
+              onClick={handleSave}
+              disabled={saveMutation.isPending}
+              className="group/save relative overflow-hidden w-full px-6 py-4 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white/60 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:border-white hover:shadow-xl hover:shadow-white/30"
+            >
+              {/* Sliding highlight effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/50 to-transparent -translate-x-full group-hover/save:translate-x-full transition-transform duration-500 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center justify-center space-x-3">
+                {/* Icon with animation */}
+                <div className="transform group-hover/save:scale-110 group-hover/save:rotate-12 transition-transform duration-300">
+                  {saveMutation.isPending ? (
+                    <div className="w-5 h-5 border-2 border-gray-800 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Save className="w-5 h-5 text-purple-600" />
+                  )}
+                </div>
+                
+                {/* Text with enhanced styling */}
+                <span className="font-semibold text-lg transition-all duration-300 group-hover/save:tracking-wide text-gray-800">
+                  {saveMutation.isPending ? 'Saving Changes...' : 'Save Changes'}
+                </span>
+              </div>
+              
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 rounded-xl bg-purple-100/20 opacity-0 group-hover/save:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          </div>
         </>
       )}
     </div>
