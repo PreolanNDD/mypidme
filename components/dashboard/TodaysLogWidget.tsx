@@ -94,7 +94,8 @@ function EnhancedLogEntryField({ item, value, onChange }: {
   }, [item.id, onChange]);
 
   if (item.type === 'NUMERIC') {
-    const numericValue = value === null || value === undefined ? 0 : Number(value);
+    // Ensure numeric value is a number, defaulting to 0 if invalid
+    const numericValue = typeof value === 'number' && !isNaN(value) ? value : 0;
     
     return (
       <div className="space-y-3 group">
