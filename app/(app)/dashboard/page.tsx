@@ -8,12 +8,9 @@ import { StreaksStatsWidget } from '@/components/dashboard/StreaksStatsWidget';
 import { ExperimentProgressWidget } from '@/components/dashboard/ExperimentProgressWidget';
 import { CommunityFeedWidget } from '@/components/dashboard/CommunityFeedWidget';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
 
 export default function Dashboard() {
   const { userProfile, user } = useAuth();
-  const welcomeRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // Extract first name with fallback logic
   const firstName = userProfile?.first_name || 
@@ -52,17 +49,6 @@ export default function Dashboard() {
     refetchOnMount: false,
   });
 
-  // Handle mouse movement for welcome section animation
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (welcomeRef.current) {
-      const rect = welcomeRef.current.getBoundingClientRect();
-      setMousePosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-    }
-  };
-
   const isLoading = loadingItems || loadingEntries || loadingStats;
 
   return (
@@ -83,41 +69,29 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Right: Welcome Message with cursor-following animation */}
-            <div 
-              ref={welcomeRef}
-              onMouseMove={handleMouseMove}
-              className="flex flex-col justify-center relative overflow-hidden h-full min-h-[200px] rounded-2xl p-8"
-            >
-              {/* Animated gradient spotlight that follows cursor */}
-              <div 
-                className="absolute pointer-events-none w-[500px] h-[500px] bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 rounded-full blur-3xl opacity-0 transition-opacity duration-300"
-                style={{
-                  left: `${mousePosition.x - 250}px`,
-                  top: `${mousePosition.y - 250}px`,
-                  transform: 'translate(-50%, -50%)',
-                  transition: 'opacity 0.3s ease'
-                }}
-              ></div>
+            {/* Right: Welcome Message with enhanced styling */}
+            <div className="flex flex-col justify-center h-full min-h-[200px] rounded-2xl p-8 relative overflow-hidden">
+              {/* Background decorative elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-purple-500/20 to-transparent rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
               
-              <h1 className="text-4xl font-heading mb-2 relative z-10">
-                <span 
-                  className="text-accent-1 transition-all duration-300"
-                  style={{
-                    textShadow: `0 0 ${Math.min(10, Math.max(0, (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 100)) / 50))}px rgba(255, 255, 255, ${Math.max(0.1, 0.5 - (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 100)) / 1000)})`
-                  }}
-                >
+              {/* Content with enhanced styling */}
+              <div className="relative z-10 space-y-4">
+                <h1 className="text-5xl font-heading bg-gradient-to-r from-accent-1 via-yellow-300 to-accent-1 bg-clip-text text-transparent">
                   Hello, {firstName}!
-                </span>
-              </h1>
-              <p 
-                className="text-xl text-white relative z-10 transition-all duration-300"
-                style={{
-                  textShadow: `0 0 ${Math.min(8, Math.max(0, (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 150)) / 60))}px rgba(255, 255, 255, ${Math.max(0.05, 0.3 - (Math.abs(mousePosition.x - 250) + Math.abs(mousePosition.y - 150)) / 1200)})`
-                }}
-              >
-                Ready to unlock your potential today?
-              </p>
+                </h1>
+                <div className="space-y-2">
+                  <p className="text-2xl text-white font-light">
+                    Ready to unlock your potential today?
+                  </p>
+                  <div className="w-20 h-1 bg-gradient-to-r from-accent-1 to-accent-1/50 rounded-full"></div>
+                </div>
+                
+                {/* Optional motivational quote */}
+                <p className="text-white/70 text-sm italic mt-4 max-w-md">
+                  "The key to success is to focus on goals, not obstacles."
+                </p>
+              </div>
             </div>
           </div>
 
