@@ -54,7 +54,7 @@ function NumericInput({ value, onChange, disabled }: {
         size="sm"
         onClick={handleDecrement}
         disabled={disabled || value <= 0}
-        className="w-8 h-8 p-0 rounded-full"
+        className="w-10 h-10 p-0 rounded-full bg-white hover:bg-gray-50 border-gray-200 hover:border-primary/50 hover:text-primary transition-all duration-300 transform hover:scale-110 shadow-sm hover:shadow-md"
       >
         <Minus className="w-4 h-4" />
       </Button>
@@ -66,7 +66,7 @@ function NumericInput({ value, onChange, disabled }: {
           onChange={handleDirectChange}
           disabled={disabled}
           min="0"
-          className="w-full text-center text-2xl font-bold bg-transparent border-none outline-none text-primary-text"
+          className="w-full text-center text-3xl font-bold bg-transparent border-none outline-none text-primary-text transition-all duration-300 focus:scale-110"
         />
       </div>
       
@@ -76,7 +76,7 @@ function NumericInput({ value, onChange, disabled }: {
         size="sm"
         onClick={handleIncrement}
         disabled={disabled}
-        className="w-8 h-8 p-0 rounded-full"
+        className="w-10 h-10 p-0 rounded-full bg-white hover:bg-gray-50 border-gray-200 hover:border-primary/50 hover:text-primary transition-all duration-300 transform hover:scale-110 shadow-sm hover:shadow-md"
       >
         <Plus className="w-4 h-4" />
       </Button>
@@ -98,9 +98,9 @@ function EnhancedLogEntryField({ item, value, onChange }: {
     const numericValue = value === null || value === undefined ? 0 : Number(value);
     
     return (
-      <div className="space-y-3">
+      <div className="space-y-3 group">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-primary-text">
+          <label className="text-sm font-medium text-primary-text group-hover:text-primary transition-colors duration-300">
             {item.name}
           </label>
         </div>
@@ -114,11 +114,13 @@ function EnhancedLogEntryField({ item, value, onChange }: {
 
   // For all other types, use the original LogEntryField
   return (
-    <LogEntryField 
-      item={item} 
-      value={value} 
-      onChange={handleChange}
-    />
+    <div className="group">
+      <LogEntryField 
+        item={item} 
+        value={value} 
+        onChange={handleChange}
+      />
+    </div>
   );
 }
 
@@ -265,10 +267,26 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
           </div>
         </div>
 
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
-          ))}
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
+          <div className="space-y-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded-full w-3/4"></div>
+              <div className="h-2 bg-gray-200 rounded-full w-full"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded-full w-1/2"></div>
+                  <div className="h-20 bg-gray-200 rounded-lg"></div>
+                  <div className="h-20 bg-gray-200 rounded-lg"></div>
+                </div>
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded-full w-1/2"></div>
+                  <div className="h-20 bg-gray-200 rounded-lg"></div>
+                  <div className="h-20 bg-gray-200 rounded-lg"></div>
+                </div>
+              </div>
+              <div className="h-10 bg-gray-200 rounded-lg w-full"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -390,29 +408,42 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
           <CardContent className="p-8">
             <div className="text-center py-8">
               <div className="space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle className="w-8 h-8 text-white" />
+                <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-green-400/20 animate-pulse">
+                  <CheckCircle className="w-10 h-10 text-white" />
                 </div>
-                <div>
-                  <h3 className="font-heading text-xl text-primary-text mb-2">Great job!</h3>
-                  <p className="text-secondary-text">You've logged all your metrics for today. Keep up the excellent work!</p>
+                <div className="space-y-3">
+                  <h3 className="font-heading text-2xl text-primary-text mb-2 bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">Great job!</h3>
+                  <p className="text-lg text-gray-700 max-w-md mx-auto">You've logged all your metrics for today. Keep up the excellent work!</p>
+                  <div className="w-16 h-1 bg-gradient-to-r from-green-400 to-teal-400 mx-auto rounded-full"></div>
                 </div>
-                <div className="flex space-x-3 justify-center">
-                  <Button 
-                    variant="outline" 
+                <div className="flex space-x-3 justify-center pt-4">
+                  <button 
                     onClick={() => window.location.href = '/data'}
-                    className="bg-white hover:bg-gray-50 border-gray-200 text-primary hover:text-primary/90"
+                    className="group/view relative overflow-hidden rounded-lg bg-white px-6 py-3 text-gray-800 font-medium border border-gray-200 shadow-md transition-all duration-300 hover:shadow-lg hover:border-primary/30"
                   >
-                    View Your Progress
-                  </Button>
-                  <Button 
+                    {/* Sliding highlight effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent -translate-x-full group-hover/view:translate-x-full transition-transform duration-700 ease-out"></div>
+                    
+                    {/* Content */}
+                    <div className="relative flex items-center justify-center space-x-2">
+                      <span className="tracking-wide group-hover/view:tracking-wider transition-all duration-300 group-hover/view:text-primary">
+                        View Your Progress
+                      </span>
+                    </div>
+                  </button>
+                  
+                  <button 
                     onClick={handleEditClick}
-                    variant="ghost"
-                    className="text-gray-600 hover:text-primary hover:bg-gray-50"
+                    className="group/edit relative overflow-hidden rounded-lg bg-transparent px-6 py-3 text-gray-600 font-medium border border-transparent hover:border-gray-200 transition-all duration-300 hover:bg-white/50 hover:shadow-md"
                   >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Today's Log
-                  </Button>
+                    {/* Content */}
+                    <div className="relative flex items-center justify-center space-x-2">
+                      <Edit className="w-4 h-4 group-hover/edit:scale-110 transition-transform duration-300" />
+                      <span className="tracking-wide group-hover/edit:tracking-wider transition-all duration-300 group-hover/edit:text-primary">
+                        Edit Today's Log
+                      </span>
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>
@@ -460,63 +491,115 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
 
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
         <div className="space-y-6">
-          {/* Progress Bar */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
+          {/* Progress Bar - ENHANCED */}
+          <div className="relative">
+            <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-medium text-primary-text">Today's Progress</span>
-              <span className="text-sm text-secondary-text">
-                {progressMetrics.completed}/{progressMetrics.total} metrics logged
-              </span>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-primary">
+                  {progressMetrics.completed}
+                </span>
+                <span className="text-sm text-secondary-text">
+                  / {progressMetrics.total} metrics logged
+                </span>
+              </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            
+            {/* Enhanced Progress Bar with Animation */}
+            <div className="relative w-full h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-400/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+              </div>
+              
+              {/* Progress Fill */}
               <div 
-                className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                className={`h-full rounded-full transition-all duration-1000 ease-out relative overflow-hidden ${
                   progressMetrics.percentage === 100 
-                    ? 'bg-gradient-to-r from-green-400 to-green-500' 
-                    : progressMetrics.percentage > 0 
-                      ? 'bg-gradient-to-r from-purple-500 to-indigo-500' 
-                      : 'bg-gray-300'
+                    ? 'bg-gradient-to-r from-green-400 to-teal-500' 
+                    : 'bg-gradient-to-r from-purple-500 to-indigo-500'
                 }`}
                 style={{ width: `${progressMetrics.percentage}%` }}
-              ></div>
+              >
+                {/* Animated Shine Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+              </div>
+              
+              {/* Pulsing Dot at Progress End - Only show if not complete */}
+              {progressMetrics.percentage > 0 && progressMetrics.percentage < 100 && (
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white shadow-md border-2 border-indigo-500 animate-pulse"
+                  style={{ left: `calc(${progressMetrics.percentage}% - 10px)` }}
+                ></div>
+              )}
+              
+              {/* Completion Star - Only show if 100% */}
+              {progressMetrics.percentage === 100 && (
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 right-0 w-5 h-5 rounded-full bg-white shadow-md border-2 border-green-500 flex items-center justify-center animate-pulse"
+                >
+                  <CheckCircle className="w-3 h-3 text-green-500" />
+                </div>
+              )}
             </div>
+            
+            {/* Percentage Text - Only show if in progress */}
             {progressMetrics.percentage > 0 && progressMetrics.percentage < 100 && (
-              <p className="text-xs text-secondary-text mt-1">
-                {Math.round(progressMetrics.percentage)}% complete
-              </p>
+              <div className="mt-2 flex justify-end">
+                <div className="text-xs font-medium px-2 py-1 rounded-full bg-indigo-50 text-indigo-700 animate-pulse">
+                  {Math.round(progressMetrics.percentage)}% complete
+                </div>
+              </div>
+            )}
+            
+            {/* Completion Text - Only show if 100% */}
+            {progressMetrics.percentage === 100 && (
+              <div className="mt-2 flex justify-end">
+                <div className="text-xs font-medium px-2 py-1 rounded-full bg-green-50 text-green-700">
+                  All metrics logged! ✓
+                </div>
+              </div>
             )}
           </div>
 
           {message && (
-            <div className={`p-3 rounded-lg text-sm ${
+            <div className={`p-4 rounded-lg text-sm ${
               message.includes('successfully') 
-                ? 'bg-green-50 border border-green-200 text-green-600' 
-                : 'bg-red-50 border border-red-200 text-red-600'
+                ? 'bg-green-50 border border-green-200 text-green-600 animate-fadeIn' 
+                : 'bg-red-50 border border-red-200 text-red-600 animate-fadeIn'
             }`}>
-              <p>{message}</p>
+              <p className="flex items-center">
+                {message.includes('successfully') ? (
+                  <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
+                ) : (
+                  <div className="w-4 h-4 mr-2 text-red-500">!</div>
+                )}
+                {message}
+              </p>
             </div>
           )}
 
           {/* Two-column layout for metrics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Column: Input Metrics */}
-            <div className="space-y-6">
+            <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px]">
               {inputItems.length > 0 && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center">
-                      <Target className="w-4 h-4 text-white" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-400/20 transform transition-transform duration-300 hover:scale-110">
+                      <Target className="w-5 h-5 text-white" />
                     </div>
-                    <h3 className="font-heading text-lg text-primary-text">Inputs</h3>
+                    <h3 className="font-heading text-xl text-primary-text bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">Habits</h3>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {inputItems.map(item => (
-                      <EnhancedLogEntryField 
-                        key={item.id}
-                        item={item} 
-                        value={formData[item.id]} 
-                        onChange={handleFieldChange}
-                      />
+                      <div key={item.id} className="bg-white rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-orange-200 hover:bg-orange-50/20">
+                        <EnhancedLogEntryField 
+                          item={item} 
+                          value={formData[item.id]} 
+                          onChange={handleFieldChange}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -524,23 +607,24 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
             </div>
 
             {/* Right Column: Output Metrics */}
-            <div className="space-y-6">
+            <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px]">
               {outputItems.length > 0 && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-white" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-green-400/20 transform transition-transform duration-300 hover:scale-110">
+                      <TrendingUp className="w-5 h-5 text-white" />
                     </div>
-                    <h3 className="font-heading text-lg text-primary-text">Outputs</h3>
+                    <h3 className="font-heading text-xl text-primary-text bg-gradient-to-r from-green-600 to-teal-500 bg-clip-text text-transparent">Goals</h3>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {outputItems.map(item => (
-                      <EnhancedLogEntryField 
-                        key={item.id}
-                        item={item} 
-                        value={formData[item.id]} 
-                        onChange={handleFieldChange}
-                      />
+                      <div key={item.id} className="bg-white rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:bg-green-50/20">
+                        <EnhancedLogEntryField 
+                          item={item} 
+                          value={formData[item.id]} 
+                          onChange={handleFieldChange}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -582,13 +666,34 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
         </div>
       </div>
 
-      {/* Enhanced Custom CSS for text glow effects */}
+      {/* Enhanced Custom CSS for text glow effects and animations */}
       <style jsx>{`
         .group:hover .group-hover\\:text-shadow-glow {
           text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
         }
         .group:hover .group-hover\\:text-shadow-glow-subtle {
           text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 16px rgba(255, 255, 255, 0.4), 0 0 24px rgba(255, 255, 255, 0.2);
+        }
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+        @keyframes fadeIn {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out forwards;
         }
       `}</style>
     </div>
