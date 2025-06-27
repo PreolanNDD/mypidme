@@ -151,14 +151,24 @@ export function ExperimentProgressWidget() {
           <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
             Design controlled experiments to test what really works for your optimization goals.
           </p>
-          <Button 
-            onClick={handleCreateExperiment} 
-            className="w-full sm:w-auto bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
-            style={{ color: '#4a2a6d' }}
+          <button
+            onClick={handleCreateExperiment}
+            className="group/create relative overflow-hidden w-full px-6 py-4 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white/60 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:border-white hover:shadow-xl hover:shadow-white/30"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Your First Experiment
-          </Button>
+            {/* Sliding highlight effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/50 to-transparent -translate-x-full group-hover/create:translate-x-full transition-transform duration-500 ease-out"></div>
+            
+            {/* Content */}
+            <div className="relative flex items-center justify-center space-x-3">
+              <Plus className="w-5 h-5 text-purple-600" />
+              <span className="font-semibold text-lg transition-all duration-300 group-hover/create:tracking-wide text-gray-800">
+                Create Your First Experiment
+              </span>
+            </div>
+            
+            {/* Subtle glow effect */}
+            <div className="absolute inset-0 rounded-xl bg-purple-100/20 opacity-0 group-hover/create:opacity-100 transition-opacity duration-300"></div>
+          </button>
         </div>
       ) : (
         // Show active experiments - Individual items as white containers with interactive effects
@@ -264,18 +274,26 @@ export function ExperimentProgressWidget() {
             </div>
           )}
 
-          {/* Create new experiment button */}
+          {/* Enhanced "Start New Experiment" button - Matching Community Insights style */}
           <div className="pt-2">
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={handleCreateExperiment}
-              className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
-              style={{ color: '#4a2a6d' }}
+              className="group/discover relative overflow-hidden w-full px-6 py-4 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white/60 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:border-white hover:shadow-xl hover:shadow-white/30"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Start New Experiment
-            </Button>
+              {/* Sliding highlight effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/50 to-transparent -translate-x-full group-hover/discover:translate-x-full transition-transform duration-500 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center justify-center space-x-3">
+                <Plus className="w-5 h-5 text-purple-600" />
+                <span className="font-semibold text-lg transition-all duration-300 group-hover/discover:tracking-wide text-gray-800">
+                  Start New Experiment
+                </span>
+              </div>
+              
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 rounded-xl bg-purple-100/20 opacity-0 group-hover/discover:opacity-100 transition-opacity duration-300"></div>
+            </button>
           </div>
         </div>
       )}
