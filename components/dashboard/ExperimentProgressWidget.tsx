@@ -140,14 +140,32 @@ export function ExperimentProgressWidget() {
           <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
             Design controlled experiments to test what really works for your optimization goals.
           </p>
-          <Button 
-            onClick={handleCreateExperiment} 
-            className="w-full sm:w-auto bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
-            style={{ color: '#4a2a6d' }}
+          <button
+            onClick={handleCreateExperiment}
+            className="group/experiment relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Your First Experiment
-          </Button>
+            {/* Animated background gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/experiment:opacity-100 transition-opacity duration-500"></div>
+            
+            {/* Sliding highlight effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/experiment:translate-x-full transition-transform duration-700 ease-out"></div>
+            
+            {/* Content */}
+            <div className="relative flex items-center justify-center space-x-3">
+              {/* Icon with bounce animation */}
+              <div className="transform group-hover/experiment:scale-110 group-hover/experiment:rotate-12 transition-transform duration-300">
+                <Plus className="w-6 h-6" />
+              </div>
+              
+              {/* Text with enhanced styling */}
+              <span className="tracking-wide group-hover/experiment:tracking-wider transition-all duration-300">
+                Create Your First Experiment
+              </span>
+            </div>
+            
+            {/* Pulse ring effect */}
+            <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/experiment:opacity-100 group-hover/experiment:scale-110 transition-all duration-500"></div>
+          </button>
         </div>
       ) : (
         // Show active experiments - Individual items as white containers with interactive effects
