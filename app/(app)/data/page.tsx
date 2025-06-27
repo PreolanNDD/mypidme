@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2, Sparkles, ChevronRight } from 'lucide-react';
+import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2, Sparkles, ChevronRight, ArrowRight } from 'lucide-react';
 import { RelationshipStory } from '@/components/dashboard/RelationshipStory';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { useQuery } from '@tanstack/react-query';
@@ -293,8 +293,8 @@ export default function DataPage() {
       {/* Content */}
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
-          {/* Main Page Header with Share Button - Enhanced with animations */}
-          <div className="flex items-center justify-between mb-8 group/header">
+          {/* Main Page Header */}
+          <div className="mb-4 group/header">
             <div className="transition-all duration-500 group-hover/header:translate-x-2">
               <h1 className="font-heading text-3xl text-white mb-2 relative">
                 Data Analysis
@@ -306,18 +306,34 @@ export default function DataPage() {
                 Ever wonder why some days feel great and others don't? Select any goal and any habit to visualize their relationship and find the answer.
               </p>
             </div>
-            {canShare && (
-              <Button
-                onClick={handleShareFinding}
-                className="group/share relative overflow-hidden bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-all duration-300 hover:shadow-lg hover:shadow-white/20 hover:scale-105"
-                style={{ color: '#4a2a6d' }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/30 to-transparent -translate-x-full group-hover/share:translate-x-full transition-transform duration-700 ease-out"></div>
-                <Share2 className="w-4 h-4 mr-2 transition-transform duration-300 group-hover/share:rotate-12" />
-                <span className="transition-all duration-300 group-hover/share:tracking-wider">Share Finding</span>
-              </Button>
-            )}
           </div>
+          
+          {/* Share Finding Button - Styled like "view all" button from dashboard */}
+          {canShare && (
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={handleShareFinding}
+                className="group/viewall relative overflow-hidden px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-lg hover:shadow-white/20"
+              >
+                {/* Sliding highlight effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/viewall:translate-x-full transition-transform duration-500 ease-out"></div>
+                
+                {/* Content */}
+                <div className="relative flex items-center space-x-2">
+                  <Share2 className="w-4 h-4" />
+                  <span className="text-sm font-medium transition-all duration-300 group-hover/viewall:tracking-wide">
+                    Share Finding
+                  </span>
+                  <div className="transform group-hover/viewall:translate-x-1 transition-transform duration-300">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
+                
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </div>
+          )}
 
           {outputMetrics.length === 0 ? (
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden group/empty transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 border border-white/20">
