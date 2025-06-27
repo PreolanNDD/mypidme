@@ -84,7 +84,7 @@ export function Sidebar() {
         isOpen ? "w-64" : "w-20"
       )}>
         {/* Header with Logo */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="ml-2 flex items-center justify-between p-4 border-b border-gray-200">
           <div className={cn(
             "transition-all duration-500 ease-in-out overflow-hidden",
             isOpen ? "opacity-100 w-40" : "opacity-0 w-0"
@@ -134,9 +134,6 @@ export function Sidebar() {
                   className={cn(
                     'flex items-center rounded-xl transition-all duration-300 group relative overflow-hidden',
                     isOpen ? 'px-4 py-3' : 'px-0 py-3 justify-center',
-                    isActive
-                      ? 'text-white'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
                   )}
                 >
                   {/* Background for active item */}
@@ -148,7 +145,7 @@ export function Sidebar() {
                   <div className={cn(
                     "flex items-center justify-center transition-all duration-300 relative z-10",
                     isOpen ? 'w-10 h-10' : 'w-12 h-12',
-                    isActive ? 'bg-white/20 rounded-lg' : 'text-gray-600 group-hover:text-primary'
+                    isActive ? 'bg-white/20 rounded-lg' : ''
                   )}>
                     <Icon className={cn(
                       "transition-all duration-300",
