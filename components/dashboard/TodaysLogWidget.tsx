@@ -255,7 +255,12 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
           <div>
             <h3 className="font-heading text-xl text-white">Today's Log</h3>
             <p className="text-base" style={{ color: '#e6e2eb' }}>
-              Log your daily habits and goals
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </p>
           </div>
         </div>
@@ -283,7 +288,12 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
               Today's Log
             </h3>
             <p className="text-base transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
-              Log your daily habits and goals
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </p>
           </div>
         </div>
@@ -366,7 +376,12 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
               Today's Log
             </h3>
             <p className="text-base transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
-              Log your daily habits and goals
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </p>
           </div>
         </div>
@@ -433,40 +448,18 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
             Today's Log
           </h3>
           <p className="text-base transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
-            Log your daily habits and goals
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
           </p>
         </div>
       </div>
 
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
         <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <h2 className="font-heading text-2xl text-primary-text">Today's Log</h2>
-              <p className="text-secondary-text">
-                {new Date().toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </p>
-            </div>
-            {isEditing && (
-              <Button
-                size="sm"
-                onClick={() => setIsEditing(false)}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
-              >
-                Cancel Edit
-              </Button>
-            )}
-          </div>
-          
           {/* Progress Bar */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -555,16 +548,37 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
             </div>
           </div>
           
-          <Button 
+          <button 
             onClick={handleSave}
-            loading={saveMutation.isPending}
-            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300" 
-            size="lg"
             disabled={saveMutation.isPending}
+            className="group/save relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
           >
-            <Save className="w-4 h-4 mr-2" />
-            Save Today's Log
-          </Button>
+            {/* Animated background gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/save:opacity-100 transition-opacity duration-500"></div>
+            
+            {/* Sliding highlight effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/save:translate-x-full transition-transform duration-700 ease-out"></div>
+            
+            {/* Content */}
+            <div className="relative flex items-center justify-center space-x-3">
+              {/* Icon with animation */}
+              <div className="transform group-hover/save:scale-110 group-hover/save:rotate-12 transition-transform duration-300">
+                {saveMutation.isPending ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <Save className="w-5 h-5" />
+                )}
+              </div>
+              
+              {/* Text with enhanced styling */}
+              <span className="tracking-wide group-hover/save:tracking-wider transition-all duration-300">
+                {saveMutation.isPending ? 'Saving...' : 'Save Today\'s Log'}
+              </span>
+            </div>
+            
+            {/* Pulse ring effect */}
+            <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/save:opacity-100 group-hover/save:scale-110 transition-all duration-500"></div>
+          </button>
         </div>
       </div>
 
