@@ -153,21 +153,29 @@ export function ExperimentProgressWidget() {
           </p>
           <button
             onClick={handleCreateExperiment}
-            className="group/create relative overflow-hidden w-full px-6 py-4 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white/60 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:border-white hover:shadow-xl hover:shadow-white/30"
+            className="group/button relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
           >
+            {/* Animated background gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/button:opacity-100 transition-opacity duration-500"></div>
+            
             {/* Sliding highlight effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/50 to-transparent -translate-x-full group-hover/create:translate-x-full transition-transform duration-500 ease-out"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/button:translate-x-full transition-transform duration-700 ease-out"></div>
             
             {/* Content */}
             <div className="relative flex items-center justify-center space-x-3">
-              <Plus className="w-5 h-5 text-purple-600" />
-              <span className="font-semibold text-lg transition-all duration-300 group-hover/create:tracking-wide text-gray-800">
+              {/* Icon with animation */}
+              <div className="transform group-hover/button:scale-110 group-hover/button:rotate-12 transition-transform duration-300">
+                <Plus className="w-5 h-5" />
+              </div>
+              
+              {/* Text with enhanced styling */}
+              <span className="tracking-wide group-hover/button:tracking-wider transition-all duration-300">
                 Create Your First Experiment
               </span>
             </div>
             
-            {/* Subtle glow effect */}
-            <div className="absolute inset-0 rounded-xl bg-purple-100/20 opacity-0 group-hover/create:opacity-100 transition-opacity duration-300"></div>
+            {/* Pulse ring effect */}
+            <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/button:opacity-100 group-hover/button:scale-105 transition-all duration-500"></div>
           </button>
         </div>
       ) : (
@@ -242,7 +250,7 @@ export function ExperimentProgressWidget() {
                   </div>
 
                   {/* Enhanced Progress Section */}
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium text-primary-text group-hover/experiment:text-purple-700 transition-colors duration-300">Progress</span>
                       <span className="text-secondary-text group-hover/experiment:text-purple-600 transition-colors duration-300">
@@ -254,9 +262,9 @@ export function ExperimentProgressWidget() {
                         }
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 group-hover/experiment:bg-gray-300 transition-colors duration-300 overflow-hidden">
+                    <div className="w-full bg-gray-200 rounded-full h-2 group-hover/experiment:bg-gray-300 transition-colors duration-300 overflow-hidden">
                       <div 
-                        className={`h-3 rounded-full transition-all duration-700 ease-out ${
+                        className={`h-2 rounded-full transition-all duration-700 ease-out ${
                           progress.status === 'completed' 
                             ? 'bg-gradient-to-r from-green-400 to-teal-500 group-hover/experiment:from-green-500 group-hover/experiment:to-teal-600' 
                             : progress.status === 'active'
@@ -311,21 +319,29 @@ export function ExperimentProgressWidget() {
           <div className="pt-2">
             <button
               onClick={handleCreateExperiment}
-              className="group/discover relative overflow-hidden w-full px-6 py-4 rounded-xl bg-white/90 backdrop-blur-sm border-2 border-white/60 text-gray-800 shadow-lg transition-all duration-300 hover:bg-white hover:border-white hover:shadow-xl hover:shadow-white/30"
+              className="group/button relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
             >
+              {/* Animated background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/button:opacity-100 transition-opacity duration-500"></div>
+              
               {/* Sliding highlight effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/50 to-transparent -translate-x-full group-hover/discover:translate-x-full transition-transform duration-500 ease-out"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/button:translate-x-full transition-transform duration-700 ease-out"></div>
               
               {/* Content */}
               <div className="relative flex items-center justify-center space-x-3">
-                <Plus className="w-5 h-5 text-purple-600" />
-                <span className="font-semibold text-lg transition-all duration-300 group-hover/discover:tracking-wide text-gray-800">
+                {/* Icon with animation */}
+                <div className="transform group-hover/button:scale-110 group-hover/button:rotate-12 transition-transform duration-300">
+                  <Plus className="w-5 h-5" />
+                </div>
+                
+                {/* Text with enhanced styling */}
+                <span className="tracking-wide group-hover/button:tracking-wider transition-all duration-300">
                   Start New Experiment
                 </span>
               </div>
               
-              {/* Subtle glow effect */}
-              <div className="absolute inset-0 rounded-xl bg-purple-100/20 opacity-0 group-hover/discover:opacity-100 transition-opacity duration-300"></div>
+              {/* Pulse ring effect */}
+              <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/button:opacity-100 group-hover/button:scale-105 transition-all duration-500"></div>
             </button>
           </div>
         </div>
