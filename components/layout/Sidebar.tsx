@@ -135,18 +135,18 @@ export function Sidebar() {
                     'flex items-center rounded-xl transition-all duration-300 group relative overflow-hidden',
                     isOpen ? 'px-4 py-3' : 'px-0 py-3 justify-center',
                     isActive
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20 scale-105'
+                      ? 'bg-[#9b5de5] text-white shadow-lg'
                       : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
                   )}
                 >
                   {/* Background glow effect */}
                   {isActive && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/80 to-indigo-600/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#9b5de5]/80 to-[#9b5de5]/80 opacity-100 transition-opacity duration-500"></div>
                   )}
                   
                   {/* Icon container with animations */}
                   <div className={cn(
-                    "flex items-center justify-center transition-all duration-300",
+                    "flex items-center justify-center transition-all duration-300 relative z-10",
                     isOpen ? 'w-10 h-10' : 'w-12 h-12',
                     isActive ? 'bg-white/20 rounded-lg' : 'text-gray-600 group-hover:text-primary'
                   )}>
@@ -164,7 +164,7 @@ export function Sidebar() {
                   
                   {/* Text with slide-in animation */}
                   <span className={cn(
-                    "font-medium transition-all duration-500 ease-in-out",
+                    "font-medium transition-all duration-500 ease-in-out relative z-10",
                     isOpen ? 'ml-3 opacity-100 translate-x-0' : 'opacity-0 translate-x-10 absolute',
                     isActive ? 'text-white' : 'text-gray-700 group-hover:text-primary'
                   )}>
@@ -206,7 +206,7 @@ export function Sidebar() {
               
               {/* Icon container with animations */}
               <div className={cn(
-                "flex items-center justify-center transition-all duration-300 relative",
+                "flex items-center justify-center transition-all duration-300 relative z-10",
                 isOpen ? 'w-10 h-10' : 'w-12 h-12'
               )}>
                 <LogOut className={cn(
@@ -217,7 +217,7 @@ export function Sidebar() {
               </div>
               
               <span className={cn(
-                "font-medium transition-all duration-500 ease-in-out",
+                "font-medium transition-all duration-500 ease-in-out relative z-10",
                 isOpen ? 'ml-3 opacity-100 translate-x-0' : 'opacity-0 translate-x-10 absolute',
                 'text-gray-700 group-hover:text-red-600'
               )}>
