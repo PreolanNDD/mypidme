@@ -31,6 +31,17 @@ export default function LabPage() {
   const [experimentToDelete, setExperimentToDelete] = useState<Experiment | null>(null);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
 
+  // Helper function to get error message
+  const getErrorMessage = (error: unknown): string => {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    if (typeof error === 'string') {
+      return error;
+    }
+    return 'An unknown error occurred';
+  };
+
   // Enhanced error handling for trackable items
   const { data: trackableItems = [], isLoading: loadingItems, error: itemsError } = useQuery<TrackableItem[]>({
     queryKey: ['trackableItems', user?.id],
@@ -142,7 +153,7 @@ export default function LabPage() {
     },
     onError: (error) => {
       console.error('Error updating experiment status:', error);
-      alert(`Failed to update experiment status: ${error.message}`);
+      alert(`Failed to update experiment status: ${getErrorMessage(error)}`);
     },
   });
 
@@ -162,7 +173,7 @@ export default function LabPage() {
     },
     onError: (error) => {
       console.error('Error deleting experiment:', error);
-      alert(`Failed to delete experiment: ${error.message}`);
+      alert(`Failed to delete experiment: ${getErrorMessage(error)}`);
       setShowDeleteDialog(false);
       setExperimentToDelete(null);
     },
@@ -247,7 +258,7 @@ export default function LabPage() {
       setShowResultsDialog(true);
     } catch (error) {
       console.error('Failed to analyze experiment:', error);
-      alert(`Failed to analyze experiment results: ${error.message}`);
+      alert(`Failed to analyze experiment results: ${getErrorMessage(error)}`);
     } finally {
       setAnalyzingId(null);
     }
@@ -266,7 +277,7 @@ export default function LabPage() {
       setShowResultsDialog(true);
     } catch (error) {
       console.error('Failed to analyze experiment progress:', error);
-      alert(`Failed to analyze experiment progress: ${error.message}`);
+      alert(`Failed to analyze experiment progress: ${getErrorMessage(error)}`);
     } finally {
       setAnalyzingId(null);
     }
