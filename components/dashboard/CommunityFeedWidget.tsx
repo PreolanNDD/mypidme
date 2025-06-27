@@ -5,7 +5,7 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { getCommunityFindings } from '@/lib/community';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
-import { Users, ChevronUp, ChevronDown, User, Calendar, ArrowRight, MessageSquare, TrendingUp } from 'lucide-react';
+import { Users, ChevronUp, ChevronDown, User, Calendar, ArrowRight, MessageSquare, TrendingUp, BarChart3 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 

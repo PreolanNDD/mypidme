@@ -4,6 +4,7 @@ import { Inter, DM_Serif_Display } from 'next/font/google';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -25,7 +26,8 @@ async function getInitialAuthData() {
   console.log('🔧 [RootLayout] === FETCHING INITIAL AUTH DATA ON SERVER ===');
   
   try {
-    const supabase = createClient();
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
     
     // Get the current user session
     console.log('🔧 [RootLayout] Fetching user session...');
