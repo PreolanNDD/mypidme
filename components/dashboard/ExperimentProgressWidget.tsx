@@ -130,25 +130,8 @@ export function ExperimentProgressWidget() {
       {/* Content */}
       {activeExperiments.length === 0 ? (
         // No active experiments - show create experiment CTA with Enhanced Icon
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 pb-12 text-center border border-white/20 justify-center">
-          {/* Enhanced Centered Icon */}
-          <div className="relative mx-auto mb-6 justify-center">
-            {/* Outer glow ring */}
-            <div className="absolute inset-0 w-20 h-20 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full opacity-20 blur-lg"></div>
-            
-            {/* Main icon container with gradient background */}
-            <div className="relative w-20 h-20 bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100 rounded-full flex items-center justify-center border-2 border-purple-200/50 shadow-lg">
-              {/* Inner gradient overlay */}
-              <div className="absolute inset-2 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full"></div>
-              
-              {/* Icon with enhanced styling */}
-              <FlaskConical className="relative w-10 h-10 text-purple-600 drop-shadow-sm" />
-              
-              {/* Subtle sparkle effects */}
-              <div className="absolute top-2 right-3 w-2 h-2 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full opacity-60 animate-pulse"></div>
-              <div className="absolute bottom-3 left-2 w-1.5 h-1.5 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full opacity-40 animate-pulse delay-300"></div>
-              <div className="absolute top-4 left-4 w-1 h-1 bg-gradient-to-r from-purple-300 to-indigo-300 rounded-full opacity-50 animate-pulse delay-500"></div>
-            </div>
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 pb-12 text-center border border-white/20">
+
           </div>
           
           {/* Enhanced Text Styling */}
