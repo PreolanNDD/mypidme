@@ -171,7 +171,7 @@ export function ExperimentProgressWidget() {
           </button>
         </div>
       ) : (
-        // Show active experiments - Individual items as white containers with interactive effects
+        // Show active experiments - Enhanced individual items with better styling
         <div className="space-y-6">
           {activeExperiments.slice(0, 2).map((experiment, index) => {
             const progress = getExperimentProgress(experiment.start_date, experiment.end_date);
@@ -179,52 +179,73 @@ export function ExperimentProgressWidget() {
             return (
               <div 
                 key={experiment.id} 
-                className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 cursor-pointer group/experiment border border-white/20 transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:z-10 relative"
+                className="group/experiment relative overflow-hidden bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl cursor-pointer border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10"
                 onClick={handleViewAllExperiments}
                 style={{
                   // Add margin to prevent overlap when rising
                   marginBottom: index < activeExperiments.slice(0, 2).length - 1 ? '1.5rem' : '0'
                 }}
               >
-                <div className="space-y-3">
-                  {/* Header */}
+                {/* Gradient overlay on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover/experiment:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                
+                {/* Animated border glow */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 opacity-0 group-hover/experiment:opacity-100 transition-opacity duration-500 blur-sm"></div>
+                
+                <div className="relative p-6 space-y-4">
+                  {/* Enhanced Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-primary-text truncate group-hover/experiment:text-primary transition-colors duration-300">
+                      <h4 className="font-heading text-lg text-primary-text group-hover/experiment:text-purple-700 transition-colors duration-300 leading-tight mb-2">
                         {experiment.title}
                       </h4>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant="default" className="text-xs group-hover/experiment:bg-primary/20 transition-colors duration-300">
-                          {experiment.status}
+                      <div className="flex items-center space-x-3 mb-3">
+                        <Badge className="bg-primary text-white group-hover/experiment:bg-purple-600 transition-colors duration-300">
+                          ACTIVE
                         </Badge>
-                        <span className="text-xs text-secondary-text group-hover/experiment:text-primary-text transition-colors duration-300">
+                        <span className="text-sm text-secondary-text group-hover/experiment:text-gray-700 transition-colors duration-300">
                           {formatDate(experiment.start_date)} - {formatDate(experiment.end_date)}
                         </span>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Variables */}
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div className="flex items-center space-x-2">
-                      <Target className="w-3 h-3 text-accent-1 flex-shrink-0 group-hover/experiment:scale-110 transition-transform duration-300" />
-                      <span className="text-secondary-text truncate group-hover/experiment:text-primary-text transition-colors duration-300">
-                        {experiment.independent_variable?.name || 'Input Variable'}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <TrendingUp className="w-3 h-3 text-accent-2 flex-shrink-0 group-hover/experiment:scale-110 transition-transform duration-300" />
-                      <span className="text-secondary-text truncate group-hover/experiment:text-primary-text transition-colors duration-300">
-                        {experiment.dependent_variable?.name || 'Output Variable'}
-                      </span>
+                    
+                    {/* Arrow indicator */}
+                    <div className="flex-shrink-0 transform group-hover/experiment:translate-x-1 group-hover/experiment:scale-110 transition-all duration-300">
+                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover/experiment:text-purple-600" />
                     </div>
                   </div>
 
-                  {/* Progress Bar - FIXED: Removed scale transform on hover */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-primary-text group-hover/experiment:text-primary transition-colors duration-300">Progress</span>
-                      <span className="text-secondary-text group-hover/experiment:text-primary-text transition-colors duration-300">
+                  {/* Enhanced Variables Display */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center group-hover/experiment:scale-110 transition-transform duration-300">
+                        <Target className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-secondary-text group-hover/experiment:text-gray-600 transition-colors duration-300">Cause</p>
+                        <p className="font-medium text-primary-text truncate group-hover/experiment:text-purple-700 transition-colors duration-300">
+                          {experiment.independent_variable?.name || 'Input Variable'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center group-hover/experiment:scale-110 transition-transform duration-300">
+                        <TrendingUp className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-secondary-text group-hover/experiment:text-gray-600 transition-colors duration-300">Effect</p>
+                        <p className="font-medium text-primary-text truncate group-hover/experiment:text-purple-700 transition-colors duration-300">
+                          {experiment.dependent_variable?.name || 'Output Variable'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Enhanced Progress Section */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-primary-text group-hover/experiment:text-purple-700 transition-colors duration-300">Progress</span>
+                      <span className="text-secondary-text group-hover/experiment:text-purple-600 transition-colors duration-300">
                         {progress.status === 'upcoming' 
                           ? 'Starts soon'
                           : progress.status === 'completed'
@@ -233,19 +254,31 @@ export function ExperimentProgressWidget() {
                         }
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 group-hover/experiment:bg-gray-300 transition-colors duration-300">
+                    <div className="w-full bg-gray-200 rounded-full h-3 group-hover/experiment:bg-gray-300 transition-colors duration-300 overflow-hidden">
                       <div 
-                        className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                        className={`h-3 rounded-full transition-all duration-700 ease-out ${
                           progress.status === 'completed' 
-                            ? 'bg-accent-2 group-hover/experiment:bg-accent-2/80' 
+                            ? 'bg-gradient-to-r from-green-400 to-teal-500 group-hover/experiment:from-green-500 group-hover/experiment:to-teal-600' 
                             : progress.status === 'active'
-                            ? 'bg-primary group-hover/experiment:bg-primary/80' 
-                            : 'bg-gray-300 group-hover/experiment:bg-gray-400'
+                            ? 'bg-gradient-to-r from-purple-500 to-indigo-500 group-hover/experiment:from-purple-600 group-hover/experiment:to-indigo-600' 
+                            : 'bg-gradient-to-r from-gray-400 to-gray-500 group-hover/experiment:from-gray-500 group-hover/experiment:to-gray-600'
                         }`}
                         style={{ width: `${progress.percentage}%` }}
                       ></div>
                     </div>
+                    <p className="text-xs text-secondary-text group-hover/experiment:text-purple-600 transition-colors duration-300">
+                      {progress.percentage.toFixed(0)}% complete
+                    </p>
                   </div>
+
+                  {/* Hypothesis Preview */}
+                  {experiment.hypothesis && (
+                    <div className="p-3 bg-gray-50 rounded-lg group-hover/experiment:bg-purple-50 transition-colors duration-300">
+                      <p className="text-sm text-secondary-text italic group-hover/experiment:text-purple-700 transition-colors duration-300 line-clamp-2">
+                        "{experiment.hypothesis}"
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -305,6 +338,12 @@ export function ExperimentProgressWidget() {
         }
         .group:hover .group-hover\\:text-shadow-glow-subtle {
           text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 16px rgba(255, 255, 255, 0.4), 0 0 24px rgba(255, 255, 255, 0.2);
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </div>

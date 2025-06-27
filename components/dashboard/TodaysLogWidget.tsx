@@ -548,10 +548,11 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
             </div>
           </div>
           
+          {/* FIXED: Save button without scale transform on hover */}
           <button 
             onClick={handleSave}
             disabled={saveMutation.isPending}
-            className="group/save relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+            className="group/save relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/25"
           >
             {/* Animated background gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/save:opacity-100 transition-opacity duration-500"></div>
@@ -570,7 +571,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
                 )}
               </div>
               
-              {/* Text with enhanced styling */}
+              {/* Text with enhanced styling - NO SCALE TRANSFORM */}
               <span className="tracking-wide group-hover/save:tracking-wider transition-all duration-300">
                 {saveMutation.isPending ? 'Saving...' : 'Save Today\'s Log'}
               </span>
