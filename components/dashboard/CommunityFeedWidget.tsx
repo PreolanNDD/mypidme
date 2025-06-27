@@ -295,9 +295,6 @@ export function CommunityFeedWidget() {
               
               {/* Content */}
               <div className="relative flex items-center justify-center space-x-3">
-                <div className="transform group-hover/discover:rotate-12 transition-transform duration-300">
-                  <TrendingUp className="w-5 h-5 text-purple-600" />
-                </div>
                 <span className="font-semibold text-lg transition-all duration-300 group-hover/discover:tracking-wide text-gray-800">
                   Discover More Insights
                 </span>
