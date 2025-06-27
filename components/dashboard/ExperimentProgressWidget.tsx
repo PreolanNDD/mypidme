@@ -5,7 +5,7 @@ import { useAuth } from '@/components/providers/AuthProvider';
 import { getExperiments } from '@/lib/experiments';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
-import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3 } from 'lucide-react';
+import { FlaskConical, Plus, Calendar, Target, TrendingUp, ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -94,36 +94,22 @@ export function ExperimentProgressWidget() {
 
   return (
     <div className="space-y-6 group">
-      {/* Header - WITH ENHANCED LAB ICON */}
+      {/* Header - Simple and Effective Design with Larger Sizes */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          {/* Enhanced Lab Icon with reduced glow and size increase */}
-          <div className="relative">
-            {/* Outer glow ring */}
-            <div className="absolute inset-0 w-8 h-8 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-lg opacity-20 blur-md group-hover:opacity-30 transition-opacity duration-300"></div>
-            
-            {/* Main icon container with gradient background */}
-            <div className="relative w-8 h-8 bg-gradient-to-br from-purple-100 via-indigo-50 to-purple-50 rounded-lg flex items-center justify-center border border-purple-200/50 shadow-md group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
-              {/* Inner gradient overlay */}
-              <div className="absolute inset-1 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded"></div>
-              
-              {/* Icon with enhanced styling */}
-              <FlaskConical className="relative w-4 h-4 text-purple-600 drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
-              
-              {/* Subtle sparkle effect */}
-              <div className="absolute top-0.5 right-1 w-1 h-1 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full opacity-60 animate-pulse"></div>
-              <div className="absolute bottom-1 left-0.5 w-0.5 h-0.5 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full opacity-40 animate-pulse delay-300"></div>
-            </div>
+        <div className="flex items-center space-x-5">
+          {/* Simple, Clean Icon with Larger Size */}
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg border border-gray-100 transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl flex-shrink-0">
+            <FlaskConical className="w-7 h-7 text-purple-600 transition-all duration-300 group-hover:text-purple-700" />
           </div>
           
-          {/* Text content moved to the right with enhanced effects */}
+          {/* Enhanced Text Content with Larger Sizes */}
           <div className="transition-all duration-300 group-hover:translate-x-2">
-            {/* Heading with glow and size increase */}
-            <h3 className="font-heading text-lg text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
+            {/* Larger Heading */}
+            <h3 className="font-heading text-2xl text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
               Active Experiments
             </h3>
-            {/* Description with glow and size increase */}
-            <p className="text-sm transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
+            {/* Larger Description */}
+            <p className="text-lg transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
               Track your ongoing experiments
             </p>
           </div>
@@ -143,10 +129,26 @@ export function ExperimentProgressWidget() {
 
       {/* Content */}
       {activeExperiments.length === 0 ? (
-        // No active experiments - show create experiment CTA
+        // No active experiments - show create experiment CTA with Enhanced Icon
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 pb-12 text-center border border-white/20">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FlaskConical className="w-8 h-8 text-gray-400" />
+          {/* Enhanced Centered Icon */}
+          <div className="relative mx-auto mb-6">
+            {/* Outer glow ring */}
+            <div className="absolute inset-0 w-20 h-20 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full opacity-20 blur-lg"></div>
+            
+            {/* Main icon container with gradient background */}
+            <div className="relative w-20 h-20 bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100 rounded-full flex items-center justify-center border-2 border-purple-200/50 shadow-lg">
+              {/* Inner gradient overlay */}
+              <div className="absolute inset-2 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full"></div>
+              
+              {/* Icon with enhanced styling */}
+              <FlaskConical className="relative w-10 h-10 text-purple-600 drop-shadow-sm" />
+              
+              {/* Subtle sparkle effects */}
+              <div className="absolute top-2 right-3 w-2 h-2 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full opacity-60 animate-pulse"></div>
+              <div className="absolute bottom-3 left-2 w-1.5 h-1.5 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full opacity-40 animate-pulse delay-300"></div>
+              <div className="absolute top-4 left-4 w-1 h-1 bg-gradient-to-r from-purple-300 to-indigo-300 rounded-full opacity-50 animate-pulse delay-500"></div>
+            </div>
           </div>
           
           {/* Enhanced Text Styling */}
