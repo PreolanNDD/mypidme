@@ -13,7 +13,7 @@ import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog'
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
 import { DeleteExperimentDialog } from '@/components/lab/DeleteExperimentDialog';
-import { FlaskConical, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3, ArrowRight, Beaker } from 'lucide-react';
+import { FlaskConical, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3, ArrowRight, Beaker, Plus } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
