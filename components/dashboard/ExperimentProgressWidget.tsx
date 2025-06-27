@@ -131,15 +131,23 @@ export function ExperimentProgressWidget() {
       {activeExperiments.length === 0 ? (
         // No active experiments - show create experiment CTA
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center border border-white/20">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <FlaskConical className="w-8 h-8 text-gray-400" />
           </div>
-          <h4 className="font-heading text-lg text-primary-text mb-2">
-            Ready to Start Experimenting?
-          </h4>
-          <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
-            Design controlled experiments to test what really works for your optimization goals.
-          </p>
+          
+          {/* Enhanced Text Styling */}
+          <div className="mb-8 space-y-4">
+            <h4 className="font-heading text-2xl text-primary-text mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Ready to Start Experimenting?
+            </h4>
+            <div className="max-w-md mx-auto">
+              <p className="text-lg font-medium text-gray-700 leading-relaxed mb-2">
+                Design controlled experiments to test what really works for your optimization goals.
+              </p>
+              <div className="w-16 h-1 bg-gradient-to-r from-purple-400 to-indigo-400 mx-auto rounded-full"></div>
+            </div>
+          </div>
+          
           <button
             onClick={handleCreateExperiment}
             className="group/experiment relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
