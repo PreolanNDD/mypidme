@@ -199,7 +199,7 @@ export function ExperimentProgressWidget() {
                     </div>
                   </div>
 
-                  {/* Progress Bar */}
+                  {/* Progress Bar - FIXED: Removed scale transform on hover */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-medium text-primary-text group-hover/experiment:text-primary transition-colors duration-300">Progress</span>
@@ -214,7 +214,7 @@ export function ExperimentProgressWidget() {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2 group-hover/experiment:bg-gray-300 transition-colors duration-300">
                       <div 
-                        className={`h-2 rounded-full transition-all duration-500 ease-out group-hover/experiment:scale-105 ${
+                        className={`h-2 rounded-full transition-all duration-500 ease-out ${
                           progress.status === 'completed' 
                             ? 'bg-accent-2 group-hover/experiment:bg-accent-2/80' 
                             : progress.status === 'active'
