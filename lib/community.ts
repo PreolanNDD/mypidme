@@ -377,6 +377,7 @@ export async function createFinding(userId: string, title: string, content: stri
 
   return {
     ...data,
+    share_data: data.share_data as boolean,
     author: undefined // Author details not populated for creation operations
   } as CommunityFinding;
 }
@@ -427,6 +428,7 @@ export async function createFindingWithContext(findingData: {
 
   return {
     ...data,
+    share_data: data.share_data as boolean,
     author: undefined // Author details not populated for creation operations
   } as CommunityFinding;
 }
