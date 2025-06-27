@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Save, FlaskConical, Calendar, Target, TrendingUp, X, AlertTriangle } from 'lucide-react';
+import { Save, FlaskConical, Calendar, Target, TrendingUp, AlertTriangle } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface EditExperimentDialogProps {
@@ -119,24 +119,13 @@ export function EditExperimentDialog({
     <Dialog open={isOpen && !!experiment} onOpenChange={handleClose}>
       <DialogContent className="w-full max-w-2xl max-h-[80vh] overflow-y-auto mr-6">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <FlaskConical className="w-6 h-6 text-white" />
-              </div>
-              <DialogTitle className="font-heading text-2xl text-primary-text bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Edit Experiment
-              </DialogTitle>
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <FlaskConical className="w-6 h-6 text-white" />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="h-8 w-8 p-0 transition-all duration-300 hover:bg-gray-100 hover:scale-110"
-              disabled={isLoading}
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            <DialogTitle className="font-heading text-2xl text-primary-text bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Edit Experiment
+            </DialogTitle>
           </div>
         </DialogHeader>
         
@@ -292,14 +281,14 @@ export function EditExperimentDialog({
 
             {/* Action Buttons with enhanced styling */}
             <div className="flex space-x-4 pt-4">
-              <Button
+              <button
                 type="button"
                 onClick={handleClose}
-                className="flex-1 bg-white border border-gray-300 text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md"
+                className="flex-1 px-6 py-3 rounded-lg bg-white border border-gray-300 text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
                 disabled={isLoading}
               >
                 Cancel
-              </Button>
+              </button>
               <button
                 type="submit"
                 disabled={!formData.title || !formData.hypothesis || !formData.independent_variable_id || 

@@ -2,10 +2,9 @@
 
 import React from 'react';
 import { ExperimentResults } from '@/lib/experiments';
-import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, BarChart3, Calendar, Target, FlaskConical, Share2, CheckCircle, XCircle, X } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, Calendar, Target, FlaskConical, Share2, CheckCircle, XCircle } from 'lucide-react';
 
 interface ExperimentResultsDialogProps {
   isOpen: boolean;
@@ -104,26 +103,16 @@ export function ExperimentResultsDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-4xl max-h-[90vh] overflow-y-auto mr-6">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
-                <FlaskConical className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <DialogTitle className="font-heading text-2xl text-primary-text bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  {dialogTitle}
-                </DialogTitle>
-                <p className="text-sm text-secondary-text mt-1 line-clamp-1">{experiment.title}</p>
-              </div>
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+              <FlaskConical className="w-6 h-6 text-white" />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-8 w-8 p-0 transition-all duration-300 hover:bg-gray-100 hover:scale-110"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            <div className="flex-1 min-w-0">
+              <DialogTitle className="font-heading text-2xl text-primary-text bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                {dialogTitle}
+              </DialogTitle>
+              <p className="text-sm text-secondary-text mt-1 line-clamp-1">{experiment.title}</p>
+            </div>
           </div>
           
           {/* Share Button - Only show for completed experiments or active experiments with sufficient data */}

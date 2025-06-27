@@ -1,10 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/ui/Button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Experiment } from '@/lib/experiments';
-import { AlertTriangle, X, Trash2 } from 'lucide-react';
+import { AlertTriangle, Trash2 } from 'lucide-react';
 
 interface DeleteExperimentDialogProps {
   isOpen: boolean;
@@ -25,24 +24,13 @@ export function DeleteExperimentDialog({
     <Dialog open={isOpen && !!experiment} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-md">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/20 animate-pulse">
-                <AlertTriangle className="w-6 h-6 text-white" />
-              </div>
-              <DialogTitle className="font-heading text-2xl text-primary-text bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
-                Delete Experiment?
-              </DialogTitle>
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/20 animate-pulse">
+              <AlertTriangle className="w-6 h-6 text-white" />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-8 w-8 p-0 transition-all duration-300 hover:bg-gray-100 hover:scale-110"
-              disabled={loading}
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            <DialogTitle className="font-heading text-2xl text-primary-text bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+              Delete Experiment?
+            </DialogTitle>
           </div>
         </DialogHeader>
         <div className="space-y-5 mt-2">
@@ -72,15 +60,14 @@ export function DeleteExperimentDialog({
           </div>
 
           <div className="flex space-x-4 pt-2">
-            <Button
+            <button
               type="button"
-              variant="outline"
               onClick={onClose}
-              className="flex-1 bg-white border border-gray-300 text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md"
+              className="flex-1 px-6 py-3 rounded-lg bg-white border border-gray-300 text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={loading}
             >
               Cancel
-            </Button>
+            </button>
             <button
               onClick={onConfirm}
               disabled={loading}
