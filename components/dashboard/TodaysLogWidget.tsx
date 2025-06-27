@@ -7,8 +7,14 @@ import { TrackableItem } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { LogEntryField } from '@/components/log/LogEntryField';
-import { Calendar, Save, CheckCircle, Target, TrendingUp, Plus, Minus, BookOpen } from 'lucide-react';
+import { Calendar, Save, CheckCircle, Target, TrendingUp, Edit3, Plus, Minus, BookOpen } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+interface TodaysLogWidgetProps {
+  trackableItems: TrackableItem[];
+  todaysEntries: Record<string, any>;
+  loading: boolean;
+}
 
 const getDefaultValue = (dataType: string) => {
   switch (dataType) {
@@ -118,7 +124,7 @@ function EnhancedLogEntryField({ item, value, onChange }: {
   );
 }
 
-export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: { trackableItems: TrackableItem[]; loading: boolean }) {
+export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: TodaysLogWidgetProps) {
   const { user, userProfile } = useAuth();
   const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
@@ -434,7 +440,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: { tr
                   >
                     {/* Content */}
                     <div className="relative flex items-center justify-center space-x-2">
-                      <Edit className="w-4 h-4 group-hover/edit:scale-110 transition-transform duration-300" />
+                      <Edit3 className="w-4 h-4 group-hover/edit:scale-110 transition-transform duration-300" />
                       <span className="tracking-wide group-hover/edit:tracking-wider transition-all duration-300 group-hover/edit:text-primary">
                         Edit Today's Log
                       </span>
