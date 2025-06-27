@@ -251,42 +251,18 @@ export function CommunityFeedWidget() {
             </div>
           )}
 
-          {/* Enhanced Discover More Insights footer button */}
+          {/* Trending insights footer */}
           <div className="pt-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleViewCommunity}
-              className="group/discover relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 text-white font-medium shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+              className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+              style={{ color: '#4a2a6d' }}
             >
-              {/* Animated background gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/discover:opacity-100 transition-opacity duration-500"></div>
-              
-              {/* Sliding highlight effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/discover:translate-x-full transition-transform duration-700 ease-out"></div>
-              
-              {/* Content */}
-              <div className="relative flex items-center justify-center space-x-3">
-                {/* Icon with enhanced animation */}
-                <div className="transform group-hover/discover:scale-110 group-hover/discover:rotate-12 transition-transform duration-300">
-                  <TrendingUp className="w-5 h-5" />
-                </div>
-                
-                {/* Text with enhanced styling */}
-                <span className="text-base font-medium tracking-wide group-hover/discover:tracking-wider transition-all duration-300">
-                  Discover More Insights
-                </span>
-                
-                {/* Arrow with slide animation */}
-                <div className="transform group-hover/discover:translate-x-2 group-hover/discover:scale-110 transition-all duration-300">
-                  <ArrowRight className="w-5 h-5" />
-                </div>
-              </div>
-              
-              {/* Pulse ring effect */}
-              <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/discover:opacity-100 group-hover/discover:scale-110 transition-all duration-500"></div>
-              
-              {/* Inner glow effect */}
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/5 via-white/10 to-white/5 opacity-0 group-hover/discover:opacity-100 transition-opacity duration-300"></div>
-            </button>
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Discover More Insights
+            </Button>
           </div>
         </div>
       )}
