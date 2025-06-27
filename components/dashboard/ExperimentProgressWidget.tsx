@@ -200,7 +200,7 @@ export function ExperimentProgressWidget() {
                 {/* Animated border glow */}
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 opacity-0 group-hover/experiment:opacity-100 transition-opacity duration-500 blur-sm"></div>
                 
-                <div className="relative p-6 space-y-4">
+                <div className="relative p-6 space-y-5">
                   {/* Enhanced Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
@@ -315,7 +315,7 @@ export function ExperimentProgressWidget() {
             </div>
           )}
 
-          {/* Enhanced "Start New Experiment" button - Matching Community Insights style */}
+          {/* Start New Experiment Button - Matching Community Insights style */}
           <div className="pt-2">
             <button
               onClick={handleCreateExperiment}
