@@ -132,7 +132,7 @@ export function ExperimentProgressWidget() {
         // No active experiments - show create experiment CTA with Enhanced Icon
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 pb-12 text-center border border-white/20">
           {/* Enhanced Centered Icon */}
-          <div className="relative mx-auto mb-6">
+          <div className="relative mx-auto mb-6 justify-center">
             {/* Outer glow ring */}
             <div className="absolute inset-0 w-20 h-20 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full opacity-20 blur-lg"></div>
             
@@ -142,7 +142,7 @@ export function ExperimentProgressWidget() {
               <div className="absolute inset-2 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full"></div>
               
               {/* Icon with enhanced styling */}
-
+              <FlaskConical className="relative w-10 h-10 text-purple-600 drop-shadow-sm" />
               
               {/* Subtle sparkle effects */}
               <div className="absolute top-2 right-3 w-2 h-2 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full opacity-60 animate-pulse"></div>
