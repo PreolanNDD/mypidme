@@ -7,14 +7,8 @@ import { TrackableItem } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { LogEntryField } from '@/components/log/LogEntryField';
-import { Calendar, Save, CheckCircle, Target, TrendingUp, Edit, Plus, Minus, BookOpen } from 'lucide-react';
+import { Calendar, Save, CheckCircle, Target, TrendingUp, Plus, Minus, BookOpen } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-interface TodaysLogWidgetProps {
-  trackableItems: TrackableItem[];
-  todaysEntries: Record<string, any>;
-  loading: boolean;
-}
 
 const getDefaultValue = (dataType: string) => {
   switch (dataType) {
@@ -118,13 +112,13 @@ function EnhancedLogEntryField({ item, value, onChange }: {
       <LogEntryField 
         item={item} 
         value={value} 
-        onChange={onChange}
+        onChange={handleChange}
       />
     </div>
   );
 }
 
-export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: TodaysLogWidgetProps) {
+export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: { trackableItems: TrackableItem[]; loading: boolean }) {
   const { user, userProfile } = useAuth();
   const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
@@ -133,6 +127,23 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [message, setMessage] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if we're on mobile
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Initial check
+    checkIfMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIfMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkIfMobile);
+  }, []);
 
   // Update form data when trackableItems or todaysEntries change
   useEffect(() => {
@@ -401,7 +412,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
                   <p className="text-lg text-gray-700 max-w-md mx-auto">You've logged all your metrics for today. Keep up the excellent work!</p>
                   <div className="w-16 h-1 bg-gradient-to-r from-green-400 to-teal-400 mx-auto rounded-full"></div>
                 </div>
-                <div className="flex space-x-3 justify-center pt-4">
+                <div className="flex flex-wrap justify-center gap-3 pt-4">
                   <button 
                     onClick={() => window.location.href = '/data'}
                     className="group/view relative overflow-hidden rounded-lg bg-white px-6 py-3 text-gray-800 font-medium border border-gray-200 shadow-md transition-all duration-300 hover:shadow-lg hover:border-primary/30"
@@ -474,7 +485,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
         </div>
       </div>
 
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-8">
         <div className="space-y-6">
           {message && (
             <div className={`p-4 rounded-lg text-sm ${
@@ -493,8 +504,8 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
             </div>
           )}
 
-          {/* Two-column layout for metrics */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Two-column layout for metrics - Responsive grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column: Input Metrics */}
             <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px]">
               {inputItems.length > 0 && (

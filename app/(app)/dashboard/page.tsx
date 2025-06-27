@@ -8,9 +8,16 @@ import { StreaksStatsWidget } from '@/components/dashboard/StreaksStatsWidget';
 import { ExperimentProgressWidget } from '@/components/dashboard/ExperimentProgressWidget';
 import { CommunityFeedWidget } from '@/components/dashboard/CommunityFeedWidget';
 import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
   const { userProfile, user } = useAuth();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Add animation delay for initial load
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   // Extract first name with fallback logic
   const firstName = userProfile?.first_name || 
@@ -54,13 +61,13 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b]">
       {/* Content */}
-      <div className="px-6 py-8">
-        <div className="max-w-7xl mx-auto space-y-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
           
           {/* Section 1: Welcome & Stats - SWAPPED POSITIONS */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
             {/* Left: Streaks & Stats Widget - REMOVED WHITE CONTAINER */}
-            <div className="rounded-2xl backdrop-blur-sm">
+            <div className={`rounded-2xl backdrop-blur-sm transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <StreaksStatsWidget
                 currentStreak={dashboardStats?.currentStreak || 0}
                 totalMetrics={dashboardStats?.totalMetrics || 0}
@@ -69,26 +76,26 @@ export default function Dashboard() {
               />
             </div>
 
-            {/* Right: Welcome Message with enhanced styling */}
-            <div className="flex flex-col justify-center h-full min-h-[200px] rounded-2xl p-8 relative overflow-hidden">
+            {/* Right: Welcome Message with enhanced responsive styling */}
+            <div className={`flex flex-col justify-center h-full min-h-[180px] sm:min-h-[200px] rounded-2xl p-4 sm:p-8 relative overflow-hidden transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '100ms' }}>
               {/* Background decorative elements */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-purple-500/20 to-transparent rounded-full blur-3xl"></div>
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-500/20 to-transparent rounded-full blur-3xl"></div>
               
               {/* Content with enhanced styling */}
-              <div className="relative z-10 space-y-4">
-                <h1 className="text-5xl font-heading bg-gradient-to-r from-accent-1 via-yellow-300 to-accent-1 bg-clip-text text-transparent">
+              <div className="relative z-10 space-y-3 sm:space-y-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading bg-gradient-to-r from-accent-1 via-yellow-300 to-accent-1 bg-clip-text text-transparent">
                   Hello, {firstName}!
                 </h1>
                 <div className="space-y-2">
-                  <p className="text-2xl text-white font-light">
+                  <p className="text-xl sm:text-2xl text-white font-light">
                     Ready to unlock your potential today?
                   </p>
                   <div className="w-20 h-1 bg-gradient-to-r from-accent-1 to-accent-1/50 rounded-full"></div>
                 </div>
                 
                 {/* Optional motivational quote */}
-                <p className="text-white/70 text-sm italic mt-4 max-w-md">
+                <p className="text-white/70 text-sm italic mt-2 sm:mt-4 max-w-md">
                   "The key to success is to focus on goals, not obstacles."
                 </p>
               </div>
@@ -96,17 +103,23 @@ export default function Dashboard() {
           </div>
 
           {/* Section 2: Interactive "Today's Log" - NO WHITE CONTAINER */}
-          <TodaysLogWidget
-            trackableItems={trackableItems}
-            todaysEntries={todaysEntries}
-            loading={isLoading}
-          />
+          <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
+            <TodaysLogWidget
+              trackableItems={trackableItems}
+              todaysEntries={todaysEntries}
+              loading={isLoading}
+            />
+          </div>
 
           {/* Section 3: "Active Experiments" - NO WHITE CONTAINER */}
-          <ExperimentProgressWidget />
+          <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '300ms' }}>
+            <ExperimentProgressWidget />
+          </div>
 
           {/* Section 4: "Community Insights" - NO WHITE CONTAINER */}
-          <CommunityFeedWidget />
+          <div className={`transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '400ms' }}>
+            <CommunityFeedWidget />
+          </div>
 
         </div>
       </div>
