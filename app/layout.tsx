@@ -119,13 +119,6 @@ async function getInitialAuthData() {
 
   } catch (error) {
     console.error('💥 [RootLayout] Unexpected error fetching initial auth data:', error);
-    
-    // Check if this is a cookies-related error (happens during build/static generation)
-    if (error instanceof Error && error.message.includes('cookies')) {
-      console.log('🔧 [RootLayout] Cookies error detected - returning null auth data for build');
-      return { user: null, userProfile: null, session: null };
-    }
-    
     return { user: null, userProfile: null, session: null };
   }
 }

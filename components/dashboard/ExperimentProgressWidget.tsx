@@ -241,29 +241,4 @@ export function ExperimentProgressWidget() {
                     </div>
                   </div>
 
-                  {/* Progress Bar */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-secondary-text group-hover/experiment:text-primary-text transition-colors duration-300">
-                        Day {progress.daysElapsed} of {progress.totalDays}
-                      </span>
-                      <span className="text-secondary-text group-hover/experiment:text-primary-text transition-colors duration-300">
-                        {Math.round(progress.percentage)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 group-hover/experiment:bg-gray-300 transition-colors duration-300">
-                      <div 
-                        className="bg-gradient-to-r from-accent-1 to-accent-2 h-2 rounded-full transition-all duration-500 group-hover/experiment:shadow-lg"
-                        style={{ width: `${progress.percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
+                  {/*
