@@ -260,12 +260,32 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
     return (
       <CardContent className="text-center py-12">
         <p className="text-primary-text mb-4">Create some metrics first to start logging your daily data!</p>
-        <Button 
-          onClick={() => window.location.href = '/log'} 
-          className="bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white"
+        <button
+          onClick={() => window.location.href = '/log'}
+          className="group/metric relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-semibold text-lg shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
         >
-          Create Your First Metric
-        </Button>
+          {/* Animated background gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/metric:opacity-100 transition-opacity duration-500"></div>
+          
+          {/* Sliding highlight effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/metric:translate-x-full transition-transform duration-700 ease-out"></div>
+          
+          {/* Content */}
+          <div className="relative flex items-center justify-center space-x-3">
+            {/* Icon with bounce animation */}
+            <div className="transform group-hover/metric:scale-110 group-hover/metric:rotate-12 transition-transform duration-300">
+              <Plus className="w-6 h-6" />
+            </div>
+            
+            {/* Text with enhanced styling */}
+            <span className="tracking-wide group-hover/metric:tracking-wider transition-all duration-300">
+              Create Your First Metric
+            </span>
+          </div>
+          
+          {/* Pulse ring effect */}
+          <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/metric:opacity-100 group-hover/metric:scale-110 transition-all duration-500"></div>
+        </button>
       </CardContent>
     );
   }
