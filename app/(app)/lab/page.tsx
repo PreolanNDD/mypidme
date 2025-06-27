@@ -419,7 +419,7 @@ export default function LabPage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/50 to-transparent -translate-x-full group-hover/new:translate-x-full transition-transform duration-500 ease-out"></div>
                 
                 {/* Content */}
-                <div className="relative flex items-center space-x-2">
+                <div className="relative">
                   <span className="font-medium text-base transition-all duration-300 group-hover/new:tracking-wide">
                     Start New Experiment
                   </span>
@@ -488,14 +488,14 @@ export default function LabPage() {
             </div>
           ) : (
             <>
-              {/* Tabs - Enhanced with animations */}
+              {/* Tabs - Fixed to not have hover animation sticking out */}
               <div className="flex space-x-1 p-1 rounded-lg transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: '#cdc1db' }}>
                 <button
                   onClick={() => setActiveTab('active')}
                   className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                     activeTab === 'active'
                       ? 'bg-white shadow-md'
-                      : 'hover:bg-white/50 hover:scale-105'
+                      : 'hover:bg-white/50'
                   }`}
                   style={{ 
                     color: activeTab === 'active' ? '#4a2a6d' : '#9992a2'
@@ -511,7 +511,7 @@ export default function LabPage() {
                   className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                     activeTab === 'completed'
                       ? 'bg-white shadow-md'
-                      : 'hover:bg-white/50 hover:scale-105'
+                      : 'hover:bg-white/50'
                   }`}
                   style={{ 
                     color: activeTab === 'completed' ? '#4a2a6d' : '#9992a2'
