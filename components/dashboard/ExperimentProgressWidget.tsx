@@ -141,42 +141,44 @@ export function ExperimentProgressWidget() {
       {/* Content */}
       {activeExperiments.length === 0 ? (
         // No active experiments - show create experiment CTA
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center border border-white/20">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FlaskConical className="w-8 h-8 text-gray-400" />
-          </div>
-          <h4 className="font-heading text-lg text-primary-text mb-2">
-            Ready to Start Experimenting?
-          </h4>
-          <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
-            Design controlled experiments to test what really works for your optimization goals.
-          </p>
-          <button
-            onClick={handleCreateExperiment}
-            className="group/button relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {/* Animated background gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/button:opacity-100 transition-opacity duration-500"></div>
-            
-            {/* Sliding highlight effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/button:translate-x-full transition-transform duration-700 ease-out"></div>
-            
-            {/* Content */}
-            <div className="relative flex items-center justify-center space-x-3">
-              {/* Icon with animation */}
-              <div className="transform group-hover/button:scale-110 group-hover/button:rotate-12 transition-transform duration-300">
-                <Plus className="w-5 h-5" />
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/empty">
+          <div className="text-center py-16 px-8">
+            <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 group-hover/empty:scale-110 group-hover/empty:rotate-12 group-hover/empty:shadow-xl">
+              <FlaskConical className="w-12 h-12 text-purple-400 transition-all duration-500 group-hover/empty:text-indigo-500" />
+            </div>
+            <h3 className="font-heading text-2xl text-primary-text mb-4 transition-all duration-500 group-hover/empty:scale-105 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              Ready to Start Experimenting?
+            </h3>
+            <p className="text-secondary-text mb-8 max-w-lg mx-auto text-lg">
+              Design controlled experiments to test what really works for your optimization goals.
+            </p>
+            <button
+              onClick={handleCreateExperiment}
+              className="group/button relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {/* Animated background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/button:opacity-100 transition-opacity duration-500"></div>
+              
+              {/* Sliding highlight effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/button:translate-x-full transition-transform duration-700 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center justify-center space-x-3">
+                {/* Icon with animation */}
+                <div className="transform group-hover/button:scale-110 group-hover/button:rotate-12 transition-transform duration-300">
+                  <Plus className="w-5 h-5" />
+                </div>
+                
+                {/* Text with enhanced styling */}
+                <span className="tracking-wide group-hover/button:tracking-wider transition-all duration-300">
+                  Create Your First Experiment
+                </span>
               </div>
               
-              {/* Text with enhanced styling */}
-              <span className="tracking-wide group-hover/button:tracking-wider transition-all duration-300">
-                Create Your First Experiment
-              </span>
-            </div>
-            
-            {/* Pulse ring effect */}
-            <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/button:opacity-100 group-hover/button:scale-105 transition-all duration-500"></div>
-          </button>
+              {/* Pulse ring effect */}
+              <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/button:opacity-100 group-hover/button:scale-105 transition-all duration-500"></div>
+            </button>
+          </div>
         </div>
       ) : (
         // Show active experiments - Enhanced individual items with better styling
@@ -204,7 +206,7 @@ export function ExperimentProgressWidget() {
                   {/* Enhanced Header */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-heading text-lg text-primary-text group-hover/experiment:text-purple-700 transition-colors duration-300 leading-tight mb-2">
+                      <h4 className="font-heading text-lg text-primary-text group-hover/experiment:text-purple-700 transition-colors duration-300 leading-tight mb-3">
                         {experiment.title}
                       </h4>
                       <div className="flex items-center space-x-3 mb-3">
@@ -220,32 +222,6 @@ export function ExperimentProgressWidget() {
                     {/* Arrow indicator */}
                     <div className="flex-shrink-0 transform group-hover/experiment:translate-x-1 group-hover/experiment:scale-110 transition-all duration-300">
                       <ArrowRight className="w-5 h-5 text-gray-400 group-hover/experiment:text-purple-600" />
-                    </div>
-                  </div>
-
-                  {/* Enhanced Variables Display */}
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center group-hover/experiment:scale-110 transition-transform duration-300">
-                        <Target className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-secondary-text group-hover/experiment:text-gray-600 transition-colors duration-300">Cause</p>
-                        <p className="font-medium text-primary-text truncate group-hover/experiment:text-purple-700 transition-colors duration-300">
-                          {experiment.independent_variable?.name || 'Input Variable'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center group-hover/experiment:scale-110 transition-transform duration-300">
-                        <TrendingUp className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs text-secondary-text group-hover/experiment:text-gray-600 transition-colors duration-300">Effect</p>
-                        <p className="font-medium text-primary-text truncate group-hover/experiment:text-purple-700 transition-colors duration-300">
-                          {experiment.dependent_variable?.name || 'Output Variable'}
-                        </p>
-                      </div>
                     </div>
                   </div>
 
@@ -279,10 +255,36 @@ export function ExperimentProgressWidget() {
                     </p>
                   </div>
 
-                  {/* Hypothesis Preview */}
+                  {/* Variables */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center space-x-2 p-3 bg-orange-50 rounded-lg transition-all duration-300 group-hover/experiment:bg-orange-100 group-hover/experiment:shadow-sm">
+                      <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center group-hover/experiment:scale-110 transition-transform duration-300 shadow-sm shadow-orange-400/20">
+                        <Target className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-orange-700 group-hover/experiment:text-orange-800 transition-colors duration-300">Cause</p>
+                        <p className="font-medium text-orange-900 truncate group-hover/experiment:text-orange-950 transition-colors duration-300">
+                          {experiment.independent_variable?.name || 'Unknown Variable'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 p-3 bg-green-50 rounded-lg transition-all duration-300 group-hover/experiment:bg-green-100 group-hover/experiment:shadow-sm">
+                      <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center group-hover/experiment:scale-110 transition-transform duration-300 shadow-sm shadow-green-400/20">
+                        <TrendingUp className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-green-700 group-hover/experiment:text-green-800 transition-colors duration-300">Effect</p>
+                        <p className="font-medium text-green-900 truncate group-hover/experiment:text-green-950 transition-colors duration-300">
+                          {experiment.dependent_variable?.name || 'Unknown Variable'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hypothesis */}
                   {experiment.hypothesis && (
-                    <div className="p-3 bg-gray-50 rounded-lg group-hover/experiment:bg-purple-50 transition-colors duration-300">
-                      <p className="text-sm text-secondary-text italic group-hover/experiment:text-purple-700 transition-colors duration-300 line-clamp-2">
+                    <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-lg transition-all duration-300 group-hover/experiment:bg-indigo-100 group-hover/experiment:border-indigo-200 group-hover/experiment:shadow-sm">
+                      <p className="text-sm text-indigo-800 italic line-clamp-2 group-hover/experiment:text-indigo-900 transition-colors duration-300">
                         "{experiment.hypothesis}"
                       </p>
                     </div>
