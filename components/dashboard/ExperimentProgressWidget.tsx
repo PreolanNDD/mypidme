@@ -130,7 +130,7 @@ export function ExperimentProgressWidget() {
       {/* Content */}
       {activeExperiments.length === 0 ? (
         // No active experiments - show create experiment CTA with Enhanced Icon
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 pb-12 text-center border border-white/20">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 pb-12 text-center border border-white/20 justify-center">
           {/* Enhanced Centered Icon */}
           <div className="relative mx-auto mb-6 justify-center">
             {/* Outer glow ring */}
