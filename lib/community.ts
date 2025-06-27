@@ -44,6 +44,26 @@ export interface UserProfile {
   created_at: string;
 }
 
+// Define the exact shape of data returned by Supabase queries with joins
+interface CommunityFindingQueryResult {
+  id: string;
+  author_id: string;
+  title: string;
+  content: string;
+  status: 'visible' | 'hidden_by_community';
+  upvotes: number;
+  downvotes: number;
+  share_data: boolean | null;
+  chart_config: any | null;
+  experiment_id: string | null;
+  created_at: string;
+  updated_at: string;
+  author: {
+    first_name: string | null;
+    last_name: string | null;
+  } | null;
+}
+
 type CommunityFindingRow = Database['public']['Tables']['community_findings']['Row'];
 
 export async function getCommunityFindings(): Promise<CommunityFinding[]> {
@@ -73,7 +93,8 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
       )
     `)
     .eq('status', 'visible')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .returns<CommunityFindingQueryResult[]>();
 
   if (findingsError) {
     console.error('❌ [getCommunityFindings] Error fetching findings:', findingsError);
@@ -96,10 +117,7 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
     });
   }
 
-  return findings.map(finding => ({
-    ...finding,
-    share_data: finding.share_data as boolean | null
-  })) as CommunityFinding[];
+  return findings as CommunityFinding[];
 }
 
 export async function getCommunityFindingById(findingId: string): Promise<CommunityFinding | null> {
@@ -138,7 +156,8 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
       `)
       .eq('id', trimmedFindingId)
       .eq('status', 'visible')
-      .single();
+      .single()
+      .returns<CommunityFindingQueryResult>();
 
     if (findingError) {
       if (findingError.code === 'PGRST116') {
@@ -160,10 +179,7 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
       authorData: finding.author
     });
 
-    return {
-      ...finding,
-      share_data: finding.share_data as boolean | null
-    } as CommunityFinding;
+    return finding as CommunityFinding;
 
   } catch (error) {
     console.error('💥 [getCommunityFindingById] Unexpected error:', error);
