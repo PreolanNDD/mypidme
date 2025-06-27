@@ -59,8 +59,8 @@ export default function Dashboard() {
           
           {/* Section 1: Welcome & Stats - SWAPPED POSITIONS */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left: Streaks & Stats Widget */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+            {/* Left: Streaks & Stats Widget - REMOVED WHITE CONTAINER */}
+            <div className="rounded-2xl backdrop-blur-sm">
               <StreaksStatsWidget
                 currentStreak={dashboardStats?.currentStreak || 0}
                 totalMetrics={dashboardStats?.totalMetrics || 0}

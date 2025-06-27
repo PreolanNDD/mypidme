@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { CardContent, CardHeader } from '@/components/ui/card';
 import { Flame, Target, BarChart3 } from 'lucide-react';
 
 interface StreaksStatsWidgetProps {
@@ -19,75 +18,77 @@ export function StreaksStatsWidget({
 }: StreaksStatsWidgetProps) {
   if (loading) {
     return (
-      <>
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Flame className="w-4 h-4 text-white" />
+      <div className="p-8 space-y-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+            <Flame className="w-5 h-5 text-white" />
+          </div>
+          <h3 className="font-heading text-xl text-white">Streaks & Stats</h3>
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="text-center">
+              <div className="h-8 bg-white/10 rounded animate-pulse mb-2"></div>
+              <div className="h-4 bg-white/10 rounded animate-pulse"></div>
             </div>
-            <h3 className="font-heading text-lg text-primary-text">Streaks & Stats</h3>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="text-center">
-                <div className="h-8 bg-gray-100 rounded animate-pulse mb-2"></div>
-                <div className="h-4 bg-gray-100 rounded animate-pulse"></div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </>
+          ))}
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
-      <CardHeader>
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Flame className="w-4 h-4 text-white" />
-          </div>
-          <h3 className="font-heading text-lg text-primary-text">Streaks & Stats</h3>
+    <div className="p-8 space-y-6 group">
+      <div className="flex items-center space-x-3 mb-6">
+        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-md border border-white/10 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg">
+          <Flame className="w-5 h-5 text-white transition-all duration-300 group-hover:scale-110" />
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-3 gap-4">
-          {/* Current Streak */}
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Flame className="w-5 h-5 text-orange-600" />
-              </div>
+        <h3 className="font-heading text-xl text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
+          Streaks & Stats
+        </h3>
+      </div>
+      
+      <div className="grid grid-cols-3 gap-6">
+        {/* Current Streak */}
+        <div className="text-center group/streak">
+          <div className="flex items-center justify-center mb-3">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-400/80 to-red-500/80 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/20 transform transition-all duration-300 group-hover/streak:scale-110 group-hover:shadow-orange-500/30">
+              <Flame className="w-8 h-8 text-white" />
             </div>
-            <p className="text-2xl font-bold text-primary-text">{currentStreak}</p>
-            <p className="text-xs text-secondary-text">Day Streak</p>
           </div>
-
-          {/* Total Metrics */}
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-blue-600" />
-              </div>
-            </div>
-            <p className="text-2xl font-bold text-primary-text">{totalMetrics}</p>
-            <p className="text-xs text-secondary-text">Active Metrics</p>
-          </div>
-
-          {/* Total Entries */}
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-green-600" />
-              </div>
-            </div>
-            <p className="text-2xl font-bold text-primary-text">{totalEntries}</p>
-            <p className="text-xs text-secondary-text">Total Logs</p>
-          </div>
+          <p className="text-3xl font-bold text-white mb-1 transition-all duration-300 group-hover:text-shadow-glow">{currentStreak}</p>
+          <p className="text-sm text-white/80 transition-all duration-300 group-hover:text-white">Day Streak</p>
         </div>
-      </CardContent>
-    </>
+
+        {/* Total Metrics */}
+        <div className="text-center group/metrics">
+          <div className="flex items-center justify-center mb-3">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-400/80 to-indigo-500/80 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 transform transition-all duration-300 group-hover/metrics:scale-110 group-hover:shadow-blue-500/30">
+              <Target className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-white mb-1 transition-all duration-300 group-hover:text-shadow-glow">{totalMetrics}</p>
+          <p className="text-sm text-white/80 transition-all duration-300 group-hover:text-white">Active Metrics</p>
+        </div>
+
+        {/* Total Entries */}
+        <div className="text-center group/entries">
+          <div className="flex items-center justify-center mb-3">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-400/80 to-teal-500/80 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/20 transform transition-all duration-300 group-hover/entries:scale-110 group-hover:shadow-green-500/30">
+              <BarChart3 className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <p className="text-3xl font-bold text-white mb-1 transition-all duration-300 group-hover:text-shadow-glow">{totalEntries}</p>
+          <p className="text-sm text-white/80 transition-all duration-300 group-hover:text-white">Total Logs</p>
+        </div>
+      </div>
+
+      {/* Custom CSS for text glow effects */}
+      <style jsx>{`
+        .group:hover .group-hover\\:text-shadow-glow {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
+        }
+      `}</style>
+    </div>
   );
 }
