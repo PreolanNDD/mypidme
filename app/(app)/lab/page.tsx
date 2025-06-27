@@ -299,7 +299,18 @@ export default function LabPage() {
       return;
     }
     console.log('Reactivating experiment:', id);
-    updateStatusMutation.mutate({ id, status: 'ACTIVE' });
+    
+    // Find the experiment in the completed list to avoid auto-completion
+    const experiment = completedExperiments.find(exp => exp.id === id);
+    if (!experiment) {
+      console.error('Could not find experiment to reactivate:', id);
+      return;
+    }
+    
+    // Only reactivate if it's not already being processed
+    if (!updateStatusMutation.isPending) {
+      updateStatusMutation.mutate({ id, status: 'ACTIVE' });
+    }
   };
 
   const handleDeleteExperiment = (experiment: Experiment) => {
