@@ -7,7 +7,7 @@ import { CommunityFinding } from '@/lib/community';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Calendar, MessageSquare, ChevronUp, ChevronDown, Sparkles, BarChart3, ArrowRight } from 'lucide-react';
+import { ArrowLeft, User, Calendar, MessageSquare, ChevronUp, ChevronDown, Sparkles, BarChart3, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
 import Link from 'next/link';
 
 interface UserProfile {
