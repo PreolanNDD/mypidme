@@ -148,7 +148,7 @@ export function Sidebar() {
                     isActive ? 'bg-white/20 rounded-lg' : ''
                   )}>
                     <Icon className={cn(
-                      "transition-all duration-300",
+                      "transition-all duration-300 relative z-10",
                       isOpen ? 'w-5 h-5' : 'w-6 h-6',
                       isActive ? 'text-white' : 'text-gray-600 group-hover:text-primary'
                     )} />
@@ -207,7 +207,7 @@ export function Sidebar() {
                 isOpen ? 'w-10 h-10' : 'w-12 h-12'
               )}>
                 <LogOut className={cn(
-                  "transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-12",
+                  "transition-all duration-300 transform group-hover:scale-110 group-hover:rotate-12 relative z-10",
                   isOpen ? 'w-5 h-5' : 'w-6 h-6',
                   'text-gray-600 group-hover:text-red-600'
                 )} />
