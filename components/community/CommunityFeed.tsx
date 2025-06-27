@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getCommunityFindings, getUserFindings, getUserVotes } from '@/lib/community';
 import { castVoteAction, reportFindingAction } from '@/lib/actions/community-actions';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { ChevronUp, ChevronDown, Flag, User, Calendar, MessageSquare, ArrowRight } from 'lucide-react';
+import { ChevronUp, ChevronDown, Flag, User, Calendar, MessageSquare, ArrowRight, Sparkles, BarChart3, Share2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -41,11 +41,16 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-full max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-heading text-xl text-primary-text">
-            Report Finding
-          </DialogTitle>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-400/20">
+              <Flag className="w-5 h-5 text-white" />
+            </div>
+            <DialogTitle className="font-heading text-xl text-primary-text bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+              Report Finding
+            </DialogTitle>
+          </div>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-2">
             <Label className="text-sm font-medium text-primary-text">
               Reason for reporting (optional)
@@ -54,7 +59,7 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Please describe why you're reporting this finding..."
-              className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all duration-300"
               rows={3}
               disabled={loading}
             />
@@ -64,7 +69,7 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
               type="button"
               variant="outline"
               onClick={handleClose}
-              className="flex-1"
+              className="flex-1 transition-all duration-300 hover:bg-gray-50 hover:scale-[1.02]"
               disabled={loading}
             >
               Cancel
@@ -72,7 +77,7 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
             <Button
               type="submit"
               loading={loading}
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white border-none transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20 hover:scale-[1.02]"
             >
               Submit Report
             </Button>
@@ -92,6 +97,13 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [reportingFindingId, setReportingFindingId] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hoveredFindingId, setHoveredFindingId] = useState<string | null>(null);
+
+  // Add animation delay for initial load
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   // Fetch community findings with aggressive caching
   const { data: communityFindings = [], isLoading: loadingCommunity } = useQuery<CommunityFinding[]>({
@@ -285,6 +297,8 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
 
   // Enhanced prefetch finding details on hover for faster navigation
   const handleFindingHover = (findingId: string) => {
+    setHoveredFindingId(findingId);
+    
     // Prefetch the finding detail data with longer cache time
     queryClient.prefetchQuery({
       queryKey: ['communityFinding', findingId],
@@ -332,71 +346,60 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
   };
 
   const getAuthorName = (finding: CommunityFinding) => {
-    console.log('🔍 [getAuthorName] Processing finding:', {
-      findingId: finding.id,
-      authorId: finding.author_id,
-      authorData: finding.author
-    });
-
     if (!finding.author) {
-      console.log('⚠️ [getAuthorName] No author data found, returning Anonymous');
       return 'Anonymous';
     }
 
     const { first_name, last_name } = finding.author;
     
-    console.log('📝 [getAuthorName] Author name components:', {
-      firstName: first_name,
-      lastName: last_name
-    });
-
     // Handle different name combinations
     if (first_name && last_name) {
       const fullName = `${first_name.trim()} ${last_name.trim()}`;
-      console.log('✅ [getAuthorName] Returning full name:', fullName);
       return fullName;
     } else if (first_name) {
       const firstName = first_name.trim();
-      console.log('✅ [getAuthorName] Returning first name only:', firstName);
       return firstName;
     } else if (last_name) {
       const lastName = last_name.trim();
-      console.log('✅ [getAuthorName] Returning last name only:', lastName);
       return lastName;
     }
     
-    console.log('⚠️ [getAuthorName] No valid name components, returning Anonymous');
     return 'Anonymous';
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'visible':
-        return <Badge className="bg-green-100 text-green-800 border-green-300">Published</Badge>;
+        return <Badge className="bg-green-100 text-green-800 border-green-300 shadow-sm">Published</Badge>;
       case 'hidden_by_community':
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-300">Hidden by Community</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 border-gray-300 shadow-sm">Hidden by Community</Badge>;
       default:
         return null;
     }
   };
 
+  const truncateContent = (content: string, maxLength: number = 150) => {
+    if (content.length <= maxLength) return content;
+    return content.substring(0, maxLength).trim() + '...';
+  };
+
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         {[1, 2, 3].map((i) => (
-          <Card key={i} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-            <CardContent className="p-6">
-              <div className="animate-pulse space-y-3">
-                <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div key={i} className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: `${i * 150}ms` }}>
+            <div className="p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-6 bg-gray-200 rounded-full w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded-full w-1/2"></div>
                 <div className="flex space-x-4">
-                  <div className="h-8 bg-gray-200 rounded w-16"></div>
-                  <div className="h-8 bg-gray-200 rounded w-16"></div>
-                  <div className="h-8 bg-gray-200 rounded w-16"></div>
+                  <div className="h-8 bg-gray-200 rounded-full w-16"></div>
+                  <div className="h-8 bg-gray-200 rounded-full w-16"></div>
+                  <div className="h-8 bg-gray-200 rounded-full w-16"></div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -404,20 +407,50 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
 
   if (findings.length === 0) {
     return (
-      <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-        <CardContent className="text-center py-12">
-          <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="font-heading text-xl text-primary-text mb-2">
+      <div className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} hover:shadow-3xl hover:shadow-white/20 group/empty`}>
+        <div className="text-center py-16 px-8">
+          <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 group-hover/empty:scale-110 group-hover/empty:rotate-12 group-hover/empty:shadow-xl">
+            <MessageSquare className="w-12 h-12 text-purple-400 transition-all duration-500 group-hover/empty:text-indigo-500" />
+          </div>
+          <h3 className="font-heading text-2xl text-primary-text mb-4 transition-all duration-500 group-hover/empty:scale-105 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
             {activeTab === 'community' ? 'No Community Findings Yet' : 'No Findings Yet'}
           </h3>
-          <p className="text-secondary-text">
+          <p className="text-secondary-text mb-8 max-w-lg mx-auto text-lg">
             {activeTab === 'community' 
               ? 'Be the first to share your insights with the community!'
               : 'You haven\'t submitted any findings yet. Share your insights from the Data or Lab pages!'
             }
           </p>
-        </CardContent>
-      </Card>
+          {activeTab === 'my-findings' && (
+            <button
+              onClick={handleNewFinding}
+              className="group/create relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+            >
+              {/* Animated background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/create:opacity-100 transition-opacity duration-500"></div>
+              
+              {/* Sliding highlight effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/create:translate-x-full transition-transform duration-700 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center justify-center space-x-3">
+                {/* Icon with bounce animation */}
+                <div className="transform group-hover/create:scale-110 group-hover/create:rotate-12 transition-transform duration-300">
+                  <Plus className="w-6 h-6" />
+                </div>
+                
+                {/* Text with enhanced styling */}
+                <span className="tracking-wide group-hover/create:tracking-wider transition-all duration-300">
+                  Create Your First Finding
+                </span>
+              </div>
+              
+              {/* Pulse ring effect */}
+              <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/create:opacity-100 group-hover/create:scale-110 transition-all duration-500"></div>
+            </button>
+          )}
+        </div>
+      </div>
     );
   }
 
@@ -428,140 +461,199 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
           const userVote = userVoteMap.get(finding.id);
           const score = finding.upvotes - finding.downvotes;
           const authorName = getAuthorName(finding);
+          const isHovered = hoveredFindingId === finding.id;
 
           return (
-            <Card 
+            <div 
               key={finding.id} 
-              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-200 cursor-pointer"
+              className={`group/finding relative overflow-hidden bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl cursor-pointer border border-white/20 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10`}
+              style={{ transitionDelay: `${index * 100}ms` }}
               onMouseEnter={() => handleFindingHover(finding.id)}
+              onMouseLeave={() => setHoveredFindingId(null)}
               onClick={() => handleFindingClick(finding.id)}
             >
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {/* Header */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="font-heading text-xl text-primary-text hover:text-primary transition-colors flex-1">
-                          {finding.title}
-                        </h3>
-                        {/* Status badge - only show in My Findings view */}
-                        {activeTab === 'my-findings' && getStatusBadge(finding.status)}
-                      </div>
-                      <div className="flex items-center space-x-4 text-sm text-secondary-text">
-                        {/* Only show author info in community view */}
-                        {activeTab === 'community' && (
-                          <div className="flex items-center space-x-1">
-                            <User className="w-4 h-4" />
-                            <span 
-                              className="hover:text-primary transition-colors cursor-pointer"
-                              onClick={(e) => handleAuthorClick(e, finding.author_id)}
-                            >
-                              {authorName}
-                            </span>
+              {/* Gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover/finding:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+              
+              {/* Animated border glow */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 opacity-0 group-hover/finding:opacity-100 transition-opacity duration-500 blur-sm"></div>
+              
+              <div className="relative p-6 space-y-5">
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-heading text-xl text-primary-text group-hover/finding:text-purple-700 transition-colors duration-300 leading-tight mb-3">
+                      {finding.title}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      {/* Only show author info in community view */}
+                      {activeTab === 'community' && (
+                        <div 
+                          className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover/finding:bg-purple-50 group-hover/finding:shadow-sm cursor-pointer"
+                          onClick={(e) => handleAuthorClick(e, finding.author_id)}
+                        >
+                          <div className="w-5 h-5 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center">
+                            <User className="w-3 h-3 text-white" />
                           </div>
-                        )}
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>{formatDate(finding.created_at)}</span>
+                          <span className="text-xs font-medium text-secondary-text group-hover/finding:text-purple-700 transition-colors duration-300">
+                            {authorName}
+                          </span>
                         </div>
-                        {finding.share_data === true && (
-                          <Badge variant="outline" className="text-blue-700 border-blue-300">
-                            Data Shared
-                          </Badge>
-                        )}
+                      )}
+                      <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover/finding:bg-blue-50 group-hover/finding:shadow-sm">
+                        <Calendar className="w-3 h-3 text-secondary-text group-hover/finding:text-blue-600 transition-colors duration-300" />
+                        <span className="text-xs text-secondary-text group-hover/finding:text-blue-700 transition-colors duration-300">
+                          {formatDate(finding.created_at)}
+                        </span>
                       </div>
+                      <Badge variant="outline" className={`text-xs ${score > 0 ? 'bg-green-50 text-green-700 border-green-300' : score < 0 ? 'bg-red-50 text-red-700 border-red-300' : 'bg-gray-50 text-gray-700 border-gray-300'} group-hover/finding:scale-105 transition-all duration-300`}>
+                        Score: {score > 0 ? '+' : ''}{score}
+                      </Badge>
+                      {finding.share_data && (
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-300 group-hover/finding:scale-105 transition-all duration-300">
+                          <BarChart3 className="w-3 h-3 mr-1" />
+                          Data Shared
+                        </Badge>
+                      )}
+                      {activeTab === 'my-findings' && finding.status !== 'visible' && (
+                        <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-300 group-hover/finding:scale-105 transition-all duration-300">
+                          {finding.status === 'hidden_by_community' ? 'Hidden' : finding.status}
+                        </Badge>
+                      )}
                     </div>
-                    <ArrowRight className="w-5 h-5 text-secondary-text hover:text-primary transition-colors flex-shrink-0 ml-4" />
                   </div>
+                  <div className="transform group-hover/finding:translate-x-1 transition-all duration-300 ml-4">
+                    <ArrowRight className="w-5 h-5 text-secondary-text group-hover/finding:text-purple-600 transition-colors duration-300" />
+                  </div>
+                </div>
 
-                  {/* Actions - Outside the link to prevent nested interactive elements */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-4">
-                    {/* Voting - only show in community view */}
-                    {activeTab === 'community' && (
-                      <div className="flex items-center space-x-2">
-                        {/* Upvote */}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleVote(finding.id, 'upvote');
-                          }}
-                          disabled={!user}
-                          className={`flex items-center space-x-1 transition-all duration-200 ${
-                            userVote === 'upvote' 
-                              ? 'text-green-600 bg-green-50 hover:bg-green-100' 
-                              : 'text-secondary-text hover:text-green-600 hover:bg-green-50'
-                          }`}
-                        >
-                          <ChevronUp className="w-4 h-4" />
-                        </Button>
+                {/* Content Preview */}
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-primary-text leading-relaxed group-hover/finding:text-gray-700 transition-colors duration-300">
+                    {truncateContent(finding.content)}
+                  </p>
+                </div>
 
-                        {/* Score */}
-                        <div className="px-2 py-1 text-sm font-medium text-primary-text min-w-[3rem] text-center">
-                          {score > 0 ? '+' : ''}{score}
-                        </div>
-
-                        {/* Downvote */}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleVote(finding.id, 'downvote');
-                          }}
-                          disabled={!user}
-                          className={`flex items-center space-x-1 transition-all duration-200 ${
-                            userVote === 'downvote' 
-                              ? 'text-red-600 bg-red-50 hover:bg-red-100' 
-                              : 'text-secondary-text hover:text-red-600 hover:bg-red-50'
-                          }`}
-                        >
-                          <ChevronDown className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* My Findings view - show score without voting */}
-                    {activeTab === 'my-findings' && (
-                      <div className="flex items-center space-x-2">
-                        <div className="flex items-center space-x-1 text-sm text-secondary-text">
-                          <ChevronUp className="w-4 h-4 text-green-600" />
-                          <span>{finding.upvotes}</span>
-                        </div>
-                        <div className="px-2 py-1 text-sm font-medium text-primary-text">
-                          {score > 0 ? '+' : ''}{score}
-                        </div>
-                        <div className="flex items-center space-x-1 text-sm text-secondary-text">
-                          <ChevronDown className="w-4 h-4 text-red-600" />
-                          <span>{finding.downvotes}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Report Button - only show in community view for other users' posts */}
-                    {activeTab === 'community' && user && user.id !== finding.author_id && (
+                {/* Vote Summary */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100 group-hover/finding:border-purple-100 transition-colors duration-300">
+                  {/* Voting - only show in community view */}
+                  {activeTab === 'community' && (
+                    <div className="flex items-center space-x-2">
+                      {/* Upvote */}
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleReport(finding.id);
+                          handleVote(finding.id, 'upvote');
                         }}
-                        disabled={reportMutation.isPending}
-                        className="text-secondary-text hover:text-red-600 hover:bg-red-50"
+                        disabled={!user}
+                        className={`flex items-center space-x-1 transition-all duration-200 ${
+                          userVote === 'upvote' 
+                            ? 'text-green-600 bg-green-50 hover:bg-green-100' 
+                            : 'text-secondary-text hover:text-green-600 hover:bg-green-50'
+                        } hover:scale-110`}
                       >
-                        <Flag className="w-4 h-4" />
+                        <ChevronUp className="w-4 h-4" />
+                        <span className="font-medium">{finding.upvotes}</span>
                       </Button>
-                    )}
-                  </div>
+
+                      {/* Downvote */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleVote(finding.id, 'downvote');
+                        }}
+                        disabled={!user}
+                        className={`flex items-center space-x-1 transition-all duration-200 ${
+                          userVote === 'downvote' 
+                            ? 'text-red-600 bg-red-50 hover:bg-red-100' 
+                            : 'text-secondary-text hover:text-red-600 hover:bg-red-50'
+                        } hover:scale-110`}
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                        <span className="font-medium">{finding.downvotes}</span>
+                      </Button>
+                      
+                      {/* Score */}
+                      <div className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 ${
+                        score > 0 ? 'bg-green-100 text-green-700' :
+                        score < 0 ? 'bg-red-100 text-red-700' :
+                        'bg-gray-100 text-gray-700'
+                      } group-hover/finding:scale-105`}>
+                        Score: {score > 0 ? '+' : ''}{score}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* My Findings view - show score without voting */}
+                  {activeTab === 'my-findings' && (
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                        <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center group-hover/finding:bg-green-200 transition-all duration-300">
+                          <ChevronUp className="w-3 h-3 text-green-600" />
+                        </div>
+                        <span>{finding.upvotes}</span>
+                      </div>
+                      <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                        <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center group-hover/finding:bg-red-200 transition-all duration-300">
+                          <ChevronDown className="w-3 h-3 text-red-600" />
+                        </div>
+                        <span>{finding.downvotes}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Report Button - only show in community view for other users' posts */}
+                  {activeTab === 'community' && user && user.id !== finding.author_id && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleReport(finding.id);
+                      }}
+                      disabled={reportMutation.isPending}
+                      className="text-secondary-text hover:text-red-600 hover:bg-red-50 transition-all duration-300 hover:scale-110"
+                    >
+                      <Flag className="w-4 h-4" />
+                    </Button>
+                  )}
+                  
+                  {/* Share Button - only show in my-findings view */}
+                  {activeTab === 'my-findings' && (
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Copy share link to clipboard
+                          navigator.clipboard.writeText(`${window.location.origin}/community/${finding.id}`);
+                          alert('Share link copied to clipboard!');
+                        }}
+                        className="text-secondary-text hover:text-blue-600 hover:bg-blue-50 transition-all duration-300 hover:scale-110"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
+                
+                {/* Sparkle effect on hover */}
+                {isHovered && (
+                  <div className="absolute top-3 right-3">
+                    <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+                  </div>
+                )}
+              </div>
+            </div>
           );
         })}
       </div>
@@ -573,6 +665,26 @@ export function CommunityFeed({ activeTab }: CommunityFeedProps) {
         onSubmit={handleSubmitReport}
         loading={reportMutation.isPending}
       />
+      
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 0.6; }
+          50% { opacity: 1; }
+          100% { opacity: 0.6; }
+        }
+        
+        @keyframes spin-slow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { getCommunityFindingById, getUserVotes } from '@/lib/community';
@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
-import { ChevronUp, ChevronDown, Flag, User, Calendar, ArrowLeft, MessageSquare, Target, TrendingUp, TrendingDown, BarChart3, Trash2, AlertTriangle } from 'lucide-react';
+import { ChevronUp, ChevronDown, Flag, User, Calendar, ArrowLeft, MessageSquare, Target, TrendingUp, TrendingDown, BarChart3, Trash2, AlertTriangle, Sparkles, Share2 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -47,11 +47,16 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-full max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-heading text-xl text-primary-text">
-            Report Finding
-          </DialogTitle>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center shadow-lg shadow-red-400/20">
+              <Flag className="w-5 h-5 text-white" />
+            </div>
+            <DialogTitle className="font-heading text-xl text-primary-text bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
+              Report Finding
+            </DialogTitle>
+          </div>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-2">
             <Label className="text-sm font-medium text-primary-text">
               Reason for reporting (optional)
@@ -60,7 +65,7 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Please describe why you're reporting this finding..."
-              className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all duration-300"
               rows={3}
               disabled={loading}
             />
@@ -70,7 +75,7 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
               type="button"
               variant="outline"
               onClick={handleClose}
-              className="flex-1"
+              className="flex-1 transition-all duration-300 hover:bg-gray-50 hover:scale-[1.02]"
               disabled={loading}
             >
               Cancel
@@ -78,7 +83,7 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
             <Button
               type="submit"
               loading={loading}
-              className="flex-1"
+              className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white border-none transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20 hover:scale-[1.02]"
             >
               Submit Report
             </Button>
@@ -108,26 +113,31 @@ function DeleteDialog({ isOpen, onClose, onConfirm, loading, findingTitle }: Del
       <DialogContent className="w-full max-w-md">
         <DialogHeader>
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/20 animate-pulse">
+              <AlertTriangle className="w-6 h-6 text-white" />
             </div>
-            <DialogTitle className="font-heading text-xl text-primary-text">
+            <DialogTitle className="font-heading text-xl text-primary-text bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
               Delete Finding?
             </DialogTitle>
           </div>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-800 mb-2">
+        <div className="space-y-5 mt-2">
+          <div className="p-5 bg-red-50 border border-red-200 rounded-lg shadow-inner">
+            <p className="text-red-800 mb-3 font-medium text-lg">
               Are you sure you want to delete <span className="font-semibold">"{findingTitle}"</span>?
             </p>
+            <div className="bg-white/80 rounded-lg p-3 border border-red-200">
+              <p className="text-red-700 text-sm">
+                This finding will be permanently removed from the community.
+              </p>
+            </div>
           </div>
 
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div className="flex items-start space-x-2">
+          <div className="p-5 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start space-x-3">
               <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-yellow-800 mb-1">
+                <p className="text-sm font-medium text-yellow-800 mb-2">
                   Warning: This action cannot be undone.
                 </p>
                 <p className="text-sm text-yellow-700">
@@ -137,23 +147,43 @@ function DeleteDialog({ isOpen, onClose, onConfirm, loading, findingTitle }: Del
             </div>
           </div>
 
-          <div className="flex space-x-3 pt-2">
-            <Button
+          <div className="flex space-x-4 pt-2">
+            <button
               type="button"
-              variant="outline"
-              onClick={handleClose}
-              className="flex-1"
+              onClick={onClose}
+              className="flex-1 px-6 py-3 rounded-lg bg-white border border-gray-300 text-gray-700 shadow-sm transition-all duration-300 hover:bg-gray-50 hover:border-gray-400 hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={loading}
             >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={onConfirm}
-              loading={loading}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+              disabled={loading}
+              className="group/delete relative overflow-hidden flex-1 rounded-lg bg-gradient-to-r from-red-600 to-red-500 px-6 py-3 text-white font-medium shadow-md transition-all duration-500 hover:shadow-lg hover:shadow-red-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Yes, Delete Finding
-            </Button>
+              {/* Animated background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-red-700 via-red-600 to-red-500 opacity-0 group-hover/delete:opacity-100 transition-opacity duration-500"></div>
+              
+              {/* Sliding highlight effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/delete:translate-x-full transition-transform duration-700 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center justify-center space-x-2">
+                {/* Icon with animation */}
+                <div className="transform group-hover/delete:scale-110 group-hover/delete:rotate-12 transition-transform duration-300">
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Trash2 className="w-5 h-5" />
+                  )}
+                </div>
+                
+                {/* Text with enhanced styling */}
+                <span className="tracking-wide group-hover/delete:tracking-wider transition-all duration-300">
+                  {loading ? 'Deleting...' : 'Yes, Delete Finding'}
+                </span>
+              </div>
+            </button>
           </div>
         </div>
       </DialogContent>
@@ -171,6 +201,12 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   const queryClient = useQueryClient();
   const [reportingFindingId, setReportingFindingId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Add animation delay for initial load
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   // Use the initial finding data and set up TanStack Query for future updates
   const { data: findingData = initialFinding } = useQuery<CommunityFinding | null>({
@@ -185,11 +221,18 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   if (!findingData) {
     return (
       <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 hover:scale-110 hover:rotate-12 hover:shadow-xl">
+            <MessageSquare className="w-12 h-12 text-purple-400 transition-all duration-500 hover:text-indigo-500" />
+          </div>
           <h1 className="font-heading text-2xl text-white mb-4">Finding Not Found</h1>
           <p style={{ color: '#e6e2eb' }} className="mb-6">This finding may have been removed or is no longer available.</p>
-          <Button onClick={() => router.back()} className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200" style={{ color: '#4a2a6d' }}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Button 
+            onClick={() => router.back()} 
+            className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200 group"
+            style={{ color: '#4a2a6d' }}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:-translate-x-1" />
             Go Back
           </Button>
         </div>
@@ -536,40 +579,24 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   };
 
   const getAuthorName = (finding: CommunityFinding) => {
-    console.log('🔍 [getAuthorName] Processing finding:', {
-      findingId: finding.id,
-      authorId: finding.author_id,
-      authorData: finding.author
-    });
-
     if (!finding.author) {
-      console.log('⚠️ [getAuthorName] No author data found, returning Anonymous');
       return 'Anonymous';
     }
 
     const { first_name, last_name } = finding.author;
     
-    console.log('📝 [getAuthorName] Author name components:', {
-      firstName: first_name,
-      lastName: last_name
-    });
-
     // Handle different name combinations
     if (first_name && last_name) {
       const fullName = `${first_name.trim()} ${last_name.trim()}`;
-      console.log('✅ [getAuthorName] Returning full name:', fullName);
       return fullName;
     } else if (first_name) {
       const firstName = first_name.trim();
-      console.log('✅ [getAuthorName] Returning first name only:', firstName);
       return firstName;
     } else if (last_name) {
       const lastName = last_name.trim();
-      console.log('✅ [getAuthorName] Returning last name only:', lastName);
       return lastName;
     }
     
-    console.log('⚠️ [getAuthorName] No valid name components, returning Anonymous');
     return 'Anonymous';
   };
 
@@ -592,20 +619,25 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
       const data = payload[0].payload;
       
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-primary-text">{label}</p>
+        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-xl">
+          <p className="font-medium text-primary-text mb-2">{label}</p>
           {(data.primaryValue !== null && data.primaryValue !== undefined) && (
-            <p className="text-sm">
-              <span className="font-medium">{primaryMetric?.name}:</span> {data.primaryValue}
+            <p className="text-sm flex items-center space-x-2">
+              <span className="w-3 h-3 rounded-full bg-[#7ed984]"></span>
+              <span className="font-medium">{primaryMetric?.name}:</span> 
+              <span>{data.primaryValue}</span>
             </p>
           )}
           {comparisonMetric && (data.comparisonValue !== null && data.comparisonValue !== undefined) && (
-            <p className="text-sm">
-              <span className="font-medium">{comparisonMetric.name}:</span>{' '}
-              {comparisonMetric.type === 'BOOLEAN' 
-                ? (data.comparisonValue === 1 ? 'Yes' : 'No')
-                : data.comparisonValue
-              }
+            <p className="text-sm flex items-center space-x-2">
+              <span className="w-3 h-3 rounded-full bg-[#FFA500]"></span>
+              <span className="font-medium">{comparisonMetric.name}:</span>
+              <span>
+                {comparisonMetric.type === 'BOOLEAN' 
+                  ? (data.comparisonValue === 1 ? 'Yes' : 'No')
+                  : data.comparisonValue
+                }
+              </span>
             </p>
           )}
         </div>
@@ -614,7 +646,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     return null;
   };
 
-  // Custom Legend Component (same as /data page)
+  // Custom Legend Component with increased padding and black text
   const CustomLegend = (props: any) => {
     const { payload } = props;
     if (!payload || payload.length === 0) return null;
@@ -622,9 +654,9 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     return (
       <div className="flex justify-center items-center space-x-8 mt-4">
         {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center space-x-3 px-4 py-2">
+          <div key={index} className="flex items-center space-x-3 px-4 py-2 bg-white/80 rounded-full shadow-sm transition-all duration-300 hover:shadow-md hover:bg-white">
             <div 
-              className="w-4 h-0.5" 
+              className="w-4 h-4 rounded-full" 
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-sm font-medium text-black">
@@ -645,39 +677,40 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
         {/* Content */}
         <div className="px-6 py-8">
           <div className="max-w-4xl mx-auto space-y-8">
-            {/* Header */}
-            <div className="mb-8">
+            {/* Header - Enhanced with animations */}
+            <div className={`mb-8 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
               <Button
                 variant="ghost"
                 onClick={() => router.back()}
-                className="mb-4 text-white hover:bg-white/10"
+                className="mb-4 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 group"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:-translate-x-1" />
                 Back
               </Button>
-              <div>
-                <h1 className="font-heading text-3xl text-white mb-2">
+              <div className="group/header">
+                <h1 className="font-heading text-3xl text-white mb-3 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent transition-all duration-300 group-hover/header:tracking-wider">
                   {finding.title}
                 </h1>
-                <div className="flex items-center space-x-4 text-sm" style={{ color: '#e6e2eb' }}>
-                  <div className="flex items-center space-x-1">
+                <div className="flex flex-wrap items-center gap-3 text-sm" style={{ color: '#e6e2eb' }}>
+                  <div 
+                    className="flex items-center space-x-2 px-3 py-1 bg-white/10 rounded-full transition-all duration-300 hover:bg-white/20 cursor-pointer"
+                    onClick={handleAuthorClick}
+                  >
                     <User className="w-4 h-4" />
-                    <span 
-                      className="hover:text-white transition-colors cursor-pointer"
-                      onClick={handleAuthorClick}
-                    >
+                    <span className="transition-colors duration-300 hover:text-white">
                       {authorName}
                     </span>
                   </div>
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-2 px-3 py-1 bg-white/10 rounded-full">
                     <Calendar className="w-4 h-4" />
                     <span>{formatDate(finding.created_at)}</span>
                   </div>
-                  <Badge variant="outline" className="text-xs bg-white/10 border-white/20 text-white">
+                  <Badge variant="outline" className={`text-xs ${score > 0 ? 'bg-green-500/20 text-green-100 border-green-400/30' : score < 0 ? 'bg-red-500/20 text-red-100 border-red-400/30' : 'bg-white/10 border-white/20 text-white'}`}>
                     Score: {score > 0 ? '+' : ''}{score}
                   </Badge>
                   {finding.share_data === true && (
                     <Badge variant="outline" className="text-blue-200 border-blue-300 bg-blue-500/20">
+                      <BarChart3 className="w-3 h-3 mr-1" />
                       Data Shared
                     </Badge>
                   )}
@@ -685,38 +718,46 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
               </div>
             </div>
 
-            {/* Main Content */}
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+            {/* Main Content - Enhanced with animations */}
+            <Card className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} hover:shadow-3xl hover:shadow-white/20 group/content`}>
               <CardContent className="p-8">
                 <div className="prose prose-lg max-w-none">
-                  <div className="whitespace-pre-wrap text-primary-text leading-relaxed">
+                  <div className="whitespace-pre-wrap text-primary-text leading-relaxed transition-all duration-500 group-hover/content:text-gray-700">
                     {finding.content}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Data Visualization - Chart Analysis */}
+            {/* Data Visualization - Chart Analysis - Enhanced with animations */}
             {finding.share_data === true && finding.chart_config && primaryMetric && (
-              <div className="space-y-6">
+              <div className={`space-y-6 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '200ms' }}>
                 {/* Chart Display */}
-                <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/chart">
                   <CardContent className="p-8">
-                    <h3 className="font-heading text-xl text-primary-text mb-4">
-                      Data Analysis: {primaryMetric.name}
-                      {comparisonMetric && ` vs ${comparisonMetric.name}`}
-                    </h3>
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-400/20 transition-all duration-500 group-hover/chart:scale-110 group-hover/chart:rotate-6">
+                        <BarChart3 className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="font-heading text-xl text-primary-text bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500 group-hover/chart:tracking-wider">
+                        Data Analysis: {primaryMetric.name}
+                        {comparisonMetric && ` vs ${comparisonMetric.name}`}
+                      </h3>
+                    </div>
                     
                     {processedChartData.length > 0 ? (
-                      <div className="h-96">
+                      <div className="h-96 transition-all duration-500 transform group-hover/chart:scale-[1.01]">
                         <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={processedChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                          <LineChart data={processedChartData} margin={{ top: 10, right: 30, left: 20, bottom: 10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                             <XAxis 
                               dataKey="formattedDate" 
                               stroke="#708090"
                               fontSize={12}
                               tickLine={false}
+                              axisLine={{ stroke: '#e0e0e0' }}
+                              tick={{ fill: '#708090' }}
+                              padding={{ left: 10, right: 10 }}
                             />
                             
                             {/* Left Y-Axis */}
@@ -725,6 +766,8 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                               stroke="#7ed984"
                               fontSize={12}
                               tickLine={false}
+                              axisLine={{ stroke: '#e0e0e0' }}
+                              tick={{ fill: '#7ed984' }}
                               domain={axisConfig?.leftDomain || ['auto', 'auto']}
                             />
                             
@@ -736,6 +779,8 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                                 stroke="#FFA500"
                                 fontSize={12}
                                 tickLine={false}
+                                axisLine={{ stroke: '#e0e0e0' }}
+                                tick={{ fill: '#FFA500' }}
                                 domain={axisConfig.rightDomain}
                                 tickFormatter={axisConfig.rightTickFormatter}
                                 ticks={axisConfig.rightTicks}
@@ -751,11 +796,13 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                               type="monotone" 
                               dataKey="primaryValue"
                               stroke="#7ed984"
-                              strokeWidth={2}
+                              strokeWidth={3}
                               connectNulls={false}
                               name={primaryMetric.name}
-                              dot={{ fill: '#7ed984', strokeWidth: 2, r: 3 }}
-                              activeDot={{ r: 5, stroke: '#7ed984', strokeWidth: 2 }}
+                              dot={{ fill: '#7ed984', strokeWidth: 2, r: 4 }}
+                              activeDot={{ r: 6, stroke: '#7ed984', strokeWidth: 2 }}
+                              animationDuration={1500}
+                              animationEasing="ease-in-out"
                             />
                             
                             {/* Comparison metric line */}
@@ -765,19 +812,22 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                                 type="monotone" 
                                 dataKey={axisConfig.normalizeComparison ? "normalizedComparisonValue" : "comparisonValue"}
                                 stroke="#FFA500"
-                                strokeWidth={2}
+                                strokeWidth={3}
                                 strokeDasharray={comparisonMetric.type === 'BOOLEAN' ? "5 5" : "0"}
                                 connectNulls={false}
                                 name={comparisonMetric.name}
-                                dot={{ fill: '#FFA500', strokeWidth: 2, r: 3 }}
-                                activeDot={{ r: 5, stroke: '#FFA500', strokeWidth: 2 }}
+                                dot={{ fill: '#FFA500', strokeWidth: 2, r: 4 }}
+                                activeDot={{ r: 6, stroke: '#FFA500', strokeWidth: 2 }}
+                                animationDuration={1500}
+                                animationEasing="ease-in-out"
+                                animationBegin={300}
                               />
                             )}
                           </LineChart>
                         </ResponsiveContainer>
                       </div>
                     ) : (
-                      <div className="h-96 flex items-center justify-center">
+                      <div className="h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
                         <div className="text-center">
                           <p className="text-secondary-text">No chart data available for this time period</p>
                         </div>
@@ -788,7 +838,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
 
                 {/* At a Glance - Correlation Analysis */}
                 {correlationScore !== null && primaryMetric && comparisonMetric && (
-                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 hover:translate-y-[-5px]">
                     <CorrelationCard
                       correlationScore={correlationScore}
                       primaryMetricName={primaryMetric.name}
@@ -799,7 +849,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
 
                 {/* Metric Relationship Breakdown */}
                 {primaryMetric && comparisonMetric && processedChartData.length > 0 && (
-                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                  <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 hover:translate-y-[-5px]">
                     <MetricRelationshipBreakdown
                       chartData={processedChartData}
                       primaryMetric={primaryMetric}
@@ -810,81 +860,102 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
               </div>
             )}
 
-            {/* Data Visualization - Experiment Results */}
+            {/* Data Visualization - Experiment Results - Enhanced with animations */}
             {finding.share_data === true && finding.experiment_id && experiment && experimentResults && (
-              <div className="space-y-6">
+              <div className={`space-y-6 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ transitionDelay: '300ms' }}>
                 {/* Experiment Overview */}
-                <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/experiment">
                   <CardContent className="p-8">
-                    <h3 className="font-heading text-xl text-primary-text mb-4">
-                      Experiment Results: {experiment.title}
-                    </h3>
+                    <div className="flex items-center space-x-3 mb-6">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/20 transition-all duration-500 group-hover/experiment:scale-110 group-hover/experiment:rotate-6">
+                        <FlaskConical className="w-5 h-5 text-white" />
+                      </div>
+                      <h3 className="font-heading text-xl text-primary-text bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500 group-hover/experiment:tracking-wider">
+                        Experiment Results: {experiment.title}
+                      </h3>
+                    </div>
                     
                     {/* Experiment Details */}
-                    <div className="p-4 bg-gray-50 rounded-lg mb-6">
+                    <div className="p-5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm mb-6 transition-all duration-300 group-hover/experiment:shadow-md">
                       <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="font-medium text-primary-text">Independent Variable:</span>
-                          <span className="ml-2 text-secondary-text">{experiment.independent_variable?.name}</span>
+                        <div className="flex items-center space-x-2 p-3 bg-white/80 rounded-lg transition-all duration-300 group-hover/experiment:bg-white group-hover/experiment:shadow-sm">
+                          <Target className="w-4 h-4 text-orange-500" />
+                          <div>
+                            <span className="font-medium text-primary-text block mb-1">Independent Variable:</span>
+                            <span className="text-secondary-text">{experiment.independent_variable?.name}</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-medium text-primary-text">Dependent Variable:</span>
-                          <span className="ml-2 text-secondary-text">{experiment.dependent_variable?.name}</span>
+                        <div className="flex items-center space-x-2 p-3 bg-white/80 rounded-lg transition-all duration-300 group-hover/experiment:bg-white group-hover/experiment:shadow-sm">
+                          <TrendingUp className="w-4 h-4 text-green-500" />
+                          <div>
+                            <span className="font-medium text-primary-text block mb-1">Dependent Variable:</span>
+                            <span className="text-secondary-text">{experiment.dependent_variable?.name}</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-medium text-primary-text">Duration:</span>
-                          <span className="ml-2 text-secondary-text">{experimentResults.totalDays} days</span>
+                        <div className="flex items-center space-x-2 p-3 bg-white/80 rounded-lg transition-all duration-300 group-hover/experiment:bg-white group-hover/experiment:shadow-sm">
+                          <Calendar className="w-4 h-4 text-blue-500" />
+                          <div>
+                            <span className="font-medium text-primary-text block mb-1">Duration:</span>
+                            <span className="text-secondary-text">{experimentResults.totalDays} days</span>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-medium text-primary-text">Data Completeness:</span>
-                          <span className="ml-2 text-secondary-text">{experimentResults.daysWithData} days with data</span>
+                        <div className="flex items-center space-x-2 p-3 bg-white/80 rounded-lg transition-all duration-300 group-hover/experiment:bg-white group-hover/experiment:shadow-sm">
+                          <BarChart3 className="w-4 h-4 text-purple-500" />
+                          <div>
+                            <span className="font-medium text-primary-text block mb-1">Data Completeness:</span>
+                            <span className="text-secondary-text">{experimentResults.daysWithData} days with data</span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Results Analysis */}
                     {experimentResults.daysWithData > 0 && experimentResults.positiveConditionAverage !== null && experimentResults.negativeConditionAverage !== null ? (
-                      <div className="space-y-4">
-                        <div className="flex items-center space-x-2 mb-4">
-                          <Target className="w-4 h-4 text-primary" />
-                          <h4 className="font-medium text-primary-text">Results Analysis</h4>
+                      <div className="space-y-5">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-blue-400/20 transition-all duration-300 group-hover/experiment:scale-110 group-hover/experiment:rotate-6">
+                            <Target className="w-4 h-4 text-white" />
+                          </div>
+                          <h4 className="font-medium text-lg text-primary-text bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-300 group-hover/experiment:tracking-wider">
+                            Results Analysis
+                          </h4>
                         </div>
 
                         {/* Condition Comparison */}
                         <div className="grid grid-cols-2 gap-4">
                           {/* Positive Condition */}
-                          <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                            <div className="text-center">
-                              <h5 className="font-medium text-green-900 mb-2">
+                          <div className="group/positive bg-gradient-to-br from-green-50 to-green-100 rounded-xl overflow-hidden border border-green-200 shadow-md transition-all duration-500 hover:shadow-lg hover:shadow-green-200/30 hover:-translate-y-1">
+                            <div className="p-5 text-center">
+                              <h5 className="font-medium text-green-900 mb-3 transition-all duration-300 group-hover/positive:tracking-wide">
                                 {getConditionLabel(true)} {experiment.independent_variable?.name}
                               </h5>
-                              <div className="text-2xl font-bold text-green-600 mb-1">
+                              <div className="text-3xl font-bold text-green-700 mb-2 transition-all duration-300 group-hover/positive:scale-110 group-hover/positive:text-green-800">
                                 {experimentResults.positiveConditionAverage.toFixed(1)}
                               </div>
-                              <p className="text-sm text-green-700">
+                              <p className="text-sm text-green-700 mb-1">
                                 Average {experiment.dependent_variable?.name}
                               </p>
-                              <p className="text-xs text-green-600 mt-1">
+                              <div className="bg-white/70 px-3 py-1 rounded-full text-sm text-green-700 shadow-sm inline-block transition-all duration-300 group-hover/positive:bg-white group-hover/positive:shadow-md">
                                 {experimentResults.positiveConditionCount} day{experimentResults.positiveConditionCount !== 1 ? 's' : ''}
-                              </p>
+                              </div>
                             </div>
                           </div>
 
                           {/* Negative Condition */}
-                          <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                            <div className="text-center">
-                              <h5 className="font-medium text-gray-900 mb-2">
+                          <div className="group/negative bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden border border-gray-200 shadow-md transition-all duration-500 hover:shadow-lg hover:shadow-gray-200/30 hover:-translate-y-1">
+                            <div className="p-5 text-center">
+                              <h5 className="font-medium text-gray-900 mb-3 transition-all duration-300 group-hover/negative:tracking-wide">
                                 {getConditionLabel(false)} {experiment.independent_variable?.name}
                               </h5>
-                              <div className="text-2xl font-bold text-gray-600 mb-1">
+                              <div className="text-3xl font-bold text-gray-700 mb-2 transition-all duration-300 group-hover/negative:scale-110 group-hover/negative:text-gray-800">
                                 {experimentResults.negativeConditionAverage.toFixed(1)}
                               </div>
-                              <p className="text-sm text-gray-700">
+                              <p className="text-sm text-gray-700 mb-1">
                                 Average {experiment.dependent_variable?.name}
                               </p>
-                              <p className="text-xs text-gray-600 mt-1">
+                              <div className="bg-white/70 px-3 py-1 rounded-full text-sm text-gray-700 shadow-sm inline-block transition-all duration-300 group-hover/negative:bg-white group-hover/negative:shadow-md">
                                 {experimentResults.negativeConditionCount} day{experimentResults.negativeConditionCount !== 1 ? 's' : ''}
-                              </p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -901,37 +972,50 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                           };
 
                           return (
-                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                              <div className="flex items-center space-x-2 mb-3">
-                                {difference > 0 ? (
-                                  <TrendingUp className="w-5 h-5 text-blue-600" />
-                                ) : difference < 0 ? (
-                                  <TrendingDown className="w-5 h-5 text-blue-600" />
-                                ) : (
-                                  <BarChart3 className="w-5 h-5 text-blue-600" />
-                                )}
-                                <h5 className="font-medium text-blue-900">
-                                  {getImpactStrength(difference)} {difference > 0 ? 'Positive' : difference < 0 ? 'Negative' : 'No'} Impact
-                                </h5>
-                                <Badge variant="outline" className="text-blue-700 border-blue-300">
-                                  {Math.abs(difference).toFixed(1)} point difference
-                                </Badge>
+                            <div className="group/impact bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200 shadow-md transition-all duration-500 hover:shadow-lg hover:shadow-blue-200/30 hover:-translate-y-1">
+                              <div className="flex items-start space-x-4">
+                                <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-blue-400/20 flex-shrink-0 transition-all duration-300 group-hover/impact:scale-110 group-hover/impact:rotate-6">
+                                  {difference > 0 ? (
+                                    <TrendingUp className="w-5 h-5 text-white" />
+                                  ) : difference < 0 ? (
+                                    <TrendingDown className="w-5 h-5 text-white" />
+                                  ) : (
+                                    <BarChart3 className="w-5 h-5 text-white" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center flex-wrap gap-2 mb-3">
+                                    <h5 className="font-medium text-blue-900 text-lg transition-all duration-300 group-hover/impact:tracking-wide group-hover/impact:text-indigo-900">
+                                      {getImpactStrength(difference)} {difference > 0 ? 'Positive' : difference < 0 ? 'Negative' : 'No'} Impact
+                                    </h5>
+                                    <Badge variant="outline" className="text-blue-700 border-blue-300 bg-white/70 shadow-sm transition-all duration-300 group-hover/impact:bg-white group-hover/impact:shadow-md">
+                                      {Math.abs(difference).toFixed(1)} point difference
+                                    </Badge>
+                                    <div className="relative">
+                                      <Sparkles className="w-4 h-4 text-blue-500 animate-pulse absolute -top-2 -right-2" />
+                                    </div>
+                                  </div>
+                                  <p className="text-blue-800 leading-relaxed transition-all duration-300 group-hover/impact:text-indigo-800">
+                                    During the experiment, on days when {experiment.independent_variable?.name?.toLowerCase()} was {getConditionLabel(true).toLowerCase()}, 
+                                    the average {experiment.dependent_variable?.name} was <strong>{experimentResults.positiveConditionAverage.toFixed(1)}</strong>. 
+                                    On days when it was {getConditionLabel(false).toLowerCase()}, 
+                                    the average {experiment.dependent_variable?.name} was <strong>{experimentResults.negativeConditionAverage.toFixed(1)}</strong>.
+                                  </p>
+                                </div>
                               </div>
-                              <p className="text-sm text-blue-800">
-                                During the experiment, on days when {experiment.independent_variable?.name?.toLowerCase()} was {getConditionLabel(true).toLowerCase()}, 
-                                the average {experiment.dependent_variable?.name} was <strong>{experimentResults.positiveConditionAverage.toFixed(1)}</strong>. 
-                                On days when it was {getConditionLabel(false).toLowerCase()}, 
-                                the average {experiment.dependent_variable?.name} was <strong>{experimentResults.negativeConditionAverage.toFixed(1)}</strong>.
-                              </p>
                             </div>
                           );
                         })()}
                       </div>
                     ) : (
-                      <div className="text-center py-8">
-                        <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <h4 className="font-medium text-primary-text mb-2">Insufficient Data</h4>
-                        <p className="text-secondary-text">
+                      <div className="text-center py-12 group/insufficient">
+                        <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 group-hover/insufficient:scale-110 group-hover/insufficient:shadow-lg">
+                          <Calendar className="w-10 h-10 text-gray-400 transition-all duration-500 group-hover/insufficient:text-gray-600" />
+                        </div>
+                        <h4 className="font-medium text-xl text-primary-text mb-3 transition-all duration-500 group-hover/insufficient:scale-105">
+                          Insufficient Data
+                        </h4>
+                        <p className="text-secondary-text max-w-lg mx-auto transition-all duration-500 group-hover/insufficient:text-gray-700">
                           No data was logged for both variables during the experiment period.
                         </p>
                       </div>
@@ -943,13 +1027,18 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
 
             {/* Data Visualization Placeholder for Experiment without results */}
             {finding.share_data === true && finding.experiment_id && experiment && !experimentResults && (
-              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+              <Card className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} hover:shadow-3xl hover:shadow-white/20`} style={{ transitionDelay: '300ms' }}>
                 <CardContent className="p-8">
-                  <h3 className="font-heading text-xl text-primary-text mb-4">
-                    Experiment Results
-                  </h3>
-                  <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                    <p className="text-secondary-text">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/20">
+                      <FlaskConical className="w-5 h-5 text-white" />
+                    </div>
+                    <h3 className="font-heading text-xl text-primary-text bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                      Experiment Results
+                    </h3>
+                  </div>
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-12 text-center">
+                    <p className="text-secondary-text mb-4">
                       Experiment data visualization will be displayed here when implemented
                     </p>
                     {finding.experiment_id && (
@@ -962,8 +1051,8 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
               </Card>
             )}
 
-            {/* Actions */}
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+            {/* Actions - Enhanced with animations */}
+            <Card className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} hover:shadow-3xl hover:shadow-white/20`} style={{ transitionDelay: '400ms' }}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   {/* Voting */}
@@ -974,18 +1063,24 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                       variant="ghost"
                       onClick={() => handleVote('upvote')}
                       disabled={!user}
-                      className={`flex items-center space-x-1 transition-all duration-200 ${
+                      className={`flex items-center space-x-2 transition-all duration-300 hover:scale-110 ${
                         userVote === 'upvote' 
                           ? 'text-green-600 bg-green-50 hover:bg-green-100' 
                           : 'text-secondary-text hover:text-green-600 hover:bg-green-50'
                       }`}
                     >
-                      <ChevronUp className="w-5 h-5" />
-                      <span>{finding.upvotes}</span>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${userVote === 'upvote' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                        <ChevronUp className="w-5 h-5" />
+                      </div>
+                      <span className="font-medium">{finding.upvotes}</span>
                     </Button>
 
                     {/* Score */}
-                    <div className="px-3 py-2 text-sm font-medium text-primary-text">
+                    <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+                      score > 0 ? 'bg-green-100 text-green-700' :
+                      score < 0 ? 'bg-red-100 text-red-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
                       {score > 0 ? '+' : ''}{score}
                     </div>
 
@@ -995,19 +1090,35 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                       variant="ghost"
                       onClick={() => handleVote('downvote')}
                       disabled={!user}
-                      className={`flex items-center space-x-1 transition-all duration-200 ${
+                      className={`flex items-center space-x-2 transition-all duration-300 hover:scale-110 ${
                         userVote === 'downvote' 
                           ? 'text-red-600 bg-red-50 hover:bg-red-100' 
                           : 'text-secondary-text hover:text-red-600 hover:bg-red-50'
                       }`}
                     >
-                      <ChevronDown className="w-5 h-5" />
-                      <span>{finding.downvotes}</span>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${userVote === 'downvote' ? 'bg-red-100' : 'bg-gray-100'}`}>
+                        <ChevronDown className="w-5 h-5" />
+                      </div>
+                      <span className="font-medium">{finding.downvotes}</span>
                     </Button>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
+                    {/* Share Button */}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/community/${finding.id}`);
+                        alert('Share link copied to clipboard!');
+                      }}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-300 hover:scale-110"
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Share
+                    </Button>
+                    
                     {/* Delete Button - only show for author */}
                     {isAuthor && (
                       <Button
@@ -1015,7 +1126,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                         variant="ghost"
                         onClick={handleDelete}
                         disabled={deleteMutation.isPending}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300 hover:scale-110"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Delete
@@ -1029,7 +1140,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                         variant="ghost"
                         onClick={handleReport}
                         disabled={reportMutation.isPending}
-                        className="text-secondary-text hover:text-red-600 hover:bg-red-50"
+                        className="text-secondary-text hover:text-red-600 hover:bg-red-50 transition-all duration-300 hover:scale-110"
                       >
                         <Flag className="w-4 h-4 mr-2" />
                         Report
@@ -1059,6 +1170,26 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
         loading={deleteMutation.isPending}
         findingTitle={finding.title}
       />
+      
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 0.6; }
+          50% { opacity: 1; }
+          100% { opacity: 0.6; }
+        }
+        
+        @keyframes spin-slow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </>
   );
 }
