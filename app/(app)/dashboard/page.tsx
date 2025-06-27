@@ -80,14 +80,12 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Section 2: Interactive "Today's Log" */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-            <TodaysLogWidget
-              trackableItems={trackableItems}
-              todaysEntries={todaysEntries}
-              loading={isLoading}
-            />
-          </div>
+          {/* Section 2: Interactive "Today's Log" - NO WHITE CONTAINER */}
+          <TodaysLogWidget
+            trackableItems={trackableItems}
+            todaysEntries={todaysEntries}
+            loading={isLoading}
+          />
 
           {/* Section 3: "Active Experiments" - NO WHITE CONTAINER */}
           <ExperimentProgressWidget />
