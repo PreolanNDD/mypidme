@@ -89,10 +89,28 @@ const config: Config = {
             height: '0',
           },
         },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { opacity: '0.7', filter: 'blur(8px)' },
+          '50%': { opacity: '1', filter: 'blur(12px)' },
+        },
+        'rotate-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'float': 'float 3s ease-in-out infinite',
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'rotate-slow': 'rotate-slow 3s linear infinite',
+      },
+      screens: {
+        'xs': '480px',
       },
     },
   },

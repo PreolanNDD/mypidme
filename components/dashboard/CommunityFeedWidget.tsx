@@ -186,10 +186,10 @@ export function CommunityFeedWidget() {
                   
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-lg text-primary-text group-hover/finding:text-purple-700 transition-colors duration-300 leading-tight mb-2">
+                    <h4 className="font-semibold text-lg text-primary-text group-hover/finding:text-purple-700 transition-colors duration-300 leading-tight mb-2 line-clamp-2">
                       {finding.title}
                     </h4>
-                    <p className="text-sm text-secondary-text group-hover/finding:text-gray-700 transition-colors duration-300 leading-relaxed">
+                    <p className="text-sm text-secondary-text group-hover/finding:text-gray-700 transition-colors duration-300 leading-relaxed line-clamp-2">
                       {truncateContent(finding.content, 120)}
                     </p>
                   </div>
@@ -201,22 +201,22 @@ export function CommunityFeedWidget() {
                 </div>
 
                 {/* Enhanced Meta information */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100 group-hover/finding:border-purple-100 transition-colors duration-300">
-                  <div className="flex items-center space-x-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-gray-100 group-hover/finding:border-purple-100 transition-colors duration-300">
+                  <div className="flex flex-wrap items-center gap-2">
                     {/* Author */}
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center group-hover/finding:scale-110 transition-transform duration-300">
+                    <div className="flex items-center space-x-2 px-2 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover/finding:bg-purple-50 group-hover/finding:shadow-sm">
+                      <div className="w-5 h-5 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center">
                         <User className="w-3 h-3 text-white" />
                       </div>
-                      <span className="text-xs font-medium text-secondary-text group-hover/finding:text-purple-700 transition-colors duration-300">
+                      <span className="text-xs font-medium text-secondary-text group-hover/finding:text-purple-700 transition-colors duration-300 truncate max-w-[80px] sm:max-w-none">
                         {getAuthorName(finding)}
                       </span>
                     </div>
                     
                     {/* Date */}
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="w-3 h-3 text-secondary-text group-hover/finding:text-purple-600 group-hover/finding:scale-110 transition-all duration-300" />
-                      <span className="text-xs text-secondary-text group-hover/finding:text-purple-700 transition-colors duration-300">
+                    <div className="flex items-center space-x-2 px-2 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover/finding:bg-blue-50 group-hover/finding:shadow-sm">
+                      <Calendar className="w-3 h-3 text-secondary-text group-hover/finding:text-blue-600 transition-colors duration-300" />
+                      <span className="text-xs text-secondary-text group-hover/finding:text-blue-700 transition-colors duration-300">
                         {formatDate(finding.created_at)}
                       </span>
                     </div>
@@ -317,6 +317,12 @@ export function CommunityFeedWidget() {
         }
         .group:hover .group-hover\\:text-shadow-glow-subtle {
           text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 16px rgba(255, 255, 255, 0.4), 0 0 24px rgba(255, 255, 255, 0.2);
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </div>
