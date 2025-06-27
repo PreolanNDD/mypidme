@@ -34,7 +34,11 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
   const renderField = () => {
     switch (item.type) {
       case 'SCALE_1_10':
-        const sliderValue = value !== null && value !== undefined ? value : 5;
+        // Ensure value is a number between 1-10, defaulting to 5 if invalid
+        const sliderValue = typeof value === 'number' && !isNaN(value) && value >= 1 && value <= 10 
+          ? value 
+          : 5;
+        
         return (
           <div className="space-y-3 group">
             <div className="flex items-center justify-between">
@@ -78,7 +82,9 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
         );
 
       case 'BOOLEAN':
-        const booleanValue = value === null || value === undefined ? false : value;
+        // Ensure value is a boolean, defaulting to false if invalid
+        const booleanValue = typeof value === 'boolean' ? value : false;
+        
         return (
           <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg group transition-all duration-300 hover:border-primary/30 hover:bg-primary/5">
             <Label className="text-sm font-medium text-primary-text group-hover:text-primary transition-colors duration-300">
