@@ -36,16 +36,16 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
       case 'SCALE_1_10':
         const sliderValue = value !== null && value !== undefined ? value : 5;
         return (
-          <div className="space-y-3">
+          <div className="space-y-3 group">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium text-primary-text">
+              <Label className="text-sm font-medium text-primary-text group-hover:text-primary transition-colors duration-300">
                 {item.name}
               </Label>
-              <span className="text-sm font-medium text-primary">
+              <span className="text-sm font-bold text-primary bg-primary/10 px-2 py-1 rounded-full transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
                 {sliderValue}
               </span>
             </div>
-            <div className="isolate">
+            <div className="isolate pt-2 pb-4">
               <Slider
                 value={[sliderValue]}
                 onValueChange={handleSliderChange}
@@ -56,8 +56,8 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
               />
             </div>
             <div className="flex justify-between text-xs text-secondary-text">
-              <span>1</span>
-              <span>10</span>
+              <span className="px-2 py-1 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors duration-300">1</span>
+              <span className="px-2 py-1 rounded-full bg-gray-100 group-hover:bg-gray-200 transition-colors duration-300">10</span>
             </div>
           </div>
         );
@@ -65,41 +65,47 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
       case 'NUMERIC':
         const numericValue = value === null || value === undefined ? '' : value;
         return (
-          <Input
-            label={item.name}
-            type="number"
-            value={numericValue}
-            onChange={handleInputChange}
-            placeholder="Enter a number"
-          />
+          <div className="group">
+            <Input
+              label={item.name}
+              type="number"
+              value={numericValue}
+              onChange={handleInputChange}
+              placeholder="Enter a number"
+              className="transition-all duration-300 group-hover:border-primary/50 focus:ring-4 focus:ring-primary/20"
+            />
+          </div>
         );
 
       case 'BOOLEAN':
         const booleanValue = value === null || value === undefined ? false : value;
         return (
-          <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-            <Label className="text-sm font-medium text-primary-text">
+          <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg group transition-all duration-300 hover:border-primary/30 hover:bg-primary/5">
+            <Label className="text-sm font-medium text-primary-text group-hover:text-primary transition-colors duration-300">
               {item.name}
             </Label>
-            <Switch
-              checked={booleanValue}
-              onCheckedChange={handleSwitchChange}
-            />
+            <div className="transform transition-transform duration-300 group-hover:scale-110">
+              <Switch
+                checked={booleanValue}
+                onCheckedChange={handleSwitchChange}
+                className="data-[state=checked]:bg-primary"
+              />
+            </div>
           </div>
         );
 
       case 'TEXT':
         const textValue = value === null || value === undefined ? '' : value;
         return (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-primary-text">
+          <div className="space-y-2 group">
+            <Label className="text-sm font-medium text-primary-text group-hover:text-primary transition-colors duration-300">
               {item.name}
             </Label>
             <textarea
               value={textValue}
               onChange={handleTextChange}
               placeholder="Enter your notes..."
-              className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="w-full p-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 group-hover:border-primary/30 group-hover:shadow-sm"
               rows={3}
             />
           </div>
