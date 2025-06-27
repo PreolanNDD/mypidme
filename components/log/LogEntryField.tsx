@@ -34,10 +34,8 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
   const renderField = () => {
     switch (item.type) {
       case 'SCALE_1_10':
-        // Ensure value is a number between 1-10, defaulting to 5 if invalid
-        const sliderValue = typeof value === 'number' && !isNaN(value) && value >= 1 && value <= 10 
-          ? value 
-          : 5;
+        // Use a safe default of 5 if value is invalid
+        const sliderValue = (typeof value === 'number' && value >= 1 && value <= 10) ? value : 5;
         
         return (
           <div className="space-y-3 group">
@@ -67,7 +65,7 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
         );
 
       case 'NUMERIC':
-        const numericValue = value === null || value === undefined ? '' : value;
+        const numericValue = (value === null || value === undefined) ? '' : value;
         return (
           <div className="group">
             <Input
@@ -82,7 +80,7 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
         );
 
       case 'BOOLEAN':
-        // Ensure value is a boolean, defaulting to false if invalid
+        // Use a safe default of false if value is invalid
         const booleanValue = typeof value === 'boolean' ? value : false;
         
         return (
@@ -101,7 +99,7 @@ export function LogEntryField({ item, value, onChange }: LogEntryFieldProps) {
         );
 
       case 'TEXT':
-        const textValue = value === null || value === undefined ? '' : value;
+        const textValue = (value === null || value === undefined) ? '' : value;
         return (
           <div className="space-y-2 group">
             <Label className="text-sm font-medium text-primary-text group-hover:text-primary transition-colors duration-300">

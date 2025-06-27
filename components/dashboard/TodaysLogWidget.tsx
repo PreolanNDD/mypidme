@@ -118,7 +118,7 @@ function EnhancedLogEntryField({ item, value, onChange }: {
       <LogEntryField 
         item={item} 
         value={value} 
-        onChange={handleChange}
+        onChange={onChange}
       />
     </div>
   );
@@ -148,19 +148,6 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
       });
       setFormData(newFormData);
     }
-  }, [trackableItems, todaysEntries]);
-
-  // Calculate progress metrics
-  const progressMetrics = useMemo(() => {
-    const totalMetrics = trackableItems.length;
-    const completedMetrics = trackableItems.filter(item => 
-      todaysEntries[item.id] !== undefined
-    ).length;
-    
-    return {
-      total: totalMetrics,
-      completed: completedMetrics
-    };
   }, [trackableItems, todaysEntries]);
 
   // Save mutation with comprehensive cache invalidation
