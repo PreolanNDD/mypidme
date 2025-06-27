@@ -152,73 +152,103 @@ export function CommunityFeedWidget() {
           </Button>
         </div>
       ) : (
-        // Show top findings - Individual items as white containers with interactive effects
+        // Show top findings - Enhanced individual items
         <div className="space-y-6">
           {topFindings.map((finding, index) => (
             <div 
               key={finding.id} 
-              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-4 cursor-pointer group/finding border border-white/20 transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:z-10 relative"
+              className="group/finding relative overflow-hidden bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl cursor-pointer border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10"
               onClick={() => handleFindingClick(finding.id)}
               style={{
                 // Add margin to prevent overlap when rising
                 marginBottom: index < topFindings.length - 1 ? '1.5rem' : '0'
               }}
             >
-              <div className="space-y-3">
-                {/* Header */}
-                <div className="flex items-start space-x-3">
+              {/* Gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover/finding:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+              
+              {/* Animated border glow */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 opacity-0 group-hover/finding:opacity-100 transition-opacity duration-500 blur-sm"></div>
+              
+              <div className="relative p-5 space-y-4">
+                {/* Enhanced Header with ranking badge */}
+                <div className="flex items-start space-x-4">
+                  {/* Ranking Badge */}
                   <div className="flex-shrink-0">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 group-hover/finding:scale-110 ${
-                      index === 0 ? 'bg-yellow-100 text-yellow-700 group-hover/finding:bg-yellow-200' :
-                      index === 1 ? 'bg-gray-100 text-gray-700 group-hover/finding:bg-gray-200' :
-                      'bg-orange-100 text-orange-700 group-hover/finding:bg-orange-200'
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 group-hover/finding:scale-110 group-hover/finding:rotate-3 ${
+                      index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white shadow-lg shadow-yellow-500/30' :
+                      index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white shadow-lg shadow-gray-500/30' :
+                      'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/30'
                     }`}>
                       {index + 1}
                     </div>
                   </div>
+                  
+                  {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-primary-text truncate group-hover/finding:text-primary transition-colors duration-300">
+                    <h4 className="font-semibold text-lg text-primary-text group-hover/finding:text-purple-700 transition-colors duration-300 leading-tight mb-2">
                       {finding.title}
                     </h4>
-                    <p className="text-sm text-secondary-text mt-1 group-hover/finding:text-primary-text transition-colors duration-300">
-                      {truncateContent(finding.content)}
+                    <p className="text-sm text-secondary-text group-hover/finding:text-gray-700 transition-colors duration-300 leading-relaxed">
+                      {truncateContent(finding.content, 120)}
                     </p>
+                  </div>
+                  
+                  {/* Arrow indicator */}
+                  <div className="flex-shrink-0 transform group-hover/finding:translate-x-1 group-hover/finding:scale-110 transition-all duration-300">
+                    <ArrowRight className="w-5 h-5 text-gray-400 group-hover/finding:text-purple-600" />
                   </div>
                 </div>
 
-                {/* Meta information */}
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center space-x-1">
-                      <User className="w-3 h-3 text-secondary-text group-hover/finding:text-primary transition-colors duration-300" />
-                      <span className="text-secondary-text group-hover/finding:text-primary-text transition-colors duration-300">
+                {/* Enhanced Meta information */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100 group-hover/finding:border-purple-100 transition-colors duration-300">
+                  <div className="flex items-center space-x-4">
+                    {/* Author */}
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center group-hover/finding:scale-110 transition-transform duration-300">
+                        <User className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-xs font-medium text-secondary-text group-hover/finding:text-purple-700 transition-colors duration-300">
                         {getAuthorName(finding)}
                       </span>
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-3 h-3 text-secondary-text group-hover/finding:text-primary transition-colors duration-300" />
-                      <span className="text-secondary-text group-hover/finding:text-primary-text transition-colors duration-300">
+                    
+                    {/* Date */}
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-3 h-3 text-secondary-text group-hover/finding:text-purple-600 group-hover/finding:scale-110 transition-all duration-300" />
+                      <span className="text-xs text-secondary-text group-hover/finding:text-purple-700 transition-colors duration-300">
                         {formatDate(finding.created_at)}
                       </span>
                     </div>
+                    
+                    {/* Data badge */}
                     {finding.share_data && (
-                      <Badge variant="outline" className="text-xs text-blue-700 border-blue-300 group-hover/finding:bg-blue-50 transition-colors duration-300">
+                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200 group-hover/finding:bg-blue-100 group-hover/finding:border-blue-300 group-hover/finding:scale-105 transition-all duration-300">
+                        <BarChart3 className="w-3 h-3 mr-1" />
                         Data
                       </Badge>
                     )}
                   </div>
 
-                  {/* Vote summary */}
-                  <div className="flex items-center space-x-2">
+                  {/* Enhanced Vote summary */}
+                  <div className="flex items-center space-x-3">
                     <div className="flex items-center space-x-1">
-                      <ChevronUp className="w-3 h-3 text-green-600 group-hover/finding:scale-110 transition-transform duration-300" />
-                      <span className="text-secondary-text group-hover/finding:text-primary-text transition-colors duration-300">{finding.upvotes}</span>
+                      <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center group-hover/finding:bg-green-200 group-hover/finding:scale-110 transition-all duration-300">
+                        <ChevronUp className="w-3 h-3 text-green-600" />
+                      </div>
+                      <span className="text-xs font-medium text-secondary-text group-hover/finding:text-green-700 transition-colors duration-300">
+                        {finding.upvotes}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <ChevronDown className="w-3 h-3 text-red-600 group-hover/finding:scale-110 transition-transform duration-300" />
-                      <span className="text-secondary-text group-hover/finding:text-primary-text transition-colors duration-300">{finding.downvotes}</span>
+                      <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center group-hover/finding:bg-red-200 group-hover/finding:scale-110 transition-all duration-300">
+                        <ChevronDown className="w-3 h-3 text-red-600" />
+                      </div>
+                      <span className="text-xs font-medium text-secondary-text group-hover/finding:text-red-700 transition-colors duration-300">
+                        {finding.downvotes}
+                      </span>
                     </div>
-                    <div className={`text-xs font-medium px-2 py-1 rounded transition-all duration-300 group-hover/finding:scale-105 ${
+                    <div className={`text-xs font-bold px-3 py-1 rounded-full transition-all duration-300 group-hover/finding:scale-105 ${
                       finding.score > 0 ? 'bg-green-100 text-green-700 group-hover/finding:bg-green-200' :
                       finding.score < 0 ? 'bg-red-100 text-red-700 group-hover/finding:bg-red-200' :
                       'bg-gray-100 text-gray-700 group-hover/finding:bg-gray-200'
@@ -234,29 +264,51 @@ export function CommunityFeedWidget() {
           {/* Show more findings indicator */}
           {findings.length > 3 && (
             <div className="text-center pt-2">
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 onClick={handleViewCommunity}
-                className="text-white hover:bg-white/10 hover:text-white"
+                className="group/more relative overflow-hidden px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-lg hover:shadow-white/20"
               >
-                +{findings.length - 3} more finding{findings.length - 3 !== 1 ? 's' : ''}
-              </Button>
+                {/* Sliding highlight effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/more:translate-x-full transition-transform duration-500 ease-out"></div>
+                
+                {/* Content */}
+                <div className="relative">
+                  <span className="text-sm font-medium transition-all duration-300 group-hover/more:tracking-wide">
+                    +{findings.length - 3} more finding{findings.length - 3 !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/more:opacity-100 transition-opacity duration-300"></div>
+              </button>
             </div>
           )}
 
-          {/* Trending insights footer */}
+          {/* Enhanced "Discover More Insights" button - matching View All style */}
           <div className="pt-2">
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={handleViewCommunity}
-              className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
-              style={{ color: '#4a2a6d' }}
+              className="group/discover relative overflow-hidden w-full px-4 py-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-lg hover:shadow-white/20"
             >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Discover More Insights
-            </Button>
+              {/* Sliding highlight effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/discover:translate-x-full transition-transform duration-500 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center justify-center space-x-3">
+                <div className="transform group-hover/discover:scale-110 group-hover/discover:rotate-12 transition-transform duration-300">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <span className="font-medium transition-all duration-300 group-hover/discover:tracking-wide">
+                  Discover More Insights
+                </span>
+                <div className="transform group-hover/discover:translate-x-1 transition-transform duration-300">
+                  <ArrowRight className="w-5 h-5" />
+                </div>
+              </div>
+              
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/discover:opacity-100 transition-opacity duration-300"></div>
+            </button>
           </div>
         </div>
       )}
