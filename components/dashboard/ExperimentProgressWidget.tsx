@@ -142,12 +142,7 @@ export function ExperimentProgressWidget() {
               <div className="absolute inset-2 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-full"></div>
               
               {/* Icon with enhanced styling */}
-              <div className="flex items-center justify-center w-full h-screen bg-gray-100">
-
-                {/* Your icon goes inside. No changes needed to its classes. */}
-                <FlaskConical className="relative w-10 h-10 text-purple-600 drop-shadow-sm" />
-              
-              </div>
+              <FlaskConical className="relative w-10 h-10 text-purple-600 drop-shadow-sm" />
               
               {/* Subtle sparkle effects */}
               <div className="absolute top-2 right-3 w-2 h-2 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full opacity-60 animate-pulse"></div>
@@ -246,76 +241,4 @@ export function ExperimentProgressWidget() {
                     </div>
                   </div>
 
-                  {/* Progress Bar - FIXED: Removed scale transform on hover */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-primary-text group-hover/experiment:text-primary transition-colors duration-300">Progress</span>
-                      <span className="text-secondary-text group-hover/experiment:text-primary-text transition-colors duration-300">
-                        {progress.status === 'upcoming' 
-                          ? 'Starts soon'
-                          : progress.status === 'completed'
-                          ? 'Completed'
-                          : `Day ${progress.daysElapsed} of ${progress.totalDays}`
-                        }
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 group-hover/experiment:bg-gray-300 transition-colors duration-300">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-500 ease-out ${
-                          progress.status === 'completed' 
-                            ? 'bg-accent-2 group-hover/experiment:bg-accent-2/80' 
-                            : progress.status === 'active'
-                            ? 'bg-primary group-hover/experiment:bg-primary/80' 
-                            : 'bg-gray-300 group-hover/experiment:bg-gray-400'
-                        }`}
-                        style={{ width: `${progress.percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Show more experiments indicator */}
-          {activeExperiments.length > 2 && (
-            <div className="text-center pt-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleViewAllExperiments}
-                className="text-white hover:bg-white/10 hover:text-white"
-              >
-                +{activeExperiments.length - 2} more experiment{activeExperiments.length - 2 !== 1 ? 's' : ''}
-              </Button>
-            </div>
-          )}
-
-          {/* Create new experiment button */}
-          <div className="pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleCreateExperiment}
-              className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
-              style={{ color: '#4a2a6d' }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Start New Experiment
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Enhanced Custom CSS for text glow effects */}
-      <style jsx>{`
-        .group:hover .group-hover\\:text-shadow-glow {
-          text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
-        }
-        .group:hover .group-hover\\:text-shadow-glow-subtle {
-          text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 16px rgba(255, 255, 255, 0.4), 0 0 24px rgba(255, 255, 255, 0.2);
-        }
-      `}</style>
-    </div>
-  );
-}
+                  {/*
