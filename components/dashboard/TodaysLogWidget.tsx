@@ -117,7 +117,7 @@ function EnhancedLogEntryField({ item, value, onChange }: {
     <LogEntryField 
       item={item} 
       value={value} 
-      onChange={onChange}
+      onChange={handleChange}
     />
   );
 }
@@ -260,14 +260,10 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
           </div>
         </div>
 
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-          <CardContent className="p-8">
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
-              ))}
-            </div>
-          </CardContent>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse"></div>
+          ))}
         </div>
       </div>
     );
@@ -296,30 +292,30 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl pt-12 pb-12 px-8 text-center border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:shadow-white/20">
           {/* Centered Icon with Enhanced Styling */}
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center shadow-lg border border-blue-200/50 group-hover:scale-105 transition-all duration-300">
-              <BookOpen className="w-10 h-10 text-blue-600" />
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center shadow-lg border border-purple-200/50 group-hover:scale-105 transition-all duration-300">
+              <BookOpen className="w-10 h-10 text-purple-600" />
             </div>
           </div>
           
           {/* Enhanced Text Styling */}
           <div className="mb-8 space-y-4">
-            <h4 className="font-heading text-2xl text-primary-text mb-3 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h4 className="font-heading text-2xl text-primary-text mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
               Ready to Start Tracking?
             </h4>
             <div className="max-w-md mx-auto">
               <p className="text-lg font-medium text-gray-700 leading-relaxed mb-2">
                 Create some metrics first to start logging your daily data and track your progress!
               </p>
-              <div className="w-16 h-1 bg-gradient-to-r from-blue-400 to-indigo-400 mx-auto rounded-full"></div>
+              <div className="w-16 h-1 bg-gradient-to-r from-purple-400 to-indigo-400 mx-auto rounded-full"></div>
             </div>
           </div>
           
           <button
             onClick={() => window.location.href = '/log'}
-            className="group/metric relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25"
+            className="group/metric relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
           >
             {/* Animated background gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 opacity-0 group-hover/metric:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/metric:opacity-100 transition-opacity duration-500"></div>
             
             {/* Sliding highlight effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/metric:translate-x-full transition-transform duration-700 ease-out"></div>
@@ -379,7 +375,7 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
           <CardContent className="p-8">
             <div className="text-center py-8">
               <div className="space-y-4">
-                <div className="w-16 h-16 bg-accent-2 rounded-full flex items-center justify-center mx-auto">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto">
                   <CheckCircle className="w-8 h-8 text-white" />
                 </div>
                 <div>
@@ -390,12 +386,14 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
                   <Button 
                     variant="outline" 
                     onClick={() => window.location.href = '/data'}
+                    className="bg-white hover:bg-gray-50 border-gray-200 text-primary hover:text-primary/90"
                   >
                     View Your Progress
                   </Button>
                   <Button 
                     onClick={handleEditClick}
                     variant="ghost"
+                    className="text-gray-600 hover:text-primary hover:bg-gray-50"
                   >
                     <Edit className="w-4 h-4 mr-2" />
                     Edit Today's Log
@@ -440,136 +438,134 @@ export function TodaysLogWidget({ trackableItems, todaysEntries, loading }: Toda
         </div>
       </div>
 
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-        <CardContent className="p-8">
-          <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <h2 className="font-heading text-2xl text-primary-text">Today's Log</h2>
-                <p className="text-secondary-text">
-                  {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
-              </div>
-              {isEditing && (
-                <Button
-                  size="sm"
-                  onClick={() => setIsEditing(false)}
-                  className="bg-primary hover:bg-primary/90 text-white border-primary hover:border-primary/90"
-                >
-                  Cancel Edit
-                </Button>
-              )}
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-white" />
             </div>
-            
-            {/* Progress Bar */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-primary-text">Today's Progress</span>
-                <span className="text-sm text-secondary-text">
-                  {progressMetrics.completed}/{progressMetrics.total} metrics logged
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className={`h-2 rounded-full transition-all duration-500 ease-out ${
-                    progressMetrics.percentage === 100 
-                      ? 'bg-accent-2' 
-                      : progressMetrics.percentage > 0 
-                        ? 'bg-primary' 
-                        : 'bg-gray-300'
-                  }`}
-                  style={{ width: `${progressMetrics.percentage}%` }}
-                ></div>
-              </div>
-              {progressMetrics.percentage > 0 && progressMetrics.percentage < 100 && (
-                <p className="text-xs text-secondary-text mt-1">
-                  {Math.round(progressMetrics.percentage)}% complete
-                </p>
-              )}
+            <div className="flex-1">
+              <h2 className="font-heading text-2xl text-primary-text">Today's Log</h2>
+              <p className="text-secondary-text">
+                {new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
+              </p>
             </div>
-
-            {message && (
-              <div className={`p-3 rounded-lg text-sm ${
-                message.includes('successfully') 
-                  ? 'bg-green-50 border border-green-200 text-green-600' 
-                  : 'bg-red-50 border border-red-200 text-red-600'
-              }`}>
-                <p>{message}</p>
-              </div>
+            {isEditing && (
+              <Button
+                size="sm"
+                onClick={() => setIsEditing(false)}
+                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+              >
+                Cancel Edit
+              </Button>
             )}
-
-            {/* Two-column layout for metrics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left Column: Input Metrics */}
-              <div className="space-y-6">
-                {inputItems.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-accent-1 rounded-lg flex items-center justify-center">
-                        <Target className="w-4 h-4 text-white" />
-                      </div>
-                      <h3 className="font-heading text-lg text-primary-text">Inputs</h3>
-                    </div>
-                    <div className="space-y-4">
-                      {inputItems.map(item => (
-                        <EnhancedLogEntryField 
-                          key={item.id}
-                          item={item} 
-                          value={formData[item.id]} 
-                          onChange={handleFieldChange}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Right Column: Output Metrics */}
-              <div className="space-y-6">
-                {outputItems.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-accent-2 rounded-lg flex items-center justify-center">
-                        <TrendingUp className="w-4 h-4 text-white" />
-                      </div>
-                      <h3 className="font-heading text-lg text-primary-text">Outputs</h3>
-                    </div>
-                    <div className="space-y-4">
-                      {outputItems.map(item => (
-                        <EnhancedLogEntryField 
-                          key={item.id}
-                          item={item} 
-                          value={formData[item.id]} 
-                          onChange={handleFieldChange}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <Button 
-              onClick={handleSave}
-              loading={saveMutation.isPending}
-              className="w-full bg-brand-button hover:bg-white hover:text-brand-button hover:border-brand-button border border-transparent transition-all duration-200 text-white" 
-              size="lg"
-              disabled={saveMutation.isPending}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save Today's Log
-            </Button>
           </div>
-        </CardContent>
+          
+          {/* Progress Bar */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-primary-text">Today's Progress</span>
+              <span className="text-sm text-secondary-text">
+                {progressMetrics.completed}/{progressMetrics.total} metrics logged
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                  progressMetrics.percentage === 100 
+                    ? 'bg-gradient-to-r from-green-400 to-green-500' 
+                    : progressMetrics.percentage > 0 
+                      ? 'bg-gradient-to-r from-purple-500 to-indigo-500' 
+                      : 'bg-gray-300'
+                }`}
+                style={{ width: `${progressMetrics.percentage}%` }}
+              ></div>
+            </div>
+            {progressMetrics.percentage > 0 && progressMetrics.percentage < 100 && (
+              <p className="text-xs text-secondary-text mt-1">
+                {Math.round(progressMetrics.percentage)}% complete
+              </p>
+            )}
+          </div>
+
+          {message && (
+            <div className={`p-3 rounded-lg text-sm ${
+              message.includes('successfully') 
+                ? 'bg-green-50 border border-green-200 text-green-600' 
+                : 'bg-red-50 border border-red-200 text-red-600'
+            }`}>
+              <p>{message}</p>
+            </div>
+          )}
+
+          {/* Two-column layout for metrics */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column: Input Metrics */}
+            <div className="space-y-6">
+              {inputItems.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center">
+                      <Target className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="font-heading text-lg text-primary-text">Inputs</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {inputItems.map(item => (
+                      <EnhancedLogEntryField 
+                        key={item.id}
+                        item={item} 
+                        value={formData[item.id]} 
+                        onChange={handleFieldChange}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right Column: Output Metrics */}
+            <div className="space-y-6">
+              {outputItems.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-white" />
+                    </div>
+                    <h3 className="font-heading text-lg text-primary-text">Outputs</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {outputItems.map(item => (
+                      <EnhancedLogEntryField 
+                        key={item.id}
+                        item={item} 
+                        value={formData[item.id]} 
+                        onChange={handleFieldChange}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <Button 
+            onClick={handleSave}
+            loading={saveMutation.isPending}
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300" 
+            size="lg"
+            disabled={saveMutation.isPending}
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save Today's Log
+          </Button>
+        </div>
       </div>
 
       {/* Enhanced Custom CSS for text glow effects */}
