@@ -85,20 +85,20 @@ export default function CommunityPage() {
             </div>
           </div>
 
-          {/* Tab Navigation - Enhanced with animations */}
-          <div className={`flex space-x-1 p-1 rounded-lg transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'} hover:shadow-lg`} style={{ backgroundColor: '#cdc1db' }}>
+          {/* Tab Navigation - Fixed to not have hover animation sticking out */}
+          <div className={`flex space-x-1 p-1 rounded-lg transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`} style={{ backgroundColor: '#cdc1db' }}>
             <button
               onClick={() => setActiveTab('community')}
               className={`flex-1 px-4 py-3 text-sm font-medium rounded-md transition-all duration-300 flex items-center justify-center space-x-2 ${
                 activeTab === 'community'
-                  ? 'bg-white shadow-md transform scale-105'
-                  : 'hover:bg-white/50 hover:scale-105'
+                  ? 'bg-white shadow-md'
+                  : 'hover:bg-white/50'
               }`}
               style={{ 
                 color: activeTab === 'community' ? '#4a2a6d' : '#9992a2'
               }}
             >
-              <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110">
+              <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center shadow-sm transition-all duration-300">
                 <Users className="w-3 h-3 text-white" />
               </div>
               <span>Community Feed</span>
@@ -108,14 +108,14 @@ export default function CommunityPage() {
                 onClick={() => setActiveTab('my-findings')}
                 className={`flex-1 px-4 py-3 text-sm font-medium rounded-md transition-all duration-300 flex items-center justify-center space-x-2 ${
                   activeTab === 'my-findings'
-                    ? 'bg-white shadow-md transform scale-105'
-                    : 'hover:bg-white/50 hover:scale-105'
+                    ? 'bg-white shadow-md'
+                    : 'hover:bg-white/50'
                 }`}
                 style={{ 
                   color: activeTab === 'my-findings' ? '#4a2a6d' : '#9992a2'
                 }}
               >
-                <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110">
+                <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center shadow-sm transition-all duration-300">
                   <User className="w-3 h-3 text-white" />
                 </div>
                 <span>My Findings</span>
