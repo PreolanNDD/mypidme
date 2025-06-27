@@ -1,4 +1,5 @@
 import { createClient } from './supabase/client';
+import { Database } from './supabase';
 
 export interface CommunityFinding {
   id: string;
@@ -8,7 +9,7 @@ export interface CommunityFinding {
   status: 'visible' | 'hidden_by_community';
   upvotes: number;
   downvotes: number;
-  share_data: boolean;
+  share_data: boolean | null;
   chart_config: any | null;
   experiment_id: string | null;
   created_at: string;
@@ -42,6 +43,8 @@ export interface UserProfile {
   last_name: string | null;
   created_at: string;
 }
+
+type CommunityFindingRow = Database['public']['Tables']['community_findings']['Row'];
 
 export async function getCommunityFindings(): Promise<CommunityFinding[]> {
   console.log('🔍 [getCommunityFindings] Fetching community findings with author details...');
@@ -93,7 +96,10 @@ export async function getCommunityFindings(): Promise<CommunityFinding[]> {
     });
   }
 
-  return findings as CommunityFinding[];
+  return findings.map(finding => ({
+    ...finding,
+    share_data: finding.share_data as boolean | null
+  })) as CommunityFinding[];
 }
 
 export async function getCommunityFindingById(findingId: string): Promise<CommunityFinding | null> {
@@ -154,7 +160,10 @@ export async function getCommunityFindingById(findingId: string): Promise<Commun
       authorData: finding.author
     });
 
-    return finding as CommunityFinding;
+    return {
+      ...finding,
+      share_data: finding.share_data as boolean | null
+    } as CommunityFinding;
 
   } catch (error) {
     console.error('💥 [getCommunityFindingById] Unexpected error:', error);
@@ -216,7 +225,10 @@ export async function getUserFindings(userId: string): Promise<CommunityFinding[
 
     // Since the author property is optional in CommunityFinding interface,
     // we can directly cast the findings to CommunityFinding[]
-    return findings as CommunityFinding[];
+    return findings.map(finding => ({
+      ...finding,
+      share_data: finding.share_data as boolean | null
+    })) as CommunityFinding[];
 
   } catch (error) {
     console.error('💥 [getUserFindings] Unexpected error:', error);
@@ -377,7 +389,7 @@ export async function createFinding(userId: string, title: string, content: stri
 
   return {
     ...data,
-    share_data: data.share_data as boolean,
+    share_data: data.share_data as boolean | null,
     author: undefined // Author details not populated for creation operations
   } as CommunityFinding;
 }
@@ -428,7 +440,7 @@ export async function createFindingWithContext(findingData: {
 
   return {
     ...data,
-    share_data: data.share_data as boolean,
+    share_data: data.share_data as boolean | null,
     author: undefined // Author details not populated for creation operations
   } as CommunityFinding;
 }
