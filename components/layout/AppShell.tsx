@@ -23,7 +23,7 @@ export function AppShell({ children }: AppShellProps) {
       {/* Main Content - Use CSS variable for dynamic width */}
       <main 
         className={`flex-1 transition-all duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        style={{ marginLeft: 'var(--sidebar-width, 64px)' }}
+        style={{ marginLeft: 'var(--sidebar-width, 80px)' }}
       >
         {children}
       </main>

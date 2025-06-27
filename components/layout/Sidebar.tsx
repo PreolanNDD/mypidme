@@ -174,9 +174,6 @@ export function Sidebar() {
                   {/* Active indicator that flows into main content */}
                   {isActive && (
                     <>
-                      {/* Right side flow effect */}
-                      <div className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-l from-transparent to-purple-600/80 rounded-l-full blur-md"></div>
-                      
                       {/* Bottom glow effect */}
                       <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/30 rounded-full"></div>
                     </>
@@ -244,39 +241,6 @@ export function Sidebar() {
         </div>
       </div>
       
-      {/* Main content area adjustment */}
-      <div 
-        className={cn(
-          "fixed inset-0 bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] transition-all duration-500 ease-in-out pointer-events-none z-40",
-          isLoaded ? "opacity-100" : "opacity-0"
-        )}
-        style={{ 
-          clipPath: `polygon(${isOpen ? '256px' : '80px'} 0, 100% 0, 100% 100%, ${isOpen ? '256px' : '80px'} 100%)`,
-        }}
-      >
-        {/* Active page highlight flow effect */}
-        {navigationItems.map((item) => {
-          const isActive = pathname === item.href;
-          if (!isActive) return null;
-          
-          const itemIndex = navigationItems.findIndex(navItem => navItem.href === item.href);
-          const topPosition = 120 + (itemIndex * 56); // Approximate position of the menu item
-          
-          return (
-            <div 
-              key={`flow-${item.href}`} 
-              className="absolute left-0 w-24 h-24 bg-gradient-to-r from-purple-600/80 to-transparent rounded-r-full blur-xl"
-              style={{ 
-                top: `${topPosition}px`,
-                transform: 'translateX(-50%)',
-                opacity: isOpen ? 1 : 0,
-                transition: 'opacity 0.5s ease-in-out, transform 0.5s ease-in-out',
-              }}
-            />
-          );
-        })}
-      </div>
-
       {/* Custom CSS variable to communicate sidebar state */}
       <style jsx global>{`
         :root {
