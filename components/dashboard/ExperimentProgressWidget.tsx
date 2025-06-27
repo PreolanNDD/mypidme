@@ -94,22 +94,22 @@ export function ExperimentProgressWidget() {
 
   return (
     <div className="space-y-6 group">
-      {/* Header - Smaller Sizes */}
+      {/* Header - Medium Sizes (between previous and current) */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          {/* Smaller, Simple Icon */}
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-md border border-gray-100 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg flex-shrink-0">
-            <FlaskConical className="w-4 h-4 text-primary transition-all duration-300 group-hover:scale-110" />
+        <div className="flex items-center space-x-4">
+          {/* Medium Icon */}
+          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md border border-gray-100 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg flex-shrink-0">
+            <FlaskConical className="w-5 h-5 text-primary transition-all duration-300 group-hover:scale-110" />
           </div>
           
-          {/* Smaller Text Content */}
+          {/* Medium Text Content */}
           <div className="transition-all duration-300 group-hover:translate-x-1">
-            {/* Smaller Heading */}
-            <h3 className="font-heading text-lg text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
+            {/* Medium Heading */}
+            <h3 className="font-heading text-xl text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
               Active Experiments
             </h3>
-            {/* Smaller Description */}
-            <p className="text-sm transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
+            {/* Medium Description */}
+            <p className="text-base transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
               Track your ongoing experiments
             </p>
           </div>
@@ -129,8 +129,8 @@ export function ExperimentProgressWidget() {
 
       {/* Content */}
       {activeExperiments.length === 0 ? (
-        // No active experiments - show create experiment CTA with increased top padding
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl pt-12 pb-8 px-8 text-center border border-white/20">
+        // No active experiments - show create experiment CTA with increased padding for better vertical centering
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl pt-12 pb-12 px-8 text-center border border-white/20">
           {/* Centered Icon with Enhanced Styling */}
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center shadow-lg border border-purple-200/50 group-hover:scale-105 transition-all duration-300">
