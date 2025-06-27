@@ -647,12 +647,12 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
 
   return (
     <div className="space-y-6">
-      {/* Manage Metrics Header - Enhanced with animation */}
-      <div className="mb-6 group">
-        <h2 className="font-heading text-2xl text-white bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent transition-all duration-300 group-hover:tracking-wider">
+      {/* Manage Metrics Header - Removed hover animation */}
+      <div className="mb-6">
+        <h2 className="font-heading text-2xl text-white bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
           Manage Metrics
         </h2>
-        <p style={{ color: '#e6e2eb' }} className="transition-all duration-300 group-hover:translate-x-1">
+        <p style={{ color: '#e6e2eb' }}>
           Create and organize your trackable habits and goals
         </p>
       </div>
