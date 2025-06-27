@@ -132,7 +132,6 @@ export function ExperimentProgressWidget() {
         // No active experiments - show create experiment CTA with Enhanced Icon
         <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 pb-12 text-center border border-white/20">
 
-          </div>
           
           {/* Enhanced Text Styling */}
           <div className="mb-8 space-y-4">
