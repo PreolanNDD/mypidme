@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DataTypeInfoDialog } from './DataTypeInfoDialog';
 import { ReactivateMetricDialog } from '@/components/trackable-items/ReactivateMetricDialog';
-import { Edit2, Trash2, Plus, Loader2, RotateCw, X, Save, Check, AlertTriangle, Info } from 'lucide-react';
+import { Edit2, Trash2, Plus, Loader2, RotateCw, X, Save, Check, AlertTriangle, Info, Target, TrendingUp, Settings } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const DATA_TYPE_LABELS: Record<DataType, string> = {
@@ -443,14 +443,17 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                        updateMutation.isPending;
     
     return (
-      <Card key={item.id} className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl ${isEditing || isDeleting ? 'ring-2 ring-primary ring-opacity-30' : ''} transition-all duration-200`}>
-        <CardContent className="p-3">
+      <Card 
+        key={item.id} 
+        className={`bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg ${isEditing || isDeleting ? 'ring-2 ring-primary ring-opacity-30' : ''} transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] group`}
+      >
+        <CardContent className="p-4">
           {isDeleting ? (
             // Delete confirmation mode - expanded form
             <div className="space-y-4">
               <div className={`p-4 border rounded-lg ${deleteMode === 'hard' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
                 <div className="flex items-start space-x-3">
-                  <AlertTriangle className={`w-5 h-5 mt-0.5 flex-shrink-0 ${deleteMode === 'hard' ? 'text-red-600' : 'text-yellow-600'}`} />
+                  <AlertTriangle className={`w-5 h-5 mt-0.5 flex-shrink-0 ${deleteMode === 'hard' ? 'text-red-600' : 'text-yellow-600'} animate-pulse`} />
                   <div className="flex-1">
                     <h4 className={`font-medium mb-2 ${deleteMode === 'hard' ? 'text-red-800' : 'text-yellow-800'}`}>
                       {deleteMode === 'hard' ? 'Permanently Delete Metric?' : 'Archive Metric?'}
@@ -476,7 +479,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                   size="sm"
                   onClick={handleCancelDelete}
                   disabled={isMutating}
-                  className="h-7 px-3 text-xs"
+                  className="h-8 px-3 text-xs transition-all duration-300 hover:scale-105"
                 >
                   Cancel
                 </Button>
@@ -485,7 +488,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                   onClick={handleConfirmDelete}
                   disabled={isMutating}
                   loading={isMutating}
-                  className={`h-7 px-3 text-xs ${deleteMode === 'hard' ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white'}`}
+                  className={`h-8 px-3 text-xs transition-all duration-300 hover:scale-105 ${deleteMode === 'hard' ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white'}`}
                 >
                   {deleteMode === 'hard' ? 'Delete Permanently' : 'Archive'}
                 </Button>
@@ -495,7 +498,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
             // Edit mode - expanded form
             <div className="space-y-4">
               {editFormError && (
-                <div className="p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 animate-pulse">
                   {editFormError}
                 </div>
               )}
@@ -506,7 +509,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                 onChange={handleEditFormNameChange}
                 placeholder="Enter metric name"
                 disabled={isMutating}
-                className="text-sm"
+                className="text-sm transition-all duration-300 focus:scale-[1.02]"
               />
 
               <div className="grid grid-cols-2 gap-3">
@@ -517,7 +520,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                     onValueChange={(value: Category) => setEditFormData({ ...editFormData, category: value })}
                     disabled={isMutating}
                   >
-                    <SelectTrigger className="h-8 text-sm">
+                    <SelectTrigger className="h-9 text-sm transition-all duration-300 hover:border-primary/50">
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -537,7 +540,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                     onValueChange={(value: DataType) => setEditFormData({ ...editFormData, type: value })}
                     disabled={isMutating}
                   >
-                    <SelectTrigger className="h-8 text-sm">
+                    <SelectTrigger className="h-9 text-sm transition-all duration-300 hover:border-primary/50">
                       <SelectValue placeholder="Type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -557,7 +560,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                   size="sm"
                   onClick={handleCancelEdit}
                   disabled={isMutating}
-                  className="h-7 px-2 text-xs"
+                  className="h-8 px-3 text-xs transition-all duration-300 hover:scale-105"
                 >
                   <X className="w-3 h-3 mr-1" />
                   Cancel
@@ -567,7 +570,7 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                   onClick={() => handleSaveEdit(item.id)}
                   disabled={!editFormData.name || !editFormData.category || !editFormData.type || isMutating}
                   loading={updateMutation.isPending}
-                  className="h-7 px-2 text-xs bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+                  className="h-8 px-3 text-xs bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-all duration-300 hover:scale-105 text-white"
                 >
                   <Save className="w-3 h-3 mr-1" />
                   Save
@@ -575,34 +578,59 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
               </div>
             </div>
           ) : (
-            // View mode - compact display
+            // View mode - compact display with enhanced animations
             <div className="flex items-center justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-primary-text text-sm truncate">{item.name}</h4>
+              <div className="flex-1 min-w-0 group/metric">
+                <h4 className="font-medium text-primary-text text-sm truncate transition-all duration-300 group-hover:text-primary">{item.name}</h4>
                 <div className="flex items-center space-x-2 mt-1">
-                  <Badge variant="outline" className="text-xs">{DATA_TYPE_LABELS[item.type]}</Badge>
+                  <Badge 
+                    variant="outline" 
+                    className="text-xs transition-all duration-300 group-hover:bg-primary/10 group-hover:border-primary/30"
+                  >
+                    {DATA_TYPE_LABELS[item.type]}
+                  </Badge>
                 </div>
               </div>
               <div className="flex items-center space-x-1 flex-shrink-0">
                 {isMutating ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
                 ) : (
                   item.is_active ? (
                     <>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(item)}>
-                        <Edit2 className="w-4 h-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 transition-all duration-300 hover:bg-primary/10 hover:scale-110" 
+                        onClick={() => handleEdit(item)}
+                      >
+                        <Edit2 className="w-4 h-4 transition-transform duration-300 hover:rotate-12" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDelete(item.id)}>
-                        <Trash2 className="w-4 h-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 transition-all duration-300 hover:bg-red-50 hover:scale-110" 
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        <Trash2 className="w-4 h-4 transition-transform duration-300 hover:text-red-500" />
                       </Button>
                     </>
                   ) : (
                     <>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleReactivate(item.id)}>
-                        <RotateCw className="w-4 h-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 transition-all duration-300 hover:bg-green-50 hover:scale-110" 
+                        onClick={() => handleReactivate(item.id)}
+                      >
+                        <RotateCw className="w-4 h-4 transition-transform duration-300 hover:text-green-500 hover:rotate-180" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-600 hover:text-red-700" onClick={() => handleHardDelete(item.id)}>
-                        <Trash2 className="w-4 h-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 text-red-400 transition-all duration-300 hover:bg-red-50 hover:scale-110 hover:text-red-600" 
+                        onClick={() => handleHardDelete(item.id)}
+                      >
+                        <Trash2 className="w-4 h-4 transition-transform duration-300 hover:rotate-12" />
                       </Button>
                     </>
                   )
@@ -619,27 +647,40 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
 
   return (
     <div className="space-y-6">
-      {/* Manage Metrics Header */}
-      <div className="mb-6">
-        <h2 className="font-heading text-2xl text-white">Manage Metrics</h2>
-        <p style={{ color: '#e6e2eb' }}>Create and organize your trackable habits and goals</p>
+      {/* Manage Metrics Header - Enhanced with animation */}
+      <div className="mb-6 group">
+        <div className="flex items-center space-x-4 mb-2">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transform transition-transform duration-300 group-hover:scale-110">
+            <Settings className="w-5 h-5 text-white transition-transform duration-300 group-hover:rotate-90" />
+          </div>
+          <h2 className="font-heading text-2xl text-white bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent transition-all duration-300 group-hover:tracking-wider">
+            Manage Metrics
+          </h2>
+        </div>
+        <p style={{ color: '#e6e2eb' }} className="ml-14 transition-all duration-300 group-hover:translate-x-1">
+          Create and organize your trackable habits and goals
+        </p>
       </div>
 
-      {/* Add Metric Container */}
-      <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-        <CardHeader>
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <Plus className="w-4 h-4 text-white" />
+      {/* Add Metric Container - Enhanced with animations */}
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/10 hover:border-purple-200/30 group/add">
+        <div className="p-6">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 transform transition-transform duration-300 group-hover/add:scale-110 group-hover/add:rotate-[360deg]">
+              <Plus className="w-5 h-5 text-white" />
             </div>
-            <h3 className="font-heading text-lg text-primary-text">Add New Metric</h3>
+            <h3 className="font-heading text-xl text-primary-text bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-300 group-hover/add:tracking-wider">
+              Add New Metric
+            </h3>
           </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddSubmit} className="space-y-4">
+          
+          <form onSubmit={handleAddSubmit} className="space-y-5">
             {addFormError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{addFormError}</p>
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl animate-pulse">
+                <p className="text-sm text-red-600 flex items-center">
+                  <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0" />
+                  {addFormError}
+                </p>
               </div>
             )}
 
@@ -650,24 +691,28 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
               placeholder="e.g., Sleep Quality, Caffeine Intake"
               required
               disabled={isAddFormLoading}
+              className="transition-all duration-300 focus:scale-[1.01] bg-white/80 border-gray-200 focus:border-primary focus:ring-primary/20"
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-primary-text">
-                  Habit/Goal
+              <div className="space-y-2 group/category">
+                <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
+                  <div className="w-5 h-5 bg-gradient-to-br from-orange-400 to-orange-500 rounded-md flex items-center justify-center transition-transform duration-300 group-hover/category:scale-110">
+                    <Target className="w-3 h-3 text-white" />
+                  </div>
+                  <span className="transition-all duration-300 group-hover/category:text-primary">Habit/Goal</span>
                 </label>
                 <Select
                   value={addFormData.category}
                   onValueChange={(value: Category) => setAddFormData({ ...addFormData, category: value })}
                   disabled={isAddFormLoading}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white/80 border-gray-200 transition-all duration-300 hover:border-primary/50 focus:border-primary focus:ring-primary/20">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
+                      <SelectItem key={value} value={value} className="transition-colors duration-200 hover:bg-primary/10">
                         {label}
                       </SelectItem>
                     ))}
@@ -675,15 +720,18 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 group/type">
                 <div className="flex items-center space-x-2">
-                  <label className="block text-sm font-medium text-primary-text">
-                    Data Type
+                  <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
+                    <div className="w-5 h-5 bg-gradient-to-br from-blue-400 to-blue-500 rounded-md flex items-center justify-center transition-transform duration-300 group-hover/type:scale-110">
+                      <TrendingUp className="w-3 h-3 text-white" />
+                    </div>
+                    <span className="transition-all duration-300 group-hover/type:text-primary">Data Type</span>
                   </label>
                   <button 
                     type="button" 
                     onClick={() => setShowDataTypeInfo(true)}
-                    className="text-blue-500 hover:text-blue-700 transition-colors"
+                    className="text-blue-500 hover:text-blue-700 transition-all duration-300 hover:scale-125"
                   >
                     <Info className="w-4 h-4" />
                   </button>
@@ -693,12 +741,12 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
                   onValueChange={(value: DataType) => setAddFormData({ ...addFormData, type: value })}
                   disabled={isAddFormLoading}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white/80 border-gray-200 transition-all duration-300 hover:border-primary/50 focus:border-primary focus:ring-primary/20">
                     <SelectValue placeholder="Select data type" />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(DATA_TYPE_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
+                      <SelectItem key={value} value={value} className="transition-colors duration-200 hover:bg-primary/10">
                         {label}
                       </SelectItem>
                     ))}
@@ -707,37 +755,62 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
               </div>
             </div>
 
-            <Button
+            <button
               type="submit"
-              loading={isAddFormLoading}
               disabled={!addFormData.name || !addFormData.category || !addFormData.type || isAddFormLoading}
-              className="w-full bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
+              className="group/button relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Metric
-            </Button>
+              {/* Animated background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/button:opacity-100 transition-opacity duration-500"></div>
+              
+              {/* Sliding highlight effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/button:translate-x-full transition-transform duration-700 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center justify-center space-x-3">
+                {/* Icon with animation */}
+                <div className="transform group-hover/button:scale-110 group-hover/button:rotate-12 transition-transform duration-300">
+                  {isAddFormLoading ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Plus className="w-5 h-5" />
+                  )}
+                </div>
+                
+                {/* Text with enhanced styling */}
+                <span className="tracking-wide group-hover/button:tracking-wider transition-all duration-300">
+                  {isAddFormLoading ? 'Creating...' : 'Add Metric'}
+                </span>
+              </div>
+              
+              {/* Pulse ring effect */}
+              <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/button:opacity-100 group-hover/button:scale-105 transition-all duration-500"></div>
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Tabs */}
-      <div className="flex space-x-1 p-1 rounded-lg" style={{ backgroundColor: '#cdc1db' }}>
+      {/* Tabs - Enhanced with animations */}
+      <div className="flex space-x-1 p-1 rounded-lg transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: '#cdc1db' }}>
         <button
           onClick={() => {
             setActiveTab('active');
             handleCancelEdit(); // Cancel any ongoing edits when switching tabs
             handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
           }}
-          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
             activeTab === 'active'
-              ? 'bg-white shadow-sm'
-              : 'hover:bg-white/50'
+              ? 'bg-white shadow-md transform scale-105'
+              : 'hover:bg-white/50 hover:scale-105'
           }`}
           style={{ 
             color: activeTab === 'active' ? '#4a2a6d' : '#9992a2'
           }}
         >
-          Active ({activeItems.length})
+          <div className="flex items-center justify-center space-x-2">
+            <Target className={`w-4 h-4 transition-transform duration-300 ${activeTab === 'active' ? 'scale-110' : ''}`} />
+            <span>Active ({activeItems.length})</span>
+          </div>
         </button>
         <button
           onClick={() => {
@@ -745,50 +818,64 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
             handleCancelEdit(); // Cancel any ongoing edits when switching tabs
             handleCancelDelete(); // Cancel any ongoing deletes when switching tabs
           }}
-          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
             activeTab === 'archived'
-              ? 'bg-white shadow-sm'
-              : 'hover:bg-white/50'
+              ? 'bg-white shadow-md transform scale-105'
+              : 'hover:bg-white/50 hover:scale-105'
           }`}
           style={{ 
             color: activeTab === 'archived' ? '#4a2a6d' : '#9992a2'
           }}
         >
-          Archived ({archivedItems.length})
+          <div className="flex items-center justify-center space-x-2">
+            <RotateCw className={`w-4 h-4 transition-transform duration-300 ${activeTab === 'archived' ? 'scale-110' : ''}`} />
+            <span>Archived ({archivedItems.length})</span>
+          </div>
         </button>
       </div>
 
       {itemsToDisplay.length === 0 ? (
-        <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-          <CardContent className="text-center py-8">
-            <p className="text-secondary-text text-sm">
-              {activeTab === 'archived' ? "No archived metrics." : "No active metrics created yet."}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center border border-white/20 transition-all duration-500 hover:shadow-purple-500/20 hover:border-purple-200/30">
+          <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 transition-transform duration-500 hover:scale-110 hover:rotate-12">
+            {activeTab === 'active' ? (
+              <Target className="w-8 h-8 text-purple-400" />
+            ) : (
+              <RotateCw className="w-8 h-8 text-purple-400" />
+            )}
+          </div>
+          <p className="text-secondary-text text-sm">
+            {activeTab === 'archived' ? "No archived metrics." : "No active metrics created yet."}
+          </p>
+        </div>
       ) : (
         <div className="space-y-6">
-          {/* Habits Section */}
+          {/* Habits Section - Enhanced with animations */}
           {inputItems.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-3 group/habits">
               <div className="flex items-center space-x-3">
-                <h3 className="font-heading text-lg text-white">Habits</h3>
-                <Badge variant="secondary" className="text-xs">{inputItems.length}</Badge>
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-orange-500 rounded-lg flex items-center justify-center shadow-lg shadow-orange-400/20 transform transition-transform duration-300 group-hover/habits:scale-110 group-hover/habits:rotate-6">
+                  <Target className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-heading text-lg text-white bg-gradient-to-r from-orange-400 to-orange-300 bg-clip-text text-transparent transition-all duration-300 group-hover/habits:tracking-wider">Habits</h3>
+                <Badge variant="secondary" className="text-xs bg-white/20 text-white border-orange-300/30 transition-all duration-300 group-hover/habits:scale-110">{inputItems.length}</Badge>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {inputItems.map(renderMetricCard)}
               </div>
             </div>
           )}
 
-          {/* Goals Section */}
+          {/* Goals Section - Enhanced with animations */}
           {outputItems.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-3 group/goals">
               <div className="flex items-center space-x-3">
-                <h3 className="font-heading text-lg text-white">Goals</h3>
-                <Badge variant="secondary" className="text-xs">{outputItems.length}</Badge>
+                <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center shadow-lg shadow-green-400/20 transform transition-transform duration-300 group-hover/goals:scale-110 group-hover/goals:rotate-6">
+                  <TrendingUp className="w-4 h-4 text-white" />
+                </div>
+                <h3 className="font-heading text-lg text-white bg-gradient-to-r from-green-400 to-teal-300 bg-clip-text text-transparent transition-all duration-300 group-hover/goals:tracking-wider">Goals</h3>
+                <Badge variant="secondary" className="text-xs bg-white/20 text-white border-green-300/30 transition-all duration-300 group-hover/goals:scale-110">{outputItems.length}</Badge>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {outputItems.map(renderMetricCard)}
               </div>
             </div>
@@ -796,25 +883,31 @@ export function MetricsManagement({ onRefresh }: { onRefresh?: () => void }) {
 
           {/* Show message if only one category has items */}
           {inputItems.length === 0 && outputItems.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-3 group/empty-habits">
               <div className="flex items-center space-x-3">
-                <h3 className="font-heading text-lg text-gray-400">Habits</h3>
-                <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
+                <div className="w-8 h-8 bg-gray-300/30 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover/empty-habits:scale-110">
+                  <Target className="w-4 h-4 text-gray-400" />
+                </div>
+                <h3 className="font-heading text-lg text-gray-400 transition-all duration-300 group-hover/empty-habits:tracking-wider">Habits</h3>
+                <Badge variant="outline" className="text-xs text-gray-400 border-gray-400/30 transition-all duration-300 group-hover/empty-habits:scale-110">0</Badge>
               </div>
-              <div>
-                <p className="text-sm" style={{ color: '#e6e2eb' }}>No habits yet.</p>
+              <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/10 transition-all duration-300 group-hover/empty-habits:bg-white/30">
+                <p className="text-sm text-white/70 text-center">No habits yet. Add your first habit using the form above.</p>
               </div>
             </div>
           )}
 
           {outputItems.length === 0 && inputItems.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-3 group/empty-goals">
               <div className="flex items-center space-x-3">
-                <h3 className="font-heading text-lg text-gray-400">Goals</h3>
-                <Badge variant="outline" className="text-xs text-gray-400">0</Badge>
+                <div className="w-8 h-8 bg-gray-300/30 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover/empty-goals:scale-110">
+                  <TrendingUp className="w-4 h-4 text-gray-400" />
+                </div>
+                <h3 className="font-heading text-lg text-gray-400 transition-all duration-300 group-hover/empty-goals:tracking-wider">Goals</h3>
+                <Badge variant="outline" className="text-xs text-gray-400 border-gray-400/30 transition-all duration-300 group-hover/empty-goals:scale-110">0</Badge>
               </div>
-              <div>
-                <p className="text-sm" style={{ color: '#e6e2eb' }}>No goals yet.</p>
+              <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl border border-white/10 transition-all duration-300 group-hover/empty-goals:bg-white/30">
+                <p className="text-sm text-white/70 text-center">No goals yet. Add your first goal using the form above.</p>
               </div>
             </div>
           )}
