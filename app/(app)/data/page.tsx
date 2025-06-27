@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2 } from 'lucide-react';
+import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2, Sparkles, ChevronRight } from 'lucide-react';
 import { RelationshipStory } from '@/components/dashboard/RelationshipStory';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { useQuery } from '@tanstack/react-query';
@@ -225,21 +225,26 @@ export default function DataPage() {
       const data = payload[0].payload;
       
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-primary-text">{label}</p>
+        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-xl">
+          <p className="font-medium text-primary-text mb-2">{label}</p>
           {/* FIXED: Show 0 values properly */}
           {(data.primaryValue !== null && data.primaryValue !== undefined) && (
-            <p className="text-sm">
-              <span className="font-medium">{primaryMetric?.name}:</span> {data.primaryValue}
+            <p className="text-sm flex items-center space-x-2">
+              <span className="w-3 h-3 rounded-full bg-[#7ed984]"></span>
+              <span className="font-medium">{primaryMetric?.name}:</span> 
+              <span>{data.primaryValue}</span>
             </p>
           )}
           {comparisonMetric && (data.comparisonValue !== null && data.comparisonValue !== undefined) && (
-            <p className="text-sm">
-              <span className="font-medium">{comparisonMetric.name}:</span>{' '}
-              {comparisonMetric.type === 'BOOLEAN' 
-                ? (data.comparisonValue === 1 ? 'Yes' : 'No')
-                : data.comparisonValue
-              }
+            <p className="text-sm flex items-center space-x-2">
+              <span className="w-3 h-3 rounded-full bg-[#FFA500]"></span>
+              <span className="font-medium">{comparisonMetric.name}:</span>
+              <span>
+                {comparisonMetric.type === 'BOOLEAN' 
+                  ? (data.comparisonValue === 1 ? 'Yes' : 'No')
+                  : data.comparisonValue
+                }
+              </span>
             </p>
           )}
         </div>
@@ -256,9 +261,9 @@ export default function DataPage() {
     return (
       <div className="flex justify-center items-center space-x-8 mt-4">
         {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center space-x-3 px-4 py-2">
+          <div key={index} className="flex items-center space-x-3 px-4 py-2 bg-white/80 rounded-full shadow-sm transition-all duration-300 hover:shadow-md hover:bg-white">
             <div 
-              className="w-4 h-0.5" 
+              className="w-4 h-4 rounded-full" 
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-sm font-medium text-black">
@@ -273,7 +278,12 @@ export default function DataPage() {
   if (loadingItems) {
     return (
       <div className="min-h-screen bg-gradient-to-r from-[#9b5de5] to-[#3c1a5b] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-16 h-16 relative">
+          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <BarChart3 className="w-6 h-6 text-white" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -283,184 +293,259 @@ export default function DataPage() {
       {/* Content */}
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
-          {/* Main Page Header with Share Button */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="font-heading text-3xl text-white mb-2">Data Analysis</h1>
-              <p style={{ color: '#e6e2eb' }}>Ever wonder why some days feel great and others don't? Select any goal and any habit to visualize their relationship and find the answer.</p>
+          {/* Main Page Header with Share Button - Enhanced with animations */}
+          <div className="flex items-center justify-between mb-8 group/header">
+            <div className="transition-all duration-500 group-hover/header:translate-x-2">
+              <h1 className="font-heading text-3xl text-white mb-2 relative">
+                Data Analysis
+                <span className="absolute -top-1 -right-6">
+                  <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
+                </span>
+              </h1>
+              <p style={{ color: '#e6e2eb' }} className="text-lg">
+                Ever wonder why some days feel great and others don't? Select any goal and any habit to visualize their relationship and find the answer.
+              </p>
             </div>
             {canShare && (
               <Button
                 onClick={handleShareFinding}
-                className="bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+                className="group/share relative overflow-hidden bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-all duration-300 hover:shadow-lg hover:shadow-white/20 hover:scale-105"
                 style={{ color: '#4a2a6d' }}
               >
-                <Share2 className="w-4 h-4 mr-2" />
-                Share Finding
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100/30 to-transparent -translate-x-full group-hover/share:translate-x-full transition-transform duration-700 ease-out"></div>
+                <Share2 className="w-4 h-4 mr-2 transition-transform duration-300 group-hover/share:rotate-12" />
+                <span className="transition-all duration-300 group-hover/share:tracking-wider">Share Finding</span>
               </Button>
             )}
           </div>
 
           {outputMetrics.length === 0 ? (
-            <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-              <CardContent className="text-center py-12">
-                <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="font-heading text-xl text-primary-text mb-2">No Output Metrics Available</h3>
-                <p className="text-secondary-text mb-6">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden group/empty transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 border border-white/20">
+              <div className="text-center py-16 px-8">
+                <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 group-hover/empty:scale-110 group-hover/empty:rotate-12 group-hover/empty:shadow-xl">
+                  <BarChart3 className="w-12 h-12 text-gray-400 transition-all duration-500 group-hover/empty:text-gray-600" />
+                </div>
+                <h3 className="font-heading text-2xl text-primary-text mb-4 transition-all duration-500 group-hover/empty:scale-105">No Output Metrics Available</h3>
+                <p className="text-secondary-text mb-8 max-w-lg mx-auto text-lg">
                   You need to create some output metrics (like "Energy Level" or "Mood") before you can analyze your data.
                 </p>
-                <Button onClick={() => window.location.href = '/log'}>
+                <Button 
+                  onClick={() => window.location.href = '/log'}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/20 hover:scale-105 px-8 py-3 text-lg"
+                >
                   Create Your First Metric
+                  <ChevronRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover/empty:translate-x-1" />
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ) : (
             <>
-              {/* 1. Chart Controls Section */}
-              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                      <BarChart3 className="w-4 h-4 text-white" />
+              {/* 1. Chart Controls Section - Enhanced with animations */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/controls">
+                <div className="p-6">
+                  <div className="flex items-center space-x-4 mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20 transition-all duration-500 group-hover/controls:scale-110 group-hover/controls:rotate-6">
+                      <BarChart3 className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="font-heading text-lg text-primary-text">Chart Controls</h3>
+                    <h3 className="font-heading text-2xl text-primary-text bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500 group-hover/controls:tracking-wider">
+                      Chart Controls
+                    </h3>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Form Fields in a Grid Layout */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Output Metric Selector */}
-                    <div className="space-y-2">
-                      <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
-                        <div className="w-4 h-4 bg-accent-2 rounded flex items-center justify-center">
-                          <TrendingUp className="w-3 h-3 text-white" />
-                        </div>
-                        <span>Goal</span>
-                      </label>
-                      <Select value={primaryMetricId} onValueChange={setPrimaryMetricId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an output metric" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {outputMetrics.map((metric) => (
-                            <SelectItem key={metric.id} value={metric.id}>
-                              {metric.name} ({metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'})
+                  
+                  <div className="space-y-6">
+                    {/* Form Fields in a Grid Layout */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Output Metric Selector */}
+                      <div className="space-y-3 group/goal">
+                        <label className="flex items-center space-x-2 text-sm font-medium text-primary-text transition-all duration-300 group-hover/goal:text-purple-600">
+                          <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center shadow-md shadow-green-400/20 transition-all duration-300 group-hover/goal:scale-110 group-hover/goal:rotate-6">
+                            <TrendingUp className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="transition-all duration-300 group-hover/goal:tracking-wide">Goal</span>
+                        </label>
+                        <Select 
+                          value={primaryMetricId} 
+                          onValueChange={setPrimaryMetricId}
+                        >
+                          <SelectTrigger className="bg-white border-2 border-gray-200 rounded-xl transition-all duration-300 hover:border-green-300 focus:border-green-400 focus:ring-green-200">
+                            <SelectValue placeholder="Select an output metric" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl">
+                            {outputMetrics.map((metric) => (
+                              <SelectItem 
+                                key={metric.id} 
+                                value={metric.id}
+                                className="transition-colors duration-200 hover:bg-green-50 focus:bg-green-50 rounded-lg my-1"
+                              >
+                                {metric.name} ({metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Input Metric Selector */}
+                      <div className="space-y-3 group/habit">
+                        <label className="flex items-center space-x-2 text-sm font-medium text-primary-text transition-all duration-300 group-hover/habit:text-purple-600">
+                          <div className="w-6 h-6 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center shadow-md shadow-orange-400/20 transition-all duration-300 group-hover/habit:scale-110 group-hover/habit:rotate-6">
+                            <Target className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="transition-all duration-300 group-hover/habit:tracking-wide">Habit</span>
+                        </label>
+                        <Select 
+                          value={comparisonMetricId} 
+                          onValueChange={setComparisonMetricId}
+                        >
+                          <SelectTrigger className="bg-white border-2 border-gray-200 rounded-xl transition-all duration-300 hover:border-orange-300 focus:border-orange-400 focus:ring-orange-200">
+                            <SelectValue placeholder="Select an input metric" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl">
+                            <SelectItem 
+                              value="none"
+                              className="transition-colors duration-200 hover:bg-gray-50 focus:bg-gray-50 rounded-lg my-1"
+                            >
+                              None
                             </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                            {inputMetrics.map((metric) => (
+                              <SelectItem 
+                                key={metric.id} 
+                                value={metric.id}
+                                className="transition-colors duration-200 hover:bg-orange-50 focus:bg-orange-50 rounded-lg my-1"
+                              >
+                                {metric.name} ({
+                                  metric.type === 'BOOLEAN' ? 'Yes/No' : 
+                                  metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'
+                                })
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Date Range Selector */}
+                      <div className="space-y-3 group/date">
+                        <label className="flex items-center space-x-2 text-sm font-medium text-primary-text transition-all duration-300 group-hover/date:text-purple-600">
+                          <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center shadow-md shadow-blue-400/20 transition-all duration-300 group-hover/date:scale-110 group-hover/date:rotate-6">
+                            <Calendar className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="transition-all duration-300 group-hover/date:tracking-wide">Time Period</span>
+                        </label>
+                        <Select 
+                          value={selectedDateRange} 
+                          onValueChange={setSelectedDateRange}
+                        >
+                          <SelectTrigger className="bg-white border-2 border-gray-200 rounded-xl transition-all duration-300 hover:border-blue-300 focus:border-blue-400 focus:ring-blue-200">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-xl">
+                            {DATE_RANGES.map((range) => (
+                              <SelectItem 
+                                key={range.value} 
+                                value={range.value}
+                                className="transition-colors duration-200 hover:bg-blue-50 focus:bg-blue-50 rounded-lg my-1"
+                              >
+                                {range.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
-                    {/* Input Metric Selector */}
-                    <div className="space-y-2">
-                      <label className="flex items-center space-x-2 text-sm font-medium text-primary-text">
-                        <div className="w-4 h-4 bg-accent-1 rounded flex items-center justify-center">
-                          <Target className="w-3 h-3 text-white" />
+                    {/* Update Chart Button - Enhanced with animations */}
+                    <button 
+                      onClick={handleUpdateChart}
+                      disabled={!primaryMetricId || loadingChart}
+                      className="group/update relative overflow-hidden w-full rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:shadow-2xl hover:shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {/* Animated background gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/update:opacity-100 transition-opacity duration-500"></div>
+                      
+                      {/* Sliding highlight effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/update:translate-x-full transition-transform duration-700 ease-out"></div>
+                      
+                      {/* Content */}
+                      <div className="relative flex items-center justify-center space-x-3">
+                        {/* Icon with animation */}
+                        <div className="transform group-hover/update:scale-110 group-hover/update:rotate-180 transition-transform duration-700">
+                          <RefreshCw className={`w-5 h-5 ${loadingChart ? 'animate-spin' : ''}`} />
                         </div>
-                        <span>Habit</span>
-                      </label>
-                      <Select value={comparisonMetricId} onValueChange={setComparisonMetricId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an input metric" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">None</SelectItem>
-                          {inputMetrics.map((metric) => (
-                            <SelectItem key={metric.id} value={metric.id}>
-                              {metric.name} ({
-                                metric.type === 'BOOLEAN' ? 'Yes/No' : 
-                                metric.type === 'SCALE_1_10' ? 'Scale 1-10' : 'Numeric'
-                              })
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Date Range Selector */}
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-primary-text">
-                        Time Period
-                      </label>
-                      <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DATE_RANGES.map((range) => (
-                            <SelectItem key={range.value} value={range.value}>
-                              {range.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                        
+                        {/* Text with enhanced styling */}
+                        <span className="tracking-wide group-hover/update:tracking-wider transition-all duration-300 text-lg">
+                          {loadingChart ? 'Loading...' : 'Update Chart'}
+                        </span>
+                      </div>
+                      
+                      {/* Pulse ring effect */}
+                      <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/update:opacity-100 group-hover/update:scale-105 transition-all duration-500"></div>
+                    </button>
                   </div>
+                </div>
+              </div>
 
-                  {/* Update Chart Button */}
-                  <Button 
-                    onClick={handleUpdateChart}
-                    disabled={!primaryMetricId || loadingChart}
-                    className="w-full bg-primary hover:bg-white hover:text-[#4a2a6d] border border-primary transition-colors duration-200 text-white"
-                  >
-                    <RefreshCw className={`w-4 h-4 mr-2 ${loadingChart ? 'animate-spin' : ''}`} />
-                    {loadingChart ? 'Loading...' : 'Update Chart'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* 2. Visual Analysis Section */}
-              <Card className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="w-5 h-5 text-primary" />
-                    <h3 className="font-heading text-lg text-primary-text">
+              {/* 2. Visual Analysis Section - Enhanced with animations */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 group/chart">
+                <div className="p-6">
+                  <div className="flex items-center space-x-4 mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 transition-all duration-500 group-hover/chart:scale-110 group-hover/chart:rotate-6">
+                      <Calendar className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="font-heading text-2xl text-primary-text bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500 group-hover/chart:tracking-wider">
                       Visual Analysis
                     </h3>
                   </div>
-                </CardHeader>
-                <CardContent>
+                  
                   {!shouldFetchChart ? (
-                    <div className="h-96 flex items-center justify-center">
-                      <div className="text-center">
-                        <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-secondary-text">Select a metric and click "Update Chart" to begin</p>
+                    <div className="h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200 transition-all duration-500 group-hover/chart:border-indigo-200 group-hover/chart:shadow-inner">
+                      <div className="text-center max-w-md px-6 py-10 transition-all duration-500 group-hover/chart:scale-105">
+                        <BarChart3 className="w-20 h-20 text-gray-300 mx-auto mb-6 transition-all duration-500 group-hover/chart:text-indigo-300 group-hover/chart:scale-110" />
+                        <p className="text-secondary-text text-lg mb-2 transition-all duration-500 group-hover/chart:text-indigo-600">Select a metric and click "Update Chart" to begin</p>
+                        <p className="text-gray-400 text-sm transition-all duration-500 group-hover/chart:text-indigo-400">
+                          Your data visualization will appear here
+                        </p>
                       </div>
                     </div>
                   ) : loadingChart ? (
-                    <div className="h-96 flex items-center justify-center">
+                    <div className="h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
                       <div className="text-center">
-                        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                        <p className="text-secondary-text">Loading chart data...</p>
+                        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                        <p className="text-secondary-text text-lg">Loading chart data...</p>
                       </div>
                     </div>
                   ) : error ? (
-                    <div className="h-96 flex items-center justify-center">
+                    <div className="h-96 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100 rounded-xl border-2 border-dashed border-red-200">
                       <div className="text-center">
-                        <p className="text-red-600 mb-2">Error loading chart data</p>
-                        <Button onClick={handleUpdateChart} variant="outline" size="sm">
+                        <p className="text-red-600 mb-4 text-lg">Error loading chart data</p>
+                        <Button onClick={handleUpdateChart} variant="outline" size="lg" className="bg-white hover:bg-red-50 border-red-300 text-red-600">
+                          <RefreshCw className="w-4 h-4 mr-2" />
                           Try Again
                         </Button>
                       </div>
                     </div>
                   ) : chartData.length === 0 ? (
-                    <div className="h-96 flex items-center justify-center">
-                      <div className="text-center">
-                        <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-secondary-text">No data available for the selected time period</p>
-                        <p className="text-sm text-secondary-text mt-2">Try selecting a different date range or log some data first</p>
+                    <div className="h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-200">
+                      <div className="text-center max-w-md px-6 py-10">
+                        <BarChart3 className="w-20 h-20 text-gray-300 mx-auto mb-6" />
+                        <p className="text-secondary-text text-lg mb-2">No data available for the selected time period</p>
+                        <p className="text-gray-400 text-sm">
+                          Try selecting a different date range or log some data first
+                        </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="h-96">
+                    <div className="h-96 transition-all duration-500 transform group-hover/chart:scale-[1.01]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <LineChart data={chartData} margin={{ top: 10, right: 30, left: 20, bottom: 10 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                           <XAxis 
                             dataKey="formattedDate" 
                             stroke="#708090"
                             fontSize={12}
                             tickLine={false}
+                            axisLine={{ stroke: '#e0e0e0' }}
+                            tick={{ fill: '#708090' }}
+                            padding={{ left: 10, right: 10 }}
                           />
                           
                           {/* Left Y-Axis */}
@@ -469,6 +554,8 @@ export default function DataPage() {
                             stroke="#7ed984"
                             fontSize={12}
                             tickLine={false}
+                            axisLine={{ stroke: '#e0e0e0' }}
+                            tick={{ fill: '#7ed984' }}
                             domain={axisConfig?.leftDomain || ['auto', 'auto']}
                           />
                           
@@ -480,6 +567,8 @@ export default function DataPage() {
                               stroke="#FFA500"
                               fontSize={12}
                               tickLine={false}
+                              axisLine={{ stroke: '#e0e0e0' }}
+                              tick={{ fill: '#FFA500' }}
                               domain={axisConfig.rightDomain}
                               tickFormatter={axisConfig.rightTickFormatter}
                               ticks={axisConfig.rightTicks}
@@ -495,11 +584,13 @@ export default function DataPage() {
                             type="monotone" 
                             dataKey="primaryValue"
                             stroke="#7ed984"
-                            strokeWidth={2}
+                            strokeWidth={3}
                             connectNulls={false}
                             name={primaryMetric?.name}
-                            dot={{ fill: '#7ed984', strokeWidth: 2, r: 3 }}
-                            activeDot={{ r: 5, stroke: '#7ed984', strokeWidth: 2 }}
+                            dot={{ fill: '#7ed984', strokeWidth: 2, r: 4 }}
+                            activeDot={{ r: 6, stroke: '#7ed984', strokeWidth: 2 }}
+                            animationDuration={1500}
+                            animationEasing="ease-in-out"
                           />
                           
                           {/* Comparison metric line - INPUT = accent-1 */}
@@ -509,24 +600,27 @@ export default function DataPage() {
                               type="monotone" 
                               dataKey={axisConfig.normalizeComparison ? "normalizedComparisonValue" : "comparisonValue"}
                               stroke="#FFA500"
-                              strokeWidth={2}
+                              strokeWidth={3}
                               strokeDasharray={comparisonMetric.type === 'BOOLEAN' ? "5 5" : "0"}
                               connectNulls={false}
                               name={comparisonMetric.name}
-                              dot={{ fill: '#FFA500', strokeWidth: 2, r: 3 }}
-                              activeDot={{ r: 5, stroke: '#FFA500', strokeWidth: 2 }}
+                              dot={{ fill: '#FFA500', strokeWidth: 2, r: 4 }}
+                              activeDot={{ r: 6, stroke: '#FFA500', strokeWidth: 2 }}
+                              animationDuration={1500}
+                              animationEasing="ease-in-out"
+                              animationBegin={300}
                             />
                           )}
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* 3. Relationship Story Section */}
+              {/* 3. Relationship Story Section - Enhanced with animations */}
               {shouldFetchChart && correlationScore !== null && primaryMetric && comparisonMetric && comparisonMetricId !== 'none' && (
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 hover:translate-y-[-5px] group/story">
                   <RelationshipStory
                     correlationScore={correlationScore}
                     primaryMetricName={primaryMetric.name}
@@ -535,9 +629,9 @@ export default function DataPage() {
                 </div>
               )}
 
-              {/* 4. Relationship Breakdown Section */}
+              {/* 4. Relationship Breakdown Section - Enhanced with animations */}
               {shouldFetchChart && primaryMetric && comparisonMetric && comparisonMetricId !== 'none' && (
-                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
+                <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:shadow-3xl hover:shadow-white/20 hover:translate-y-[-5px] group/breakdown">
                   <MetricRelationshipBreakdown
                     chartData={chartData}
                     primaryMetric={primaryMetric}
@@ -549,6 +643,26 @@ export default function DataPage() {
           )}
         </div>
       </div>
+      
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        
+        @keyframes pulse {
+          0% { opacity: 0.6; }
+          50% { opacity: 1; }
+          100% { opacity: 0.6; }
+        }
+        
+        @keyframes spin-slow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
