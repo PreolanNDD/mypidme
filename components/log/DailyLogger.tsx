@@ -279,33 +279,35 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
   
   return (
     <div className="space-y-6">
-      {/* Daily Logger Header */}
+      {/* Daily Logger Header - Increased size */}
       <div className="mb-6">
-        <h2 className="font-heading text-2xl text-white">Daily Logger</h2>
+        <h2 className="font-heading text-3xl text-white">Daily Logger</h2>
         <p style={{ color: '#e6e2eb' }}>Log your daily habits and goals</p>
       </div>
 
-      {/* Date Selection Card - Enhanced styling */}
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-6 border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:shadow-white/20">
-        {/* Gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-        
-        <div className="relative flex items-center space-x-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transform transition-transform duration-300 hover:scale-110">
-            <Calendar className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1">
-            <label className="block text-lg font-heading text-primary-text mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Select Date
-            </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              max={new Date().toISOString().split('T')[0]}
-              className="w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 text-lg font-medium bg-white/90 hover:bg-white hover:shadow-md"
-              disabled={saveMutation.isPending}
-            />
+      {/* Date Selection Card - Enhanced styling with clickable area */}
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:shadow-white/20">
+        <div className="p-6">
+          <div className="relative flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transform transition-transform duration-300 hover:scale-110">
+              <Calendar className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <label className="block text-lg font-heading text-primary-text mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                Select Date
+              </label>
+              {/* Make the entire input clickable for date picker */}
+              <div className="relative">
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={handleDateChange}
+                  max={new Date().toISOString().split('T')[0]}
+                  className="w-full p-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 transition-all duration-300 text-lg font-medium bg-white hover:bg-white hover:shadow-md cursor-pointer"
+                  disabled={saveMutation.isPending}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -338,7 +340,7 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
                 </div>
                 <div className="space-y-6">
                   {trackableItems.filter(item => item.category === 'INPUT').map(item => (
-                    <div key={item.id} className="bg-white/95 backdrop-blur-sm rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-orange-200 hover:bg-orange-50/20">
+                    <div key={item.id} className="bg-white rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-orange-200">
                       <EnhancedLogEntryField 
                         key={`${item.id}-${selectedDate}`} 
                         item={item} 
@@ -364,7 +366,7 @@ export function DailyLogger({ trackableItems, loading }: { trackableItems: Track
                 </div>
                 <div className="space-y-6">
                   {trackableItems.filter(item => item.category === 'OUTPUT').map(item => (
-                    <div key={item.id} className="bg-white/95 backdrop-blur-sm rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-green-200 hover:bg-green-50/20">
+                    <div key={item.id} className="bg-white rounded-xl p-5 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg hover:border-green-200">
                       <EnhancedLogEntryField 
                         key={`${item.id}-${selectedDate}`} 
                         item={item} 
