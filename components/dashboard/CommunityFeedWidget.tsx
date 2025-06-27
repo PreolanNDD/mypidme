@@ -248,7 +248,7 @@ export function CommunityFeedWidget() {
               {/* Content */}
               <div className="relative flex items-center justify-center space-x-3">
                 {/* Text with enhanced styling */}
-                <span className="font-Normal text-white text-lg group-hover/discover:text-white transition-all duration-300 group-hover/discover:drop-shadow-lg tracking-wide">
+                <span className="font-Medium text-white text-lg group-hover/discover:text-white transition-all duration-300 group-hover/discover:drop-shadow-lg tracking-wide">
                   Discover More Insights
                 </span>
                 
