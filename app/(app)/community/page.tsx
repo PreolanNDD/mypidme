@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { CommunityFeed } from '@/components/community/CommunityFeed';
-import { Users, MessageSquare, User, Plus, Sparkles } from 'lucide-react';
+import { Users, MessageSquare, User, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 
@@ -52,9 +52,6 @@ export default function CommunityPage() {
                 
                 {/* Content */}
                 <div className="relative flex items-center space-x-2">
-                  <div className="transform group-hover/new:scale-110 group-hover/new:rotate-12 transition-transform duration-300">
-                    <Plus className="w-4 h-4 text-purple-600" />
-                  </div>
                   <span className="font-medium transition-all duration-300 group-hover/new:tracking-wide text-gray-800">
                     New Finding
                   </span>
