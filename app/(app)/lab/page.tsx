@@ -13,7 +13,7 @@ import { CreateExperimentDialog } from '@/components/lab/CreateExperimentDialog'
 import { EditExperimentDialog } from '@/components/lab/EditExperimentDialog';
 import { ExperimentResultsDialog } from '@/components/lab/ExperimentResultsDialog';
 import { DeleteExperimentDialog } from '@/components/lab/DeleteExperimentDialog';
-import { FlaskConical, Plus, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3, ArrowRight, Beaker } from 'lucide-react';
+import { FlaskConical, Calendar, Target, TrendingUp, Trash2, Play, Square, Eye, Edit2, BarChart3, ArrowRight, Beaker } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
@@ -420,9 +420,6 @@ export default function LabPage() {
                 
                 {/* Content */}
                 <div className="relative flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md shadow-purple-500/20 transition-all duration-300 group-hover/new:scale-110 group-hover/new:rotate-12">
-                    <Plus className="w-4 h-4 text-white" />
-                  </div>
                   <span className="font-medium text-base transition-all duration-300 group-hover/new:tracking-wide">
                     Start New Experiment
                   </span>
@@ -497,7 +494,7 @@ export default function LabPage() {
                   onClick={() => setActiveTab('active')}
                   className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                     activeTab === 'active'
-                      ? 'bg-white shadow-md transform scale-105'
+                      ? 'bg-white shadow-md'
                       : 'hover:bg-white/50 hover:scale-105'
                   }`}
                   style={{ 
@@ -513,7 +510,7 @@ export default function LabPage() {
                   onClick={() => setActiveTab('completed')}
                   className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                     activeTab === 'completed'
-                      ? 'bg-white shadow-md transform scale-105'
+                      ? 'bg-white shadow-md'
                       : 'hover:bg-white/50 hover:scale-105'
                   }`}
                   style={{ 
@@ -559,9 +556,6 @@ export default function LabPage() {
                         
                         {/* Content */}
                         <div className="relative flex items-center justify-center space-x-3">
-                          <div className="transform group-hover/start:scale-110 group-hover/start:rotate-12 transition-transform duration-300">
-                            <Plus className="w-6 h-6" />
-                          </div>
                           <span className="tracking-wide group-hover/start:tracking-wider transition-all duration-300">
                             Start Your First Experiment
                           </span>
@@ -784,7 +778,6 @@ export default function LabPage() {
                     
                     {/* Content */}
                     <div className="relative flex items-center justify-center space-x-3">
-                      <Plus className="w-5 h-5 text-purple-600" />
                       <span className="font-semibold text-lg transition-all duration-300 group-hover/discover:tracking-wide text-gray-800">
                         Start New Experiment
                       </span>
