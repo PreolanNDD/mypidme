@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2, Sparkles, ChevronRight, ArrowRight } from 'lucide-react';
+import { BarChart3, Calendar, TrendingUp, Target, RefreshCw, Share2, ArrowRight } from 'lucide-react';
 import { RelationshipStory } from '@/components/dashboard/RelationshipStory';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { useQuery } from '@tanstack/react-query';
@@ -293,19 +293,14 @@ export default function DataPage() {
       {/* Content */}
       <div className="px-6 py-8">
         <div className="max-w-7xl mx-auto space-y-8">
-          {/* Main Page Header */}
-          <div className="mb-4 group/header">
-            <div className="transition-all duration-500 group-hover/header:translate-x-2">
-              <h1 className="font-heading text-3xl text-white mb-2 relative">
-                Data Analysis
-                <span className="absolute -top-1 -right-6">
-                  <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
-                </span>
-              </h1>
-              <p style={{ color: '#e6e2eb' }} className="text-lg">
-                Ever wonder why some days feel great and others don't? Select any goal and any habit to visualize their relationship and find the answer.
-              </p>
-            </div>
+          {/* Main Page Header - Removed hover animation and star icon */}
+          <div className="mb-4">
+            <h1 className="font-heading text-3xl text-white mb-2">
+              Data Analysis
+            </h1>
+            <p style={{ color: '#e6e2eb' }} className="text-lg">
+              Ever wonder why some days feel great and others don't? Select any goal and any habit to visualize their relationship and find the answer.
+            </p>
           </div>
           
           {/* Share Finding Button - Styled like "view all" button from dashboard */}
@@ -350,7 +345,7 @@ export default function DataPage() {
                   className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/20 hover:scale-105 px-8 py-3 text-lg"
                 >
                   Create Your First Metric
-                  <ChevronRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover/empty:translate-x-1" />
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover/empty:translate-x-1" />
                 </Button>
               </div>
             </div>
