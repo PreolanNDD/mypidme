@@ -129,8 +129,8 @@ export function ExperimentProgressWidget() {
 
       {/* Content */}
       {activeExperiments.length === 0 ? (
-        // No active experiments - show create experiment CTA with increased padding for better vertical centering
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl pt-12 pb-12 px-8 text-center border border-white/20">
+        // No active experiments - show create experiment CTA with hover rise effect
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl pt-12 pb-12 px-8 text-center border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20">
           {/* Centered Icon with Enhanced Styling */}
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center shadow-lg border border-purple-200/50 group-hover:scale-105 transition-all duration-300">
