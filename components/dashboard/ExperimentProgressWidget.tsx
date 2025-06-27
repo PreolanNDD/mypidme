@@ -94,89 +94,71 @@ export function ExperimentProgressWidget() {
 
   return (
     <div className="space-y-6 group">
-      {/* Header - Medium Sizes (between previous and current) */}
+      {/* Header - WITH REDUCED GLOW ON ICON */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          {/* Medium Icon */}
+          {/* Icon with reduced glow and size increase */}
           <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md border border-gray-100 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg flex-shrink-0">
             <FlaskConical className="w-5 h-5 text-primary transition-all duration-300 group-hover:scale-110" />
           </div>
           
-          {/* Medium Text Content */}
+          {/* Text content moved to the right with enhanced effects */}
           <div className="transition-all duration-300 group-hover:translate-x-1">
-            {/* Medium Heading */}
+            {/* Heading with glow and size increase */}
             <h3 className="font-heading text-xl text-white transition-all duration-300 group-hover:scale-105 group-hover:text-shadow-glow">
               Active Experiments
             </h3>
-            {/* Medium Description */}
+            {/* Description with glow and size increase */}
             <p className="text-base transition-all duration-300 group-hover:scale-105 group-hover:text-white group-hover:text-shadow-glow-subtle" style={{ color: '#e6e2eb' }}>
               Track your ongoing experiments
             </p>
           </div>
         </div>
         {activeExperiments.length > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={handleViewAllExperiments}
-            className="text-white hover:bg-white/10 hover:text-white"
+            className="group/viewall relative overflow-hidden px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-lg hover:shadow-white/20"
           >
-            View All
-            <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
+            {/* Sliding highlight effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/viewall:translate-x-full transition-transform duration-500 ease-out"></div>
+            
+            {/* Content */}
+            <div className="relative flex items-center space-x-2">
+              <span className="text-sm font-medium transition-all duration-300 group-hover/viewall:tracking-wide">
+                View All
+              </span>
+              <div className="transform group-hover/viewall:translate-x-1 transition-transform duration-300">
+                <ArrowRight className="w-4 h-4" />
+              </div>
+            </div>
+            
+            {/* Glow effect */}
+            <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-300"></div>
+          </button>
         )}
       </div>
 
       {/* Content */}
       {activeExperiments.length === 0 ? (
-        // No active experiments - show create experiment CTA with hover rise effect
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl pt-12 pb-12 px-8 text-center border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-2 hover:shadow-3xl hover:shadow-white/20">
-          {/* Centered Icon with Enhanced Styling */}
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center shadow-lg border border-purple-200/50 group-hover:scale-105 transition-all duration-300">
-              <FlaskConical className="w-10 h-10 text-purple-600" />
-            </div>
+        // No active experiments - show create experiment CTA
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 text-center border border-white/20">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FlaskConical className="w-8 h-8 text-gray-400" />
           </div>
-          
-          {/* Enhanced Text Styling */}
-          <div className="mb-8 space-y-4">
-            <h4 className="font-heading text-2xl text-primary-text mb-3 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Ready to Start Experimenting?
-            </h4>
-            <div className="max-w-md mx-auto">
-              <p className="text-lg font-medium text-gray-700 leading-relaxed mb-2">
-                Design controlled experiments to test what really works for your optimization goals.
-              </p>
-              <div className="w-16 h-1 bg-gradient-to-r from-purple-400 to-indigo-400 mx-auto rounded-full"></div>
-            </div>
-          </div>
-          
-          <button
-            onClick={handleCreateExperiment}
-            className="group/experiment relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-white font-medium text-base shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+          <h4 className="font-heading text-lg text-primary-text mb-2">
+            Ready to Start Experimenting?
+          </h4>
+          <p className="text-secondary-text text-sm mb-6 max-w-sm mx-auto">
+            Design controlled experiments to test what really works for your optimization goals.
+          </p>
+          <Button 
+            onClick={handleCreateExperiment} 
+            className="w-full sm:w-auto bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+            style={{ color: '#4a2a6d' }}
           >
-            {/* Animated background gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover/experiment:opacity-100 transition-opacity duration-500"></div>
-            
-            {/* Sliding highlight effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/experiment:translate-x-full transition-transform duration-700 ease-out"></div>
-            
-            {/* Content */}
-            <div className="relative flex items-center justify-center space-x-3">
-              {/* Icon with bounce animation */}
-              <div className="transform group-hover/experiment:scale-110 group-hover/experiment:rotate-12 transition-transform duration-300">
-                <Plus className="w-6 h-6" />
-              </div>
-              
-              {/* Text with enhanced styling */}
-              <span className="tracking-wide group-hover/experiment:tracking-wider transition-all duration-300">
-                Create Your First Experiment
-              </span>
-            </div>
-            
-            {/* Pulse ring effect */}
-            <div className="absolute inset-0 rounded-xl border-2 border-white/30 opacity-0 group-hover/experiment:opacity-100 group-hover/experiment:scale-110 transition-all duration-500"></div>
-          </button>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Your First Experiment
+          </Button>
         </div>
       ) : (
         // Show active experiments - Individual items as white containers with interactive effects
@@ -228,19 +210,28 @@ export function ExperimentProgressWidget() {
                     </div>
                   </div>
 
-                  {/* Progress Bar */}
+                  {/* Progress Bar - FIXED: Removed scale transform on hover */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-primary-text group-hover/experiment:text-primary transition-colors duration-300">Progress</span>
                       <span className="text-secondary-text group-hover/experiment:text-primary-text transition-colors duration-300">
-                        Progress
-                      </span>
-                      <span className="text-secondary-text group-hover/experiment:text-primary-text transition-colors duration-300">
-                        Day {progress.daysElapsed} of {progress.totalDays}
+                        {progress.status === 'upcoming' 
+                          ? 'Starts soon'
+                          : progress.status === 'completed'
+                          ? 'Completed'
+                          : `Day ${progress.daysElapsed} of ${progress.totalDays}`
+                        }
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2 group-hover/experiment:bg-gray-300 transition-colors duration-300">
                       <div 
-                        className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full transition-all duration-500 group-hover/experiment:from-purple-600 group-hover/experiment:to-indigo-600"
+                        className={`h-2 rounded-full transition-all duration-500 ease-out ${
+                          progress.status === 'completed' 
+                            ? 'bg-accent-2 group-hover/experiment:bg-accent-2/80' 
+                            : progress.status === 'active'
+                            ? 'bg-primary group-hover/experiment:bg-primary/80' 
+                            : 'bg-gray-300 group-hover/experiment:bg-gray-400'
+                        }`}
                         style={{ width: `${progress.percentage}%` }}
                       ></div>
                     </div>
@@ -249,6 +240,43 @@ export function ExperimentProgressWidget() {
               </div>
             );
           })}
+
+          {/* Show more experiments indicator */}
+          {activeExperiments.length > 2 && (
+            <div className="text-center pt-2">
+              <button
+                onClick={handleViewAllExperiments}
+                className="group/more relative overflow-hidden px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-lg hover:shadow-white/20"
+              >
+                {/* Sliding highlight effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/more:translate-x-full transition-transform duration-500 ease-out"></div>
+                
+                {/* Content */}
+                <div className="relative">
+                  <span className="text-sm font-medium transition-all duration-300 group-hover/more:tracking-wide">
+                    +{activeExperiments.length - 2} more experiment{activeExperiments.length - 2 !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/more:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </div>
+          )}
+
+          {/* Create new experiment button */}
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCreateExperiment}
+              className="w-full bg-white hover:bg-[#cdc1db] border border-[#4a2a6d] transition-colors duration-200"
+              style={{ color: '#4a2a6d' }}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Start New Experiment
+            </Button>
+          </div>
         </div>
       )}
 
