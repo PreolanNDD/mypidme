@@ -141,7 +141,7 @@ export function Sidebar() {
                 >
                   {/* Background glow effect */}
                   {isActive && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#9b5de5]/80 to-[#9b5de5]/80 opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-[#9b5de5] opacity-100 transition-opacity duration-500"></div>
                   )}
                   
                   {/* Icon container with animations */}
