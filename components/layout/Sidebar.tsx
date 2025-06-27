@@ -135,13 +135,13 @@ export function Sidebar() {
                     'flex items-center rounded-xl transition-all duration-300 group relative overflow-hidden',
                     isOpen ? 'px-4 py-3' : 'px-0 py-3 justify-center',
                     isActive
-                      ? 'bg-[#9b5de5] text-white shadow-lg'
+                      ? 'text-white'
                       : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
                   )}
                 >
-                  {/* Background glow effect */}
+                  {/* Background for active item */}
                   {isActive && (
-                    <div className="absolute inset-0 bg-[#9b5de5] opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-[#9b5de5] rounded-xl"></div>
                   )}
                   
                   {/* Icon container with animations */}
