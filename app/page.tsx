@@ -516,7 +516,35 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 4: Testimonials - Light Background */}
+      {/* Section 4: Lab Features - Light Background - UPDATED: Removed image and moved content to right */}
+      <section id="how-it-works" className="py-20 bg-[#F8F7FA]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* Left Column: Empty space for balance */}
+            <div className="hidden md:block"></div>
+            
+            {/* Right Column: Content */}
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#3c1a5b', fontFamily: 'Playfair Display, serif' }}>
+                Become the Engineer of Your Own Life.
+              </h2>
+              <p className="text-lg leading-relaxed" style={{ color: '#000000', fontFamily: 'Montserrat, sans-serif' }}>
+                Have a theory? Put it to the test. The PIDMe Lab lets you run structured experiments on yourself. Form a hypothesis, like "If I cut out sugar for one week, my energy will improve," then track the results. Stop relying on generic advice and start building a lifestyle based on what is scientifically proven to work for you.
+              </p>
+              <div className="pt-4">
+                <Link href="/signup">
+                  <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 text-lg px-8 py-3">
+                    Start Experimenting
+                    <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 5: Testimonials - Light Background */}
       <section id="testimonials" className="py-20 bg-[#F8F7FA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -583,7 +611,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 5: Pricing & CTA - Purple Gradient */}
+      {/* Section 6: Pricing & CTA - Purple Gradient */}
       <section id="pricing" className="py-20" style={{ background: 'linear-gradient(to bottom right, #9B5DE5, #3C1A5B)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
