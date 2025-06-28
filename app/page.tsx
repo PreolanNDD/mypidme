@@ -293,66 +293,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 2: Features - Light Background */}
+      {/* Section 2: Features - Light Background - UPDATED: Removed image and moved content to right */}
       <section id="features" className="py-20 bg-[#F8F7FA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Powerful Features to Optimize Your Life
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Discover what truly works for you with our comprehensive toolkit for personal optimization
-            </p>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Left Column: Feature List */}
-            <div className="space-y-8">
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <BarChart3 className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Data-Driven Insights</h3>
-                  <p className="text-gray-600">
-                    Track your habits and outcomes to discover meaningful patterns and correlations that reveal what actually works for you.
-                  </p>
-                </div>
+            {/* Left Column: Empty space for balance */}
+            <div className="hidden md:block"></div>
+            
+            {/* Right Column: Content */}
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#3c1a5b', fontFamily: 'Playfair Display, serif' }}>
+                Your Life, Logged in 60 Seconds.
+              </h2>
+              <p className="text-lg leading-relaxed" style={{ color: '#000000', fontFamily: 'Montserrat, sans-serif' }}>
+                Effortlessly track the metrics that matter most to you. Whether it's your mood on a 1-10 scale, your daily workout with a simple "Yes/No," or the hours you sleep, logging your day is fast, simple, and intuitive. Consistency is the key, and we make it easy.
+              </p>
+              <div className="pt-4">
+                <Link href="/signup">
+                  <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 text-lg px-8 py-3">
+                    Get Started
+                    <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                </Link>
               </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Settings className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Personal Experiments</h3>
-                  <p className="text-gray-600">
-                    Design and run controlled experiments to test hypotheses about what improves your well-being, productivity, and more.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Community Insights</h3>
-                  <p className="text-gray-600">
-                    Share and discover findings from others on their optimization journeys, expanding your knowledge beyond personal experience.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Feature Image */}
-            <div className="relative h-[400px] rounded-2xl overflow-hidden shadow-xl">
-              <Image
-                src="https://images.pexels.com/photos/7947541/pexels-photo-7947541.jpeg"
-                alt="Dashboard with analytics"
-                fill
-                className="object-cover rounded-2xl"
-              />
             </div>
           </div>
         </div>
