@@ -246,7 +246,7 @@ export default function Home() {
           <div className="text-center p-4">
             <Link href="https://bolt.new/">
                 <Image
-                  src="/public/images/logotext_poweredby_360w.png" // Replace with your image path
+                  src="/images/logotext_poweredby_360w.png" // Replace with your image path
                   alt="Descriptive text for your image"
                   width={800} // Set your desired width
                   height={200} // Set your desired height
