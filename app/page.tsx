@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { 
   ArrowRight, 
   BarChart2, 
+  Calendar,
   ChevronRight, 
   FlaskConical, 
   LineChart, 
@@ -14,6 +15,7 @@ import {
   Sparkles, 
   Target, 
   TrendingUp, 
+  User,
   Users 
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
