@@ -118,7 +118,7 @@ function EnhancedLogEntryField({ item, value, onChange }: {
       <LogEntryField 
         item={item} 
         value={value} 
-        onChange={handleChange}
+        onChange={onChange}
       />
     </div>
   );
