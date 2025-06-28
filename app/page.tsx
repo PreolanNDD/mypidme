@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BarChart3, Eye, Settings, ArrowRight, Check, ChevronRight, Star, Users, Shield, Zap } from 'lucide-react';
+import { BarChart3, Eye, Settings, ArrowRight, Check, ChevronRight, Star, Users, Shield, Zap, ChevronUp, ChevronDown, MessageSquare, Calendar, User, Sparkles, Target, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export default function Home() {
@@ -19,6 +19,7 @@ export default function Home() {
   const [isHovering, setIsHovering] = useState(false);
   const [isHovering4, setIsHovering4] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hoveredFindingId, setHoveredFindingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && user && !redirectingRef.current) {
@@ -130,6 +131,45 @@ export default function Home() {
       transform: `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
       transition: 'transform 0.1s ease-out'
     };
+  };
+
+  // Sample findings data for the cards
+  const sampleFindings = [
+    {
+      id: "finding-1",
+      title: "Morning meditation significantly improves my focus throughout the day",
+      content: "After tracking my meditation habits for 30 days, I've discovered that on days when I meditate for at least 10 minutes in the morning, my focus score increases by an average of 2.7 points (on a 1-10 scale). The effect is most noticeable on high-stress days, suggesting meditation acts as a buffer against stress-induced focus problems.",
+      author: "Sarah Johnson",
+      created_at: "2025-05-15T08:30:00Z",
+      upvotes: 42,
+      downvotes: 3,
+      share_data: true,
+      status: "visible"
+    },
+    {
+      id: "finding-2",
+      title: "Cutting caffeine after 2pm improved my sleep quality by 35%",
+      content: "I've been experimenting with my caffeine intake for the past 3 weeks. When I stopped consuming caffeine after 2pm, my average sleep quality score jumped from 5.8 to 7.9 (out of 10). I also found that my sleep onset time decreased by approximately 22 minutes. This simple change has made a dramatic difference in how rested I feel each morning.",
+      author: "Michael Chen",
+      created_at: "2025-05-12T14:45:00Z",
+      upvotes: 78,
+      downvotes: 5,
+      share_data: true,
+      status: "visible"
+    }
+  ];
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
+  const truncateContent = (content: string, maxLength: number = 150) => {
+    if (content.length <= maxLength) return content;
+    return content.substring(0, maxLength).trim() + '...';
   };
 
   if (loading || user) {
@@ -612,7 +652,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 5: New Section Identical to Section 3 - Dark Purple Background */}
+      {/* Section 5: Community Findings - Dark Purple Background */}
       <section id="community-insights" className="py-20" style={{ background: 'linear-gradient(to bottom right, #3C1A5B, #2A1240)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -636,7 +676,7 @@ export default function Home() {
                     {/* Content */}
                     <div className="relative flex items-center justify-center space-x-3">
                       <span className="tracking-wide group-hover:tracking-wider transition-all duration-300">
-                        Start Analyzing
+                        Join Community
                       </span>
                       <ArrowRight className="w-5 h-5 transition-all duration-300 group-hover:translate-x-2 group-hover:scale-110" />
                     </div>
@@ -653,125 +693,137 @@ export default function Home() {
               </div>
             </div>
             
-            {/* Right Column: Animated Chart Graphic */}
-            <div className="w-full h-[500px] flex items-center justify-center">
-              {/* Glowing chart container */}
-              <div className="w-full h-full bg-[#2A1240]/80 rounded-2xl animate-glow-pulse p-6">
-                {/* Chart visualization */}
-                <div className="relative h-full w-full">
-                  {/* Chart title and legend */}
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
-                    <div className="text-white font-bold text-lg">Sleep vs. Energy Levels</div>
-                    <div className="flex flex-wrap gap-4">
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 rounded-full bg-[#9B5DE5] mr-2"></div>
-                        <span className="text-white text-sm">Sleep Hours</span>
+            {/* Right Column: Community Findings Cards */}
+            <div className="w-full space-y-6">
+              {/* Community Findings Cards */}
+              {sampleFindings.map((finding, index) => {
+                const score = finding.upvotes - finding.downvotes;
+                const isHovered = hoveredFindingId === finding.id;
+                
+                return (
+                  <div 
+                    key={finding.id} 
+                    className="group/finding relative overflow-hidden bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl cursor-pointer border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10"
+                    onMouseEnter={() => setHoveredFindingId(finding.id)}
+                    onMouseLeave={() => setHoveredFindingId(null)}
+                  >
+                    {/* Gradient overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover/finding:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                    
+                    {/* Animated border glow */}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 opacity-0 group-hover/finding:opacity-100 transition-opacity duration-500 blur-sm"></div>
+                    
+                    <div className="relative p-6 space-y-5">
+                      {/* Header */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-heading text-xl text-primary-text group-hover/finding:text-purple-700 transition-colors duration-300 leading-tight mb-3">
+                            {finding.title}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover/finding:bg-purple-50 group-hover/finding:shadow-sm">
+                              <User className="w-3 h-3 text-secondary-text group-hover/finding:text-purple-600 transition-colors duration-300" />
+                              <span className="text-xs text-secondary-text group-hover/finding:text-purple-700 transition-colors duration-300">
+                                {finding.author}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover/finding:bg-blue-50 group-hover/finding:shadow-sm">
+                              <Calendar className="w-3 h-3 text-secondary-text group-hover/finding:text-blue-600 transition-colors duration-300" />
+                              <span className="text-xs text-secondary-text group-hover/finding:text-blue-700 transition-colors duration-300">
+                                {formatDate(finding.created_at)}
+                              </span>
+                            </div>
+                            <div className={`text-xs px-3 py-1 rounded-full ${score > 0 ? 'bg-green-50 text-green-700 border-green-300' : score < 0 ? 'bg-red-50 text-red-700 border-red-300' : 'bg-gray-50 text-gray-700 border-gray-300'} group-hover/finding:scale-105 transition-all duration-300`}>
+                              Score: {score > 0 ? '+' : ''}{score}
+                            </div>
+                            {finding.share_data && (
+                              <div className="text-xs bg-blue-50 text-blue-700 border-blue-300 px-3 py-1 rounded-full group-hover/finding:scale-105 transition-all duration-300 flex items-center space-x-1">
+                                <BarChart3 className="w-3 h-3" />
+                                <span>Data Shared</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="transform group-hover/finding:translate-x-1 transition-all duration-300 ml-4">
+                          <ArrowRight className="w-5 h-5 text-secondary-text group-hover/finding:text-purple-600 transition-colors duration-300" />
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 rounded-full bg-[#FFA500] mr-2"></div>
-                        <span className="text-white text-sm">Energy Level</span>
+
+                      {/* Content Preview */}
+                      <div className="prose prose-sm max-w-none">
+                        <p className="text-primary-text leading-relaxed group-hover/finding:text-gray-700 transition-colors duration-300">
+                          {truncateContent(finding.content)}
+                        </p>
                       </div>
+
+                      {/* Vote Summary */}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100 group-hover/finding:border-purple-100 transition-colors duration-300">
+                        <div className="flex items-center space-x-2">
+                          {/* Upvote */}
+                          <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                            <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center group-hover/finding:bg-green-200 transition-all duration-300">
+                              <ChevronUp className="w-3 h-3 text-green-600" />
+                            </div>
+                            <span>{finding.upvotes}</span>
+                          </div>
+
+                          {/* Downvote */}
+                          <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                            <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center group-hover/finding:bg-red-200 transition-all duration-300">
+                              <ChevronDown className="w-3 h-3 text-red-600" />
+                            </div>
+                            <span>{finding.downvotes}</span>
+                          </div>
+                          
+                          {/* Score */}
+                          <div className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 ${
+                            score > 0 ? 'bg-green-100 text-green-700' :
+                            score < 0 ? 'bg-red-100 text-red-700' :
+                            'bg-gray-100 text-gray-700'
+                          } group-hover/finding:scale-105`}>
+                            Score: {score > 0 ? '+' : ''}{score}
+                          </div>
+                        </div>
+
+                        {/* Comments */}
+                        <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                          <MessageSquare className="w-4 h-4 text-secondary-text group-hover/finding:text-purple-600 transition-colors duration-300" />
+                          <span>{Math.floor(Math.random() * 20) + 1}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Sparkle effect on hover */}
+                      {isHovered && (
+                        <div className="absolute top-3 right-3">
+                          <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
+                        </div>
+                      )}
                     </div>
                   </div>
-                  
-                  {/* Chart grid lines */}
-                  <div className="absolute inset-0 mt-16">
-                    {[...Array(5)].map((_, i) => (
-                      <div 
-                        key={i} 
-                        className="absolute w-full h-px bg-white/10"
-                        style={{ top: `${20 * i}%` }}
-                      ></div>
-                    ))}
-                    {[...Array(7)].map((_, i) => (
-                      <div 
-                        key={i} 
-                        className="absolute h-full w-px bg-white/10"
-                        style={{ left: `${100 / 6 * i}%` }}
-                      ></div>
-                    ))}
-                  </div>
-                  
-                  {/* Animated chart lines */}
-                  <div className="relative h-[calc(100%-6rem)] mt-16">
-                    {/* Purple line (Sleep) */}
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                      <path 
-                        d="M0,70 C10,65 20,40 30,35 C40,30 50,50 60,45 C70,40 80,20 90,15 L100,10" 
-                        fill="none" 
-                        stroke="#9B5DE5" 
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        style={{
-                          filter: 'drop-shadow(0 0 8px rgba(155, 93, 229, 0.8))',
-                          animation: 'dashoffset 15s linear infinite'
-                        }}
-                      />
-                      {/* Data points */}
-                      {[
-                        { x: 0, y: 70 },
-                        { x: 30, y: 35 },
-                        { x: 60, y: 45 },
-                        { x: 90, y: 15 }
-                      ].map((point, i) => (
-                        <circle 
-                          key={i}
-                          cx={point.x} 
-                          cy={point.y} 
-                          r="2"
-                          fill="#9B5DE5"
-                          style={{
-                            filter: 'drop-shadow(0 0 5px rgba(155, 93, 229, 0.8))'
-                          }}
-                        />
-                      ))}
-                    </svg>
+                );
+              })}
+              
+              {/* View More Button */}
+              <div className="text-center pt-4">
+                <Link href="/signup">
+                  <button className="group relative overflow-hidden px-6 py-3 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-white transition-all duration-300 hover:bg-white/30 hover:border-white/50 hover:scale-105 hover:shadow-lg hover:shadow-white/20">
+                    {/* Sliding highlight effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-out"></div>
                     
-                    {/* Orange line (Energy) */}
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                      <path 
-                        d="M0,80 C10,75 20,60 30,50 C40,40 50,30 60,25 C70,20 80,30 90,20 L100,15" 
-                        fill="none" 
-                        stroke="#FFA500" 
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        style={{
-                          filter: 'drop-shadow(0 0 8px rgba(255, 165, 0, 0.8))',
-                          animation: 'dashoffset 15s linear infinite'
-                        }}
-                      />
-                      {/* Data points */}
-                      {[
-                        { x: 0, y: 80 },
-                        { x: 30, y: 50 },
-                        { x: 60, y: 25 },
-                        { x: 90, y: 20 }
-                      ].map((point, i) => (
-                        <circle 
-                          key={i}
-                          cx={point.x} 
-                          cy={point.y} 
-                          r="2"
-                          fill="#FFA500"
-                          style={{
-                            filter: 'drop-shadow(0 0 5px rgba(255, 165, 0, 0.8))'
-                          }}
-                        />
-                      ))}
-                    </svg>
-                  </div>
-                  
-                  {/* X-axis labels */}
-                  <div className="absolute bottom-0 left-0 right-0 flex justify-between text-white/60 text-xs">
-                    <span>Mon</span>
-                    <span>Tue</span>
-                    <span>Wed</span>
-                    <span>Thu</span>
-                    <span>Fri</span>
-                    <span>Sat</span>
-                    <span>Sun</span>
-                  </div>
-                </div>
+                    {/* Content */}
+                    <div className="relative flex items-center space-x-2">
+                      <span className="text-sm font-medium transition-all duration-300 group-hover:tracking-wide">
+                        View More Community Findings
+                      </span>
+                      <div className="transform group-hover:translate-x-1 transition-transform duration-300">
+                        <ArrowRight className="w-4 h-4" />
+                      </div>
+                    </div>
+                    
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
