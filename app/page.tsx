@@ -203,7 +203,7 @@ export default function Home() {
 
             {/* Navigation Links - Desktop - ENHANCED: Larger text and spacing */}
             <div className="hidden md:flex items-center space-x-10">
-              {['home', 'how-it-works', 'testimonials', 'pricing', 'faq'].map((item) => (
+              {['home', 'experiments', 'testimonials', 'pricing', 'faq'].map((item) => (
                 <a 
                   key={item} 
                   href={`#${item}`} 
@@ -628,7 +628,7 @@ export default function Home() {
       </section>
 
       {/* Section 4: Lab Features - Light Background - UPDATED: Added image on left, moved content to right */}
-      <section id="how-it-works" className="py-20 bg-[#F8F7FA]">
+      <section id="experiments" className="py-20 bg-[#F8F7FA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* Left Column: Image with 3D hover effect */}
