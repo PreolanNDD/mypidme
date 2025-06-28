@@ -852,7 +852,7 @@ export default function Home() {
             {/* Left Column: Pricing Card */}
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 hover:scale-105">
               <div className="p-8 border-b border-gray-200">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Free Forever Plan</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Everything is Free! (For now)</h3>
                 <div className="flex items-end mb-4">
                   <span className="text-5xl font-bold text-primary">$0</span>
                   <span className="text-gray-600 ml-2">/month</span>
