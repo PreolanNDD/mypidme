@@ -108,6 +108,23 @@ export default function Home() {
                   to { opacity: 1; transform: translateX(0); }
                 }
                 
+                @keyframes buttonPulse {
+                  0% { transform: scale(1); box-shadow: 0 5px 15px rgba(255, 165, 0, 0.2); }
+                  50% { transform: scale(1.05); box-shadow: 0 10px 20px rgba(255, 165, 0, 0.4); }
+                  100% { transform: scale(1); box-shadow: 0 5px 15px rgba(255, 165, 0, 0.2); }
+                }
+                
+                @keyframes buttonGlow {
+                  0% { box-shadow: 0 0 5px rgba(255, 165, 0, 0.5); }
+                  50% { box-shadow: 0 0 20px rgba(255, 165, 0, 0.8); }
+                  100% { box-shadow: 0 0 5px rgba(255, 165, 0, 0.5); }
+                }
+                
+                @keyframes arrowBounce {
+                  0%, 100% { transform: translateX(0); }
+                  50% { transform: translateX(5px); }
+                }
+                
                 .animate-fadeIn {
                   animation: fadeIn 1s ease-out forwards;
                 }
@@ -121,6 +138,24 @@ export default function Home() {
                 .delay-300 { animation-delay: 0.3s; }
                 .delay-400 { animation-delay: 0.4s; }
                 .delay-500 { animation-delay: 0.5s; }
+                
+                .seesaw-container {
+                  perspective: 1000px;
+                  transform-style: preserve-3d;
+                  transition: transform 0.3s ease-out;
+                }
+                
+                .seesaw-container:hover {
+                  transform: rotate3d(1, 0, 0, 5deg);
+                }
+                
+                .seesaw-container.hover-left:hover {
+                  transform: rotate3d(0, 1, 0, -5deg);
+                }
+                
+                .seesaw-container.hover-right:hover {
+                  transform: rotate3d(0, 1, 0, 5deg);
+                }
               `}</style>
               <div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
@@ -134,19 +169,31 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4 animate-fadeIn delay-500">
                 <Link href="/signup">
                   <button 
-                    className="w-full sm:w-auto bg-[#ffa500] hover:bg-[#ffa500]/90 text-[#330c0c] font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg"
-                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    className="group w-full sm:w-auto bg-[#ffa500] text-[#330c0c] font-bold py-3 px-8 rounded-lg shadow-lg text-lg relative overflow-hidden"
+                    style={{ 
+                      fontFamily: 'Montserrat, sans-serif',
+                      animation: 'buttonGlow 3s infinite'
+                    }}
                   >
-                    Start Optimizing
-                    <ArrowRight className="ml-2 w-5 h-5 inline-block" />
+                    <span className="relative z-10 flex items-center justify-center">
+                      Start Optimizing
+                      <ArrowRight className="ml-2 w-5 h-5 inline-block group-hover:animate-arrowBounce" 
+                        style={{ animation: 'arrowBounce 1s infinite' }}
+                      />
+                    </span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-[#ffa500] to-[#ff8c00] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="absolute top-0 left-0 w-full h-full bg-white/30 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+                    <span className="absolute -inset-px border-2 border-white/0 rounded-lg group-hover:border-white/20 transition-all duration-300"></span>
                   </button>
                 </Link>
                 <a href="#how-it-works">
                   <button 
-                    className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg"
+                    className="group w-full sm:w-auto bg-transparent text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg relative overflow-hidden"
                     style={{ fontFamily: 'Montserrat, sans-serif' }}
                   >
-                    Learn More
+                    <span className="relative z-10">Learn More</span>
+                    <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="absolute -inset-px border-2 border-white/50 rounded-lg group-hover:border-white/90 transition-all duration-300"></span>
                   </button>
                 </a>
               </div>
@@ -156,8 +203,26 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Hero Image - UPDATED: Removed glass effect */}
-            <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl animate-fadeIn delay-200">
+            {/* Right Column: Hero Image - UPDATED: Removed all effects, added seesaw hover */}
+            <div 
+              className="seesaw-container relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl animate-fadeIn delay-200"
+              onMouseMove={(e) => {
+                const el = e.currentTarget;
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left; // x position within the element
+                
+                if (x < rect.width / 2) {
+                  el.classList.add('hover-left');
+                  el.classList.remove('hover-right');
+                } else {
+                  el.classList.add('hover-right');
+                  el.classList.remove('hover-left');
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.classList.remove('hover-left', 'hover-right');
+              }}
+            >
               <Image
                 src="/images/home_section_1.webp"
                 alt="Person analyzing data on a dashboard"
