@@ -242,7 +242,7 @@ export default function Home() {
       {/* Section 1: Hero - Purple Gradient */}
       <section className="pt-32 pb-16 md:pt-40 md:pb-24" style={{ background: 'linear-gradient(to bottom right, #9B5DE5, #3C1A5B)' }}>
               {/* START: Added Image with Link at the Top */}
-        <div className="pt-20"> {/* Added padding to offset the fixed nav bar */}
+        <div className="absolute top-32 md:top-40 right-4 sm:right-6 lg:right-8 z-10"> {/* Added padding to offset the fixed nav bar */}
           <div className="text-center p-4">
             <Link href="https://bolt.new/">
                 <Image
