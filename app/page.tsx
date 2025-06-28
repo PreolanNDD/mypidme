@@ -881,7 +881,7 @@ export default function Home() {
                 <div className="pt-4">
                   <Link href="/signup" className="block w-full">
                     <div className="group relative overflow-hidden w-full">
-                      <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 text-lg font-bold transition-all duration-300 overflow-hidden">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 text-lg font-bold transition-all duration-300 group relative overflow-hidden">
                         <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                         <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full"></span>
                         <span className="relative z-10">
