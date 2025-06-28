@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const redirectingRef = useRef(false);
+  const imageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!loading && user && !redirectingRef.current) {
@@ -23,6 +24,26 @@ export default function Home() {
       redirectingRef.current = false;
     }
   }, [user, loading, router]);
+
+  // Handle see-saw effect on image hover
+  const handleImageHover = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageRef.current) return;
+    
+    const rect = imageRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left; // x position within the element
+    const y = e.clientY - rect.top; // y position within the element
+    
+    // Calculate tilt based on cursor position
+    const tiltX = (y / rect.height - 0.5) * 10; // -5 to 5 degrees
+    const tiltY = (x / rect.width - 0.5) * -10; // -5 to 5 degrees
+    
+    imageRef.current.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+  };
+  
+  const handleImageLeave = () => {
+    if (!imageRef.current) return;
+    imageRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+  };
 
   if (loading || user) {
     return (
@@ -138,24 +159,6 @@ export default function Home() {
                 .delay-300 { animation-delay: 0.3s; }
                 .delay-400 { animation-delay: 0.4s; }
                 .delay-500 { animation-delay: 0.5s; }
-                
-                .seesaw-container {
-                  perspective: 1000px;
-                  transform-style: preserve-3d;
-                  transition: transform 0.3s ease-out;
-                }
-                
-                .seesaw-container:hover {
-                  transform: rotate3d(1, 0, 0, 5deg);
-                }
-                
-                .seesaw-container.hover-left:hover {
-                  transform: rotate3d(0, 1, 0, -5deg);
-                }
-                
-                .seesaw-container.hover-right:hover {
-                  transform: rotate3d(0, 1, 0, 5deg);
-                }
               `}</style>
               <div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
@@ -203,25 +206,12 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Hero Image - UPDATED: Removed all effects, added seesaw hover */}
+            {/* Right Column: Hero Image - UPDATED: Improved see-saw hover effect and larger image */}
             <div 
-              className="seesaw-container relative w-full h-[350px] md:h-[450px] animate-fadeIn delay-200"
-              onMouseMove={(e) => {
-                const el = e.currentTarget;
-                const rect = el.getBoundingClientRect();
-                const x = e.clientX - rect.left; // x position within the element
-                
-                if (x < rect.width / 2) {
-                  el.classList.add('hover-left');
-                  el.classList.remove('hover-right');
-                } else {
-                  el.classList.add('hover-right');
-                  el.classList.remove('hover-left');
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.classList.remove('hover-left', 'hover-right');
-              }}
+              ref={imageRef}
+              className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] animate-fadeIn delay-200 transition-transform duration-300"
+              onMouseMove={handleImageHover}
+              onMouseLeave={handleImageLeave}
             >
               <Image
                 src="/images/home_section_1.webp"
