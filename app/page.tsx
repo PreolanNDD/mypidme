@@ -390,16 +390,6 @@ export default function Home() {
                     <span className="absolute -inset-px border-2 border-white/0 rounded-lg group-hover:border-white/20 transition-all duration-300"></span>
                   </button>
                 </Link>
-                <a href="#how-it-works">
-                  <button 
-                    className="group w-full sm:w-auto bg-transparent text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg relative overflow-hidden"
-                    style={{ fontFamily: 'Montserrat, sans-serif' }}
-                  >
-                    <span className="relative z-10">Learn More</span>
-                    <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                    <span className="absolute -inset-px border-2 border-white/50 rounded-lg group-hover:border-white/90 transition-all duration-300"></span>
-                  </button>
-                </a>
               </div>
               <div className="flex items-center space-x-2 text-white/80 animate-fadeIn delay-500" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                 <Check className="w-5 h-5 text-white" />
