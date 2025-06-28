@@ -612,17 +612,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 5: Community Insights - Dark Purple Background */}
+      {/* Section 5: New Section Identical to Section 3 - Dark Purple Background */}
       <section id="community-insights" className="py-20" style={{ background: 'linear-gradient(to bottom right, #3C1A5B, #2A1240)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* Left Column: Content */}
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#f5f5f5', fontFamily: 'Playfair Display, serif' }}>
-                Learn Together, Improve Together.
+                Discover the "Why" Behind Your Days.
               </h2>
               <p className="text-lg leading-relaxed" style={{ color: '#e6e0f8', fontFamily: 'Montserrat, sans-serif' }}>
-                Your daily habits create your life's results. MyPID.me is the first app designed to be your personal science lab, helping you discover the hidden connections between what you do and how you feel, so you can build a better you with proof.
+                MyPID.me automatically analyzes your data and reveals the patterns hiding in your routine. Our smart-scaling charts and relationship breakdowns help you answer your biggest questions. Does more sleep really improve your focus? Does caffeine affect your stress levels? Go beyond simple tracking and find real answers.
               </p>
               <div className="pt-6">
                 <Link href="/signup">
@@ -653,116 +653,123 @@ export default function Home() {
               </div>
             </div>
             
-            {/* Right Column: Community Findings Cards */}
-            <div className="w-full space-y-6">
-              {/* Finding Card 1 */}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl cursor-pointer border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10 p-6 space-y-5">
-                {/* Header */}
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-heading text-xl text-primary-text group-hover:text-purple-700 transition-colors duration-300 leading-tight mb-3">
-                      Morning meditation significantly improves my focus
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 hover:bg-purple-50 hover:shadow-sm">
-                        <div className="w-5 h-5 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center">
-                          <Users className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-xs font-medium text-secondary-text hover:text-purple-700 transition-colors duration-300">
-                          Sarah Johnson
-                        </span>
+            {/* Right Column: Animated Chart Graphic */}
+            <div className="w-full h-[500px] flex items-center justify-center">
+              {/* Glowing chart container */}
+              <div className="w-full h-full bg-[#2A1240]/80 rounded-2xl animate-glow-pulse p-6">
+                {/* Chart visualization */}
+                <div className="relative h-full w-full">
+                  {/* Chart title and legend */}
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
+                    <div className="text-white font-bold text-lg">Sleep vs. Energy Levels</div>
+                    <div className="flex flex-wrap gap-4">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-[#9B5DE5] mr-2"></div>
+                        <span className="text-white text-sm">Sleep Hours</span>
                       </div>
-                      <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 hover:bg-blue-50 hover:shadow-sm">
-                        <Calendar className="w-3 h-3 text-secondary-text hover:text-blue-600 transition-colors duration-300" />
-                        <span className="text-xs text-secondary-text hover:text-blue-700 transition-colors duration-300">
-                          May 15, 2025
-                        </span>
-                      </div>
-                      <div className="text-xs bg-green-50 text-green-700 border-green-300 px-3 py-1 rounded-full">
-                        Score: +24
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-[#FFA500] mr-2"></div>
+                        <span className="text-white text-sm">Energy Level</span>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Content Preview */}
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-primary-text leading-relaxed">
-                    After tracking my meditation practice for 30 days, I've found that on days when I meditate for at least 10 minutes in the morning, my focus score increases by an average of 2.7 points (on a 1-10 scale). The effect is most noticeable on high-stress days...
-                  </p>
-                </div>
-
-                {/* Footer */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center space-x-1 text-sm text-secondary-text">
-                      <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                        <ArrowRight className="w-3 h-3 text-green-600" />
-                      </div>
-                      <span>Read more</span>
-                    </div>
+                  
+                  {/* Chart grid lines */}
+                  <div className="absolute inset-0 mt-16">
+                    {[...Array(5)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="absolute w-full h-px bg-white/10"
+                        style={{ top: `${20 * i}%` }}
+                      ></div>
+                    ))}
+                    {[...Array(7)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="absolute h-full w-px bg-white/10"
+                        style={{ left: `${100 / 6 * i}%` }}
+                      ></div>
+                    ))}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-xs bg-blue-50 text-blue-700 border-blue-300 px-3 py-1 rounded-full flex items-center">
-                      <BarChart3 className="w-3 h-3 mr-1" />
-                      <span>Data Shared</span>
-                    </div>
+                  
+                  {/* Animated chart lines */}
+                  <div className="relative h-[calc(100%-6rem)] mt-16">
+                    {/* Purple line (Sleep) */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <path 
+                        d="M0,70 C10,65 20,40 30,35 C40,30 50,50 60,45 C70,40 80,20 90,15 L100,10" 
+                        fill="none" 
+                        stroke="#9B5DE5" 
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        style={{
+                          filter: 'drop-shadow(0 0 8px rgba(155, 93, 229, 0.8))',
+                          animation: 'dashoffset 15s linear infinite'
+                        }}
+                      />
+                      {/* Data points */}
+                      {[
+                        { x: 0, y: 70 },
+                        { x: 30, y: 35 },
+                        { x: 60, y: 45 },
+                        { x: 90, y: 15 }
+                      ].map((point, i) => (
+                        <circle 
+                          key={i}
+                          cx={point.x} 
+                          cy={point.y} 
+                          r="2"
+                          fill="#9B5DE5"
+                          style={{
+                            filter: 'drop-shadow(0 0 5px rgba(155, 93, 229, 0.8))'
+                          }}
+                        />
+                      ))}
+                    </svg>
+                    
+                    {/* Orange line (Energy) */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <path 
+                        d="M0,80 C10,75 20,60 30,50 C40,40 50,30 60,25 C70,20 80,30 90,20 L100,15" 
+                        fill="none" 
+                        stroke="#FFA500" 
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        style={{
+                          filter: 'drop-shadow(0 0 8px rgba(255, 165, 0, 0.8))',
+                          animation: 'dashoffset 15s linear infinite'
+                        }}
+                      />
+                      {/* Data points */}
+                      {[
+                        { x: 0, y: 80 },
+                        { x: 30, y: 50 },
+                        { x: 60, y: 25 },
+                        { x: 90, y: 20 }
+                      ].map((point, i) => (
+                        <circle 
+                          key={i}
+                          cx={point.x} 
+                          cy={point.y} 
+                          r="2"
+                          fill="#FFA500"
+                          style={{
+                            filter: 'drop-shadow(0 0 5px rgba(255, 165, 0, 0.8))'
+                          }}
+                        />
+                      ))}
+                    </svg>
                   </div>
-                </div>
-              </div>
-
-              {/* Finding Card 2 */}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl cursor-pointer border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10 p-6 space-y-5">
-                {/* Header */}
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-heading text-xl text-primary-text group-hover:text-purple-700 transition-colors duration-300 leading-tight mb-3">
-                      Cutting caffeine after 2pm doubled my sleep quality
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 hover:bg-purple-50 hover:shadow-sm">
-                        <div className="w-5 h-5 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center">
-                          <Users className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-xs font-medium text-secondary-text hover:text-purple-700 transition-colors duration-300">
-                          Michael Chen
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 hover:bg-blue-50 hover:shadow-sm">
-                        <Calendar className="w-3 h-3 text-secondary-text hover:text-blue-600 transition-colors duration-300" />
-                        <span className="text-xs text-secondary-text hover:text-blue-700 transition-colors duration-300">
-                          June 2, 2025
-                        </span>
-                      </div>
-                      <div className="text-xs bg-green-50 text-green-700 border-green-300 px-3 py-1 rounded-full">
-                        Score: +37
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content Preview */}
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-primary-text leading-relaxed">
-                    I ran a 3-week experiment where I alternated between stopping caffeine at 2pm vs. drinking it until evening. The results were shocking - my sleep quality score jumped from an average of 4.2 to 8.7 when I cut off caffeine early. My morning energy levels also improved significantly...
-                  </p>
-                </div>
-
-                {/* Footer */}
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center space-x-1 text-sm text-secondary-text">
-                      <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                        <ArrowRight className="w-3 h-3 text-green-600" />
-                      </div>
-                      <span>Read more</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="text-xs bg-purple-50 text-purple-700 border-purple-300 px-3 py-1 rounded-full flex items-center">
-                      <FlaskConical className="w-3 h-3 mr-1" />
-                      <span>Experiment Results</span>
-                    </div>
+                  
+                  {/* X-axis labels */}
+                  <div className="absolute bottom-0 left-0 right-0 flex justify-between text-white/60 text-xs">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
                   </div>
                 </div>
               </div>
