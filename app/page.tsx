@@ -248,7 +248,7 @@ export default function Home() {
                   alt="Descriptive text for your image"
                   width={180} // Set your desired width
                   height={180} // Set your desired height
-                  className="w-16 h-16 md:w-50 md:h-50 rounded-full border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform duration-300"
+                  className="w-50 h-50 md:w-50 md:h-50 rounded-full border-2 border-white/50 shadow-lg group-hover:scale-110 transition-transform duration-300"
                 />
             </Link>
           </div>
