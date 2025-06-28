@@ -246,8 +246,8 @@ export default function Home() {
                 <Image
                   src="/images/white_circle_360x360.png" // Replace with your image path
                   alt="Descriptive text for your image"
-                  width={100} // Set your desired width
-                  height={100} // Set your desired height
+                  width={120} // Set your desired width
+                  height={120} // Set your desired height
                   className="w-15 h-15 md:w-21 md:h-21 shadow-lg group-hover:scale-110 transition-transform duration-300"
                 />
             </Link>
