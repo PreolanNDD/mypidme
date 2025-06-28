@@ -227,7 +227,7 @@ export default function Home() {
               </Link>
               <Link href="/signup">
                 <div className="relative overflow-hidden group">
-                  <Button className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 text-lg px-8 py-6 rounded-none group-hover:rounded-xl">
+                  <Button className="relative rounded-xl z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 text-lg px-8 py-6 rounded-none group-hover:rounded-xl">
                     <span className="relative z-10">Sign up</span>
                     <span className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 group-hover:rounded-xl"></span>
                     <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full group-hover:rounded-xl"></span>
