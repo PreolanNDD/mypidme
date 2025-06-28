@@ -1003,7 +1003,7 @@ export default function Home() {
                 />
               </div>
               <p className="text-gray-400 mb-4">
-                Engineering your personal optimization journey with precision and data.
+                Engineering your lifestyle with precision and data.
               </p>
               <p className="text-gray-500 text-sm">
                 © 2025 myPID.me. Built By Bolt.new.
