@@ -458,7 +458,7 @@ export default function Home() {
               <div className="pt-4">
                 <Link href="/signup">
                   <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 text-lg px-8 py-3">
-                    Get Started
+                    Start Tracking
                     <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </Button>
                 </Link>
