@@ -248,8 +248,8 @@ export default function Home() {
                 <Image
                   src="/images/white_circle_360x360.png" // Replace with your image path
                   alt="Descriptive text for your image"
-                  width={360} // Set your desired width
-                  height={360} // Set your desired height
+                  width={180} // Set your desired width
+                  height={180} // Set your desired height
                   className="inline-block"
                 />
             </Link>
