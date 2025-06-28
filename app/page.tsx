@@ -509,12 +509,6 @@ export default function Home() {
                     <span>Sat</span>
                     <span>Sun</span>
                   </div>
-                  
-                  {/* Correlation indicator */}
-                  <div className="absolute top-4 right-4 bg-white/10 px-3 py-1 rounded-full text-white text-sm flex items-center">
-                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                    Strong Positive Correlation
-                  </div>
                 </div>
               </div>
             </div>
