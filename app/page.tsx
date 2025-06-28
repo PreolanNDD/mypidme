@@ -238,7 +238,7 @@ export default function Home() {
           </div>
         </div>
       </nav>
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24" style={{ background: 'linear-gradient(to left, #9B5DE5, #3C1A5B)' }}>
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24" style={{ background: 'linear-gradient(to right, #9B5DE5, #3C1A5B)' }}>
         {/* START: Added Image with Link at the Top */}
         <div className="absolute top-32 md:top-40 right-4 sm:right-6 lg:right-8 z-10"> {/* Added padding to offset the fixed nav bar */}
           <div className="text-center p-4">
@@ -257,7 +257,7 @@ export default function Home() {
       </section>
 
       {/* Section 1: Hero - Purple Gradient */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24" style={{ background: 'linear-gradient(to left, #9B5DE5, #3C1A5B)' }}>
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24" style={{ background: 'linear-gradient(to right, #9B5DE5, #3C1A5B)' }}>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
