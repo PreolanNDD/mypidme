@@ -15,6 +15,7 @@ export default function Home() {
   const imageRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
   const [isHovering, setIsHovering] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     if (!loading && user && !redirectingRef.current) {
@@ -25,6 +26,13 @@ export default function Home() {
     if (!user && redirectingRef.current) {
       redirectingRef.current = false;
     }
+    
+    // Set isLoaded to true after a small delay to trigger the entrance animation
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 300);
+    
+    return () => clearTimeout(timer);
   }, [user, loading, router]);
 
   // Handle image dip effect based on cursor position
@@ -181,6 +189,17 @@ export default function Home() {
                   100% { transform: translateY(0px); }
                 }
                 
+                @keyframes image3DEntrance {
+                  0% { 
+                    opacity: 0; 
+                    transform: perspective(1000px) rotateX(30deg) rotateY(-20deg) translateZ(-100px); 
+                  }
+                  100% { 
+                    opacity: 1; 
+                    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0); 
+                  }
+                }
+                
                 .animate-fadeIn {
                   animation: fadeIn 1s ease-out forwards;
                 }
@@ -191,6 +210,10 @@ export default function Home() {
                 
                 .animate-hover {
                   animation: hover 4s ease-in-out infinite;
+                }
+                
+                .animate-3d-entrance {
+                  animation: image3DEntrance 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
                 }
                 
                 .delay-100 { animation-delay: 0.1s; }
@@ -245,10 +268,10 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Hero Image - UPDATED: Enhanced dipping effect with corner responsiveness */}
+            {/* Right Column: Hero Image - UPDATED: Added 3D entrance animation */}
             <div 
               ref={imageRef}
-              className="relative w-full h-[400px] md:h-[550px] lg:h-[700px] animate-fadeIn delay-200 perspective-[2000px] transform-gpu"
+              className={`relative w-full h-[400px] md:h-[550px] lg:h-[700px] perspective-[2000px] transform-gpu ${isLoaded ? 'animate-3d-entrance' : 'opacity-0'}`}
               onMouseMove={handleImageMouseMove}
               onMouseEnter={handleImageMouseEnter}
               onMouseLeave={handleImageMouseLeave}
