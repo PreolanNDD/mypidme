@@ -77,7 +77,7 @@ export default function Home() {
               </Link>
               <Link href="/signup">
                 <div className="relative overflow-hidden group">
-                  <Button className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform group-hover:scale-105 text-lg px-8 py-6 rounded-none group-hover:rounded-xl">
+                  <Button className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 text-lg px-8 py-6 rounded-none group-hover:rounded-xl">
                     <span className="relative z-10">Sign up</span>
                     <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 group-hover:rounded-xl"></span>
                     <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full group-hover:rounded-xl"></span>
@@ -93,51 +93,71 @@ export default function Home() {
       <section className="pt-32 pb-16 md:pt-40 md:pb-24" style={{ background: 'linear-gradient(to bottom right, #9B5DE5, #3C1A5B)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Left Column: Text Content */}
-            <div className="space-y-8">
+            {/* Left Column: Text Content - UPDATED: Split heading, added animations */}
+            <div className="space-y-8 animate-fadeIn">
               <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+                
+                @keyframes fadeIn {
+                  from { opacity: 0; transform: translateY(20px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                
+                @keyframes slideIn {
+                  from { opacity: 0; transform: translateX(-20px); }
+                  to { opacity: 1; transform: translateX(0); }
+                }
+                
+                .animate-fadeIn {
+                  animation: fadeIn 1s ease-out forwards;
+                }
+                
+                .animate-slideIn {
+                  animation: slideIn 0.8s ease-out forwards;
+                }
+                
+                .delay-100 { animation-delay: 0.1s; }
+                .delay-200 { animation-delay: 0.2s; }
+                .delay-300 { animation-delay: 0.3s; }
+                .delay-400 { animation-delay: 0.4s; }
+                .delay-500 { animation-delay: 0.5s; }
               `}</style>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
-                Stop Guessing. Start Knowing.
-              </h1>
-              <p className="text-xl text-white/90 leading-relaxed" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              <div>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
+                  <div className="animate-slideIn delay-100">Stop Guessing.</div>
+                  <div className="animate-slideIn delay-300">Start Knowing.</div>
+                </h1>
+              </div>
+              <p className="text-xl text-white/90 leading-relaxed animate-fadeIn delay-400" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                 Your daily habits create your life's results. MyPID.me is the first app designed to be your personal science lab, helping you discover the hidden connections between what you do and how you feel, so you can build a better you with proof.
               </p>
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4 animate-fadeIn delay-500">
                 <Link href="/signup">
-                  <div className="group relative overflow-hidden">
-                    <button 
-                      className="w-full sm:w-auto bg-[#ffa500] hover:bg-[#ffa500]/90 text-[#330c0c] font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg transform group-hover:scale-105"
-                      style={{ fontFamily: 'Montserrat, sans-serif' }}
-                    >
-                      Start Optimizing
-                      <ArrowRight className="ml-2 w-5 h-5 inline-block transition-transform duration-300 group-hover:translate-x-1" />
-                      <span className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></span>
-                    </button>
-                  </div>
+                  <button 
+                    className="w-full sm:w-auto bg-[#ffa500] hover:bg-[#ffa500]/90 text-[#330c0c] font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg"
+                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  >
+                    Start Optimizing
+                    <ArrowRight className="ml-2 w-5 h-5 inline-block" />
+                  </button>
                 </Link>
                 <a href="#how-it-works">
-                  <div className="group relative overflow-hidden">
-                    <button 
-                      className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg transform group-hover:scale-105"
-                      style={{ fontFamily: 'Montserrat, sans-serif' }}
-                    >
-                      Learn More
-                      <span className="absolute inset-0 w-0 h-full bg-white/10 transition-all duration-500 group-hover:w-full"></span>
-                    </button>
-                  </div>
+                  <button 
+                    className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg"
+                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  >
+                    Learn More
+                  </button>
                 </a>
               </div>
-              <div className="flex items-center space-x-2 text-white/80" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              <div className="flex items-center space-x-2 text-white/80 animate-fadeIn delay-500" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                 <Check className="w-5 h-5 text-white" />
                 <span>No credit card required</span>
               </div>
             </div>
 
-            {/* Right Column: Hero Image */}
-            <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-indigo-600/20 backdrop-blur-sm z-10 rounded-2xl"></div>
+            {/* Right Column: Hero Image - UPDATED: Removed glass effect */}
+            <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl animate-fadeIn delay-200">
               <Image
                 src="/images/home_section_1.webp"
                 alt="Person analyzing data on a dashboard"
@@ -397,7 +417,7 @@ export default function Home() {
                 <div className="pt-4">
                   <Link href="/signup" className="block w-full">
                     <div className="group relative overflow-hidden w-full">
-                      <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 text-lg font-bold transform group-hover:scale-[1.02] transition-all duration-300">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 text-lg font-bold transition-all duration-300">
                         Get Started
                         <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                         <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full"></span>
@@ -449,7 +469,7 @@ export default function Home() {
               <div className="pt-6">
                 <Link href="/signup">
                   <div className="group relative overflow-hidden">
-                    <Button className="bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg transform group-hover:scale-105">
+                    <Button className="bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg">
                       Start Your Journey
                       <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                       <span className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></span>
