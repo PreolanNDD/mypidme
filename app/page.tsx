@@ -1012,7 +1012,7 @@ export default function Home() {
 
             <div>
               <p className="text-gray-500 text-sm">
-                Your life is the most important project you will ever work on. Stop leaving it to chance. Start gathering your data, discovering your unique correlations, and making smarter decisions. Your journey to a more optimized self begins with a single data point. Start today.
+                Your life is the most important project you will ever work on. Stop leaving it to chance. Start gathering your data, discovering your unique correlations, and making smarter decisions. Your journey to a more optimized self begins with a single data point. Start today. A heartfelt thank you to Bolt.new and everyone involved in the hackathon for making this dream a reality. If MyPID.me helps even one person, it's a success in my eyes.
               </p>
             </div>
           </div>
