@@ -437,7 +437,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* Left Column: Empty space for balance */}
-            <div className="w-full">
+            <div className="relative w-full h-[400px] md:h-[550px] lg:h-[700px] perspective-[2000px]">
               <img 
                 src="/images/home_section_2.gif" 
                 alt="Animation showing how easy it is to log daily metrics in the PIDMe app"
