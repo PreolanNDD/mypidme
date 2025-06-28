@@ -410,7 +410,7 @@ export default function Home() {
                 style={getTiltStyle()}
               >
                 <Image
-                  src="/images/home_section_1.webp"
+                  src="/images/home_section_1.png"
                   alt="Person analyzing data on a dashboard"
                   fill
                   className="object-contain"
