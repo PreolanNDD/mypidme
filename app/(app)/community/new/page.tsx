@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Edit3, Eye, Send, Calendar, User, BarChart3, FlaskConical, Target, TrendingUp, ArrowLeft, Sparkles } from 'lucide-react';
+import { Edit3, Eye, Send, Calendar, User, BarChart3, FlaskConical, Target, TrendingUp, ArrowLeft, Sparkles, AlertTriangle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useFormState, useFormStatus } from 'react-dom';
 
