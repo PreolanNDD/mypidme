@@ -144,7 +144,8 @@ export default function Home() {
       upvotes: 42,
       downvotes: 3,
       share_data: true,
-      status: "visible"
+      status: "visible",
+      comments: 18
     },
     {
       id: "finding-2",
@@ -155,7 +156,8 @@ export default function Home() {
       upvotes: 78,
       downvotes: 5,
       share_data: true,
-      status: "visible"
+      status: "visible",
+      comments: 9
     }
   ];
 
@@ -788,7 +790,7 @@ export default function Home() {
                         {/* Comments */}
                         <div className="flex items-center space-x-1 text-sm text-secondary-text">
                           <MessageSquare className="w-4 h-4 text-secondary-text group-hover/finding:text-purple-600 transition-colors duration-300" />
-                          <span>{Math.floor(Math.random() * 20) + 1}</span>
+                          <span>{finding.comments}</span>
                         </div>
                       </div>
                       
