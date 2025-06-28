@@ -246,10 +246,10 @@ export default function Home() {
           <div className="text-center p-4">
             <Link href="https://bolt.new/">
                 <Image
-                  src="/images/logotext_poweredby_360w.png" // Replace with your image path
+                  src="/images/white_circle_360x360.png" // Replace with your image path
                   alt="Descriptive text for your image"
-                  width={200} // Set your desired width
-                  height={50} // Set your desired height
+                  width={360} // Set your desired width
+                  height={360} // Set your desired height
                   className="inline-block"
                 />
             </Link>
