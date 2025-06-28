@@ -248,8 +248,8 @@ export default function Home() {
                 <Image
                   src="/images/logotext_poweredby_360w.png" // Replace with your image path
                   alt="Descriptive text for your image"
-                  width={800} // Set your desired width
-                  height={200} // Set your desired height
+                  width={80} // Set your desired width
+                  height={20} // Set your desired height
                   className="inline-block"
                 />
             </Link>
