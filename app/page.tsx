@@ -34,30 +34,30 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation Bar */}
+      {/* Navigation Bar - ENHANCED: Increased height and spacing */}
       <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
+          <div className="flex justify-between items-center h-20">
+            {/* Logo - ENHANCED: Rounded corners and larger size */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center group">
                 <Image
                   src="/images/logo.svg"
                   alt="myPID.me Logo"
-                  width={120}
-                  height={40}
-                  className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+                  width={150}
+                  height={50}
+                  className="h-12 w-auto transition-transform duration-300 group-hover:scale-105 rounded-xl"
                 />
               </Link>
             </div>
 
-            {/* Navigation Links - Desktop */}
-            <div className="hidden md:flex items-center space-x-8">
+            {/* Navigation Links - Desktop - ENHANCED: Larger text and spacing */}
+            <div className="hidden md:flex items-center space-x-10">
               {['features', 'how-it-works', 'testimonials', 'pricing', 'faq'].map((item) => (
                 <a 
                   key={item} 
                   href={`#${item}`} 
-                  className="relative text-gray-600 font-medium hover:text-primary transition-colors duration-300 group"
+                  className="relative text-gray-600 font-medium text-lg hover:text-primary transition-colors duration-300 group py-2"
                 >
                   <span className="capitalize">{item.replace(/-/g, ' ')}</span>
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
@@ -65,11 +65,11 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Auth Buttons */}
-            <div className="flex items-center space-x-4">
+            {/* Auth Buttons - ENHANCED: Larger buttons */}
+            <div className="flex items-center space-x-6">
               <Link href="/login">
                 <div className="relative overflow-hidden group">
-                  <span className="relative z-10 px-5 py-2 inline-block font-medium text-gray-700 group-hover:text-primary transition-colors duration-300">
+                  <span className="relative z-10 px-6 py-3 inline-block font-medium text-lg text-gray-700 group-hover:text-primary transition-colors duration-300">
                     Log in
                   </span>
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
@@ -77,7 +77,7 @@ export default function Home() {
               </Link>
               <Link href="/signup">
                 <div className="relative overflow-hidden group">
-                  <Button className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+                  <Button className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform group-hover:scale-105 text-lg px-8 py-6">
                     <span className="relative z-10">Sign up</span>
                     <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                     <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full"></span>
@@ -90,7 +90,7 @@ export default function Home() {
       </nav>
 
       {/* Section 1: Hero - Purple Gradient */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-24" style={{ background: 'linear-gradient(to bottom right, #9B5DE5, #3C1A5B)' }}>
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24" style={{ background: 'linear-gradient(to bottom right, #9B5DE5, #3C1A5B)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* Left Column: Text Content */}
@@ -511,9 +511,9 @@ export default function Home() {
                 <Image
                   src="/images/logo.svg"
                   alt="myPID.me Logo"
-                  width={120}
-                  height={40}
-                  className="h-10 w-auto"
+                  width={150}
+                  height={50}
+                  className="h-12 w-auto rounded-xl"
                 />
               </div>
               <p className="text-gray-400 mb-4">
