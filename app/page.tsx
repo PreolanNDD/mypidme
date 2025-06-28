@@ -676,7 +676,7 @@ export default function Home() {
                         <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                         <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full"></span>
                         <span className="relative z-10">
-                          Get Started
+                          Start Experimenting
                         </span>
                       </Button>
                 </Link>
