@@ -13,7 +13,7 @@ export default function Home() {
   const router = useRouter();
   const redirectingRef = useRef(false);
   const imageRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
   const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
@@ -58,16 +58,18 @@ export default function Home() {
   const getTiltStyle = () => {
     if (!isHovering) {
       return {
-        transform: 'translateY(0px)',
+        transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
         transition: 'transform 0.5s ease-out'
       };
     }
     
-    // Determine which side to dip based on mouse X position
-    const tiltX = (mousePosition.x - 0.5) * 20; // Max tilt of 10 degrees
+    // Enhanced dipping effect with both X and Y axis rotation
+    // Amplified the effect by increasing the multiplier (from 20 to 40)
+    const tiltX = (mousePosition.y - 0.5) * 40; // Vertical mouse position affects X rotation (deeper dip)
+    const tiltY = (mousePosition.x - 0.5) * -40; // Horizontal mouse position affects Y rotation (deeper dip)
     
     return {
-      transform: `rotateY(${tiltX}deg)`,
+      transform: `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
       transition: 'transform 0.1s ease-out'
     };
   };
@@ -243,16 +245,16 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Hero Image - UPDATED: Dipping effect based on cursor position */}
+            {/* Right Column: Hero Image - UPDATED: Enhanced dipping effect with corner responsiveness */}
             <div 
               ref={imageRef}
-              className="relative w-full h-[400px] md:h-[550px] lg:h-[700px] animate-fadeIn delay-200 animate-hover perspective-1000 transform-gpu"
+              className="relative w-full h-[400px] md:h-[550px] lg:h-[700px] animate-fadeIn delay-200 perspective-[2000px] transform-gpu"
               onMouseMove={handleImageMouseMove}
               onMouseEnter={handleImageMouseEnter}
               onMouseLeave={handleImageMouseLeave}
             >
               <div 
-                className="absolute inset-0 flex items-center justify-center transition-transform duration-300"
+                className="absolute inset-0 flex items-center justify-center transition-transform duration-300 will-change-transform"
                 style={getTiltStyle()}
               >
                 <Image
