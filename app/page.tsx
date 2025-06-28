@@ -959,7 +959,7 @@ export default function Home() {
             {[
               {
                 question: "What does PID stand for?",
-                answer: "PID stands for Proportional-Integral-Derivative, a control loop mechanism used in engineering systems. We've applied these principles to personal development, helping you make precise adjustments to your habits based on feedback from your results."
+                answer: "From an Engineering perspective, PID stands for Proportional-Integral-Derivative, a control loop mechanism used in engineering systems. We've applied these principles to personal development, helping you make precise adjustments to your habits based on feedback from your results."
               },
               {
                 question: "How much time does it take to use myPID.me?",
@@ -973,10 +973,6 @@ export default function Home() {
                 question: "Do I need to be tech-savvy to use myPID.me?",
                 answer: "Not at all! We've designed the platform to be intuitive and user-friendly. If you can use a smartphone app, you can use myPID.me."
               },
-              {
-                question: "Can I export my data?",
-                answer: "Yes, you can export your data at any time in common formats like CSV for use in other tools or for your personal records."
-              }
             ].map((faq, index) => (
               <div key={index} className="bg-gray-50 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
                 <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center">
@@ -1010,7 +1006,7 @@ export default function Home() {
                 Engineering your personal optimization journey with precision and data.
               </p>
               <p className="text-gray-500 text-sm">
-                © 2025 myPID.me. All rights reserved.
+                © 2025 myPID.me. Built By Bolt.new.
               </p>
             </div>
 
