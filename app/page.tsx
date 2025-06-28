@@ -930,17 +930,6 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="pt-6">
-                <Link href="/signup">
-                  <div className="group relative overflow-hidden">
-                    <Button className="bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg">
-                      Start Your Journey
-                      <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-                      <span className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></span>
-                    </Button>
-                  </div>
-                </Link>
-              </div>
             </div>
           </div>
         </div>
