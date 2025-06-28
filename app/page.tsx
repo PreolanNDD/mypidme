@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BarChart3, Eye, Settings, ArrowRight, Check, ChevronRight, Star, Users, Shield, Zap } from 'lucide-react';
+import { BarChart3, Eye, Settings, ArrowRight, Check, ChevronRight, Star, Users, Shield, Zap, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export default function Home() {
@@ -606,6 +606,177 @@ export default function Home() {
                     <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                   </Button>
                 </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 5: Community - Dark Purple Background */}
+      <section id="community" className="py-20" style={{ background: 'linear-gradient(to bottom right, #3C1A5B, #2A1240)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* Left Column: Content */}
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#f5f5f5', fontFamily: 'Playfair Display, serif' }}>
+                Learn Together, Improve Together.
+              </h2>
+              <p className="text-lg leading-relaxed" style={{ color: '#e6e0f8', fontFamily: 'Montserrat, sans-serif' }}>
+                Your daily habits create your life's results. MyPID.me is the first app designed to be your personal science lab, helping you discover the hidden connections between what you do and how you feel, so you can build a better you with proof.
+              </p>
+              <div className="pt-6">
+                <Link href="/signup">
+                  <button className="group relative overflow-hidden rounded-xl bg-white px-8 py-4 text-[#3C1A5B] font-bold text-lg shadow-lg transition-all duration-500 hover:shadow-xl hover:shadow-white/20 animate-float-button">
+                    {/* Animated background gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white via-purple-100 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 w-full h-full animate-shimmer"></div>
+                    
+                    {/* Content */}
+                    <div className="relative flex items-center justify-center space-x-3">
+                      <span className="tracking-wide group-hover:tracking-wider transition-all duration-300">
+                        Join Community
+                      </span>
+                      <ArrowRight className="w-5 h-5 transition-all duration-300 group-hover:translate-x-2 group-hover:scale-110" />
+                    </div>
+                    
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{
+                        boxShadow: '0 0 20px 5px rgba(255, 255, 255, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    ></div>
+                  </button>
+                </Link>
+              </div>
+            </div>
+            
+            {/* Right Column: Community Findings Cards */}
+            <div className="space-y-6">
+              {/* First Finding Card */}
+              <div className="group bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl cursor-pointer border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10">
+                <div className="relative p-6 space-y-5">
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                  
+                  {/* Animated border glow */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+                  
+                  {/* Header */}
+                  <div className="flex items-start justify-between relative z-10">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-heading text-xl text-primary-text group-hover:text-purple-700 transition-colors duration-300 leading-tight mb-3">
+                        Morning meditation significantly improves my focus
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover:bg-purple-50 group-hover:shadow-sm">
+                          <User className="w-3 h-3 text-secondary-text group-hover:text-purple-600 transition-colors duration-300" />
+                          <span className="text-xs text-secondary-text group-hover:text-purple-700 transition-colors duration-300">
+                            Sarah Johnson
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover:bg-blue-50 group-hover:shadow-sm">
+                          <Calendar className="w-3 h-3 text-secondary-text group-hover:text-blue-600 transition-colors duration-300" />
+                          <span className="text-xs text-secondary-text group-hover:text-blue-700 transition-colors duration-300">
+                            May 15, 2025
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="transform group-hover:translate-x-1 transition-all duration-300 ml-4">
+                      <ArrowRight className="w-5 h-5 text-secondary-text group-hover:text-purple-600 transition-colors duration-300" />
+                    </div>
+                  </div>
+
+                  {/* Content Preview */}
+                  <div className="prose prose-sm max-w-none relative z-10">
+                    <p className="text-primary-text leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
+                      After tracking my meditation practice for 30 days, I've found that on days when I meditate for at least 10 minutes in the morning, my focus score increases by an average of 2.7 points (on a 1-10 scale)...
+                    </p>
+                  </div>
+
+                  {/* Vote Summary */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100 group-hover:border-purple-100 transition-colors duration-300 relative z-10">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                        <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-all duration-300">
+                          <ChevronUp className="w-3 h-3 text-green-600" />
+                        </div>
+                        <span>42</span>
+                      </div>
+                      <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                        <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-200 transition-all duration-300">
+                          <ChevronDown className="w-3 h-3 text-red-600" />
+                        </div>
+                        <span>5</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Second Finding Card */}
+              <div className="group bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl cursor-pointer border border-white/20 transition-all duration-500 hover:transform hover:-translate-y-3 hover:shadow-3xl hover:shadow-white/20 hover:z-10">
+                <div className="relative p-6 space-y-5">
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+                  
+                  {/* Animated border glow */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+                  
+                  {/* Header */}
+                  <div className="flex items-start justify-between relative z-10">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-heading text-xl text-primary-text group-hover:text-purple-700 transition-colors duration-300 leading-tight mb-3">
+                        Cold showers boost my energy more than coffee
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover:bg-purple-50 group-hover:shadow-sm">
+                          <User className="w-3 h-3 text-secondary-text group-hover:text-purple-600 transition-colors duration-300" />
+                          <span className="text-xs text-secondary-text group-hover:text-purple-700 transition-colors duration-300">
+                            Michael Chen
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full transition-all duration-300 group-hover:bg-blue-50 group-hover:shadow-sm">
+                          <Calendar className="w-3 h-3 text-secondary-text group-hover:text-blue-600 transition-colors duration-300" />
+                          <span className="text-xs text-secondary-text group-hover:text-blue-700 transition-colors duration-300">
+                            June 3, 2025
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="transform group-hover:translate-x-1 transition-all duration-300 ml-4">
+                      <ArrowRight className="w-5 h-5 text-secondary-text group-hover:text-purple-600 transition-colors duration-300" />
+                    </div>
+                  </div>
+
+                  {/* Content Preview */}
+                  <div className="prose prose-sm max-w-none relative z-10">
+                    <p className="text-primary-text leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
+                      My experiment comparing morning cold showers vs. coffee showed surprising results. On cold shower days, my energy levels averaged 8.3/10 compared to 7.1/10 on coffee-only days...
+                    </p>
+                  </div>
+
+                  {/* Vote Summary */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100 group-hover:border-purple-100 transition-colors duration-300 relative z-10">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                        <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-all duration-300">
+                          <ChevronUp className="w-3 h-3 text-green-600" />
+                        </div>
+                        <span>37</span>
+                      </div>
+                      <div className="flex items-center space-x-1 text-sm text-secondary-text">
+                        <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-200 transition-all duration-300">
+                          <ChevronDown className="w-3 h-3 text-red-600" />
+                        </div>
+                        <span>8</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
