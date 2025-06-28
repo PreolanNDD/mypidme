@@ -1011,33 +1011,9 @@ export default function Home() {
             </div>
 
             <div>
-              <h3 className="text-lg font-bold mb-4">Product</h3>
-              <ul className="space-y-2">
-                <li><a href="#features" className="text-gray-400 hover:text-white transition-colors duration-300">Features</a></li>
-                <li><a href="#how-it-works" className="text-gray-400 hover:text-white transition-colors duration-300">How It Works</a></li>
-                <li><a href="#pricing" className="text-gray-400 hover:text-white transition-colors duration-300">Pricing</a></li>
-                <li><a href="#faq" className="text-gray-400 hover:text-white transition-colors duration-300">FAQ</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-bold mb-4">Company</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">About Us</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">Blog</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">Careers</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">Contact</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-bold mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">Privacy Policy</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">Terms of Service</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">Cookie Policy</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors duration-300">GDPR</a></li>
-              </ul>
+              <p className="text-gray-500 text-sm">
+                © 2025 myPID.me. Built By Bolt.new.
+              </p>
             </div>
           </div>
         </div>
