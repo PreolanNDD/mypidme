@@ -913,7 +913,7 @@ export default function Home() {
                 <div>
                   <h3 className="text-xl font-bold text-white mb-2">Privacy First</h3>
                   <p className="text-white/80">
-                    Your data belongs to you. We never sell your information or share it without your explicit permission.
+                    Your data belongs to you. You have complete control over what you want to share.
                   </p>
                 </div>
               </div>
