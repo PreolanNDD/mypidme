@@ -612,6 +612,172 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Section 5: New Section Identical to Section 3 - Dark Purple Background */}
+      <section id="community-insights" className="py-20" style={{ background: 'linear-gradient(to bottom right, #3C1A5B, #2A1240)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* Left Column: Content */}
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#f5f5f5', fontFamily: 'Playfair Display, serif' }}>
+                Discover the "Why" Behind Your Days.
+              </h2>
+              <p className="text-lg leading-relaxed" style={{ color: '#e6e0f8', fontFamily: 'Montserrat, sans-serif' }}>
+                MyPID.me automatically analyzes your data and reveals the patterns hiding in your routine. Our smart-scaling charts and relationship breakdowns help you answer your biggest questions. Does more sleep really improve your focus? Does caffeine affect your stress levels? Go beyond simple tracking and find real answers.
+              </p>
+              <div className="pt-6">
+                <Link href="/signup">
+                  <button className="group relative overflow-hidden rounded-xl bg-white px-8 py-4 text-[#3C1A5B] font-bold text-lg shadow-lg transition-all duration-500 hover:shadow-xl hover:shadow-white/20 animate-float-button">
+                    {/* Animated background gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white via-purple-100 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 w-full h-full animate-shimmer"></div>
+                    
+                    {/* Content */}
+                    <div className="relative flex items-center justify-center space-x-3">
+                      <span className="tracking-wide group-hover:tracking-wider transition-all duration-300">
+                        Start Analyzing
+                      </span>
+                      <ArrowRight className="w-5 h-5 transition-all duration-300 group-hover:translate-x-2 group-hover:scale-110" />
+                    </div>
+                    
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{
+                        boxShadow: '0 0 20px 5px rgba(255, 255, 255, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    ></div>
+                  </button>
+                </Link>
+              </div>
+            </div>
+            
+            {/* Right Column: Animated Chart Graphic */}
+            <div className="w-full h-[500px] flex items-center justify-center">
+              {/* Glowing chart container */}
+              <div className="w-full h-full bg-[#2A1240]/80 rounded-2xl animate-glow-pulse p-6">
+                {/* Chart visualization */}
+                <div className="relative h-full w-full">
+                  {/* Chart title and legend */}
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
+                    <div className="text-white font-bold text-lg">Sleep vs. Energy Levels</div>
+                    <div className="flex flex-wrap gap-4">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-[#9B5DE5] mr-2"></div>
+                        <span className="text-white text-sm">Sleep Hours</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-[#FFA500] mr-2"></div>
+                        <span className="text-white text-sm">Energy Level</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Chart grid lines */}
+                  <div className="absolute inset-0 mt-16">
+                    {[...Array(5)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="absolute w-full h-px bg-white/10"
+                        style={{ top: `${20 * i}%` }}
+                      ></div>
+                    ))}
+                    {[...Array(7)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="absolute h-full w-px bg-white/10"
+                        style={{ left: `${100 / 6 * i}%` }}
+                      ></div>
+                    ))}
+                  </div>
+                  
+                  {/* Animated chart lines */}
+                  <div className="relative h-[calc(100%-6rem)] mt-16">
+                    {/* Purple line (Sleep) */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <path 
+                        d="M0,70 C10,65 20,40 30,35 C40,30 50,50 60,45 C70,40 80,20 90,15 L100,10" 
+                        fill="none" 
+                        stroke="#9B5DE5" 
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        style={{
+                          filter: 'drop-shadow(0 0 8px rgba(155, 93, 229, 0.8))',
+                          animation: 'dashoffset 15s linear infinite'
+                        }}
+                      />
+                      {/* Data points */}
+                      {[
+                        { x: 0, y: 70 },
+                        { x: 30, y: 35 },
+                        { x: 60, y: 45 },
+                        { x: 90, y: 15 }
+                      ].map((point, i) => (
+                        <circle 
+                          key={i}
+                          cx={point.x} 
+                          cy={point.y} 
+                          r="2"
+                          fill="#9B5DE5"
+                          style={{
+                            filter: 'drop-shadow(0 0 5px rgba(155, 93, 229, 0.8))'
+                          }}
+                        />
+                      ))}
+                    </svg>
+                    
+                    {/* Orange line (Energy) */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <path 
+                        d="M0,80 C10,75 20,60 30,50 C40,40 50,30 60,25 C70,20 80,30 90,20 L100,15" 
+                        fill="none" 
+                        stroke="#FFA500" 
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        style={{
+                          filter: 'drop-shadow(0 0 8px rgba(255, 165, 0, 0.8))',
+                          animation: 'dashoffset 15s linear infinite'
+                        }}
+                      />
+                      {/* Data points */}
+                      {[
+                        { x: 0, y: 80 },
+                        { x: 30, y: 50 },
+                        { x: 60, y: 25 },
+                        { x: 90, y: 20 }
+                      ].map((point, i) => (
+                        <circle 
+                          key={i}
+                          cx={point.x} 
+                          cy={point.y} 
+                          r="2"
+                          fill="#FFA500"
+                          style={{
+                            filter: 'drop-shadow(0 0 5px rgba(255, 165, 0, 0.8))'
+                          }}
+                        />
+                      ))}
+                    </svg>
+                  </div>
+                  
+                  {/* X-axis labels */}
+                  <div className="absolute bottom-0 left-0 right-0 flex justify-between text-white/60 text-xs">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Section 6: Pricing & CTA - Purple Gradient */}
       <section id="pricing" className="py-20" style={{ background: 'linear-gradient(to bottom right, #9B5DE5, #3C1A5B)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
