@@ -203,7 +203,7 @@ export default function Home() {
 
             {/* Navigation Links - Desktop - ENHANCED: Larger text and spacing */}
             <div className="hidden md:flex items-center space-x-10">
-              {['home', 'experiments', 'logs', 'analysis', 'faq'].map((item) => (
+              {['home', 'experiments', 'logs', 'analysis', 'community', 'faq'].map((item) => (
                 <a 
                   key={item} 
                   href={`#${item}`} 
@@ -677,7 +677,7 @@ export default function Home() {
       </section>
 
       {/* Section 5: Community Findings - Dark Purple Background */}
-      <section id="community-insights" className="py-20" style={{ background: 'linear-gradient(to bottom right, #3C1A5B, #2A1240)' }}>
+      <section id="community" className="py-20" style={{ background: 'linear-gradient(to bottom right, #3C1A5B, #2A1240)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* Left Column: Content */}
