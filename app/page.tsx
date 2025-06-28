@@ -443,7 +443,6 @@ export default function Home() {
                 <img 
                   src="/images/home_section_2.gif" 
                   alt="Animation showing how easy it is to log daily metrics in the PIDMe app"
-                  className="w-15 h-auto shadow-2xl"
                 />
               </div>
             </div>
