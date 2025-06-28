@@ -1012,7 +1012,7 @@ export default function Home() {
 
             <div>
               <p className="text-gray-500 text-sm">
-                © 2025 myPID.me. Built By Bolt.new.
+                Your life is the most important project you will ever work on. Stop leaving it to chance. Start gathering your data, discovering your unique correlations, and making smarter decisions. Your journey to a more optimized self begins with a single data point. Start today.
               </p>
             </div>
           </div>
