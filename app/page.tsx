@@ -13,8 +13,11 @@ export default function Home() {
   const router = useRouter();
   const redirectingRef = useRef(false);
   const imageRef = useRef<HTMLDivElement>(null);
+  const image4Ref = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+  const [mousePosition4, setMousePosition4] = useState({ x: 0.5, y: 0.5 });
   const [isHovering, setIsHovering] = useState(false);
+  const [isHovering4, setIsHovering4] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -35,7 +38,7 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [user, loading, router]);
 
-  // Handle image dip effect based on cursor position
+  // Handle image dip effect based on cursor position for section 1
   const handleImageMouseMove = (e: React.MouseEvent) => {
     if (!imageRef.current) return;
     
@@ -62,7 +65,34 @@ export default function Home() {
     setMousePosition({ x: 0.5, y: 0.5 }); // Reset to center
   };
 
-  // Calculate the tilt based on mouse position
+  // Handle image dip effect based on cursor position for section 4
+  const handleImage4MouseMove = (e: React.MouseEvent) => {
+    if (!image4Ref.current) return;
+    
+    // Get the dimensions and position of the image container
+    const rect = image4Ref.current.getBoundingClientRect();
+    
+    // Calculate mouse position relative to the image container
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Calculate position as percentage of container width/height
+    const xPercent = x / rect.width;
+    const yPercent = y / rect.height;
+    
+    setMousePosition4({ x: xPercent, y: yPercent });
+  };
+  
+  const handleImage4MouseEnter = () => {
+    setIsHovering4(true);
+  };
+  
+  const handleImage4MouseLeave = () => {
+    setIsHovering4(false);
+    setMousePosition4({ x: 0.5, y: 0.5 }); // Reset to center
+  };
+
+  // Calculate the tilt based on mouse position for section 1
   const getTiltStyle = () => {
     if (!isHovering) {
       return {
@@ -75,6 +105,26 @@ export default function Home() {
     // Amplified the effect by increasing the multiplier (from 20 to 40)
     const tiltX = (mousePosition.y - 0.5) * 40; // Vertical mouse position affects X rotation (deeper dip)
     const tiltY = (mousePosition.x - 0.5) * -40; // Horizontal mouse position affects Y rotation (deeper dip)
+    
+    return {
+      transform: `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
+      transition: 'transform 0.1s ease-out'
+    };
+  };
+
+  // Calculate the tilt based on mouse position for section 4
+  const getTiltStyle4 = () => {
+    if (!isHovering4) {
+      return {
+        transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg)',
+        transition: 'transform 0.5s ease-out'
+      };
+    }
+    
+    // Enhanced dipping effect with both X and Y axis rotation
+    // Amplified the effect by increasing the multiplier (from 20 to 40)
+    const tiltX = (mousePosition4.y - 0.5) * 40; // Vertical mouse position affects X rotation (deeper dip)
+    const tiltY = (mousePosition4.x - 0.5) * -40; // Horizontal mouse position affects Y rotation (deeper dip)
     
     return {
       transform: `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
@@ -516,12 +566,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 4: Lab Features - Light Background - UPDATED: Removed image and moved content to right */}
+      {/* Section 4: Lab Features - Light Background - UPDATED: Added image on left, moved content to right */}
       <section id="how-it-works" className="py-20 bg-[#F8F7FA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Left Column: Empty space for balance */}
-            <div className="hidden md:block"></div>
+            {/* Left Column: Image with 3D hover effect */}
+            <div 
+              ref={image4Ref}
+              className={`relative w-full h-[400px] md:h-[550px] perspective-[2000px] transform-gpu ${isLoaded ? 'animate-3d-entrance' : 'opacity-0'}`}
+              onMouseMove={handleImage4MouseMove}
+              onMouseEnter={handleImage4MouseEnter}
+              onMouseLeave={handleImage4MouseLeave}
+            >
+              <div 
+                className="absolute inset-0 flex items-center justify-center transition-transform duration-300 will-change-transform"
+                style={getTiltStyle4()}
+              >
+                <Image
+                  src="/images/home_section_4.webp"
+                  alt="Person conducting a self-experiment"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
             
             {/* Right Column: Content */}
             <div className="space-y-6">
@@ -539,73 +607,6 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 5: Testimonials - Light Background */}
-      <section id="testimonials" className="py-20 bg-[#F8F7FA]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              What Our Users Say
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Join thousands who have transformed their lives through data-driven optimization
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Left Column: Testimonials */}
-            <div className="space-y-8">
-              <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                    <span className="text-blue-600 font-bold">JD</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">James Davis</h4>
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-gray-600 italic">
-                  "After years of trying different productivity systems, myPID.me finally helped me understand what actually works for me. I discovered that morning meditation has a strong positive impact on my focus, while late-night screen time destroys my sleep quality."
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                    <span className="text-green-600 font-bold">SL</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">Sarah Lee</h4>
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-gray-600 italic">
-                  "The experiment feature is a game-changer. I tested whether cold showers actually improved my energy levels, and the data showed a clear positive correlation. Now I have proof of what works specifically for me, not just generic advice."
-                </p>
-              </div>
-            </div>
-
-            {/* Right Column: Testimonial Image */}
-            <div className="relative h-[400px] rounded-2xl overflow-hidden shadow-xl">
-              <Image
-                src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg"
-                alt="Happy users collaborating"
-                fill
-                className="object-cover rounded-2xl"
-              />
             </div>
           </div>
         </div>
