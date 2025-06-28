@@ -38,15 +38,15 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-sm z-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            {/* Logo - ENHANCED: Rounded corners and larger size */}
-            <div className="flex items-center">
+            {/* Logo - ENHANCED: Larger size and moved to the left with padding reduction */}
+            <div className="flex items-center pl-0">
               <Link href="/" className="flex items-center group">
                 <Image
                   src="/images/logo.svg"
                   alt="myPID.me Logo"
-                  width={150}
-                  height={50}
-                  className="h-12 w-auto transition-transform duration-300 group-hover:scale-105 rounded-xl"
+                  width={180}
+                  height={60}
+                  className="h-16 w-auto transition-transform duration-300 group-hover:scale-105 rounded-xl"
                 />
               </Link>
             </div>
@@ -77,10 +77,10 @@ export default function Home() {
               </Link>
               <Link href="/signup">
                 <div className="relative overflow-hidden group">
-                  <Button className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform group-hover:scale-105 text-lg px-8 py-6">
+                  <Button className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform group-hover:scale-105 text-lg px-8 py-6 rounded-none group-hover:rounded-xl">
                     <span className="relative z-10">Sign up</span>
-                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                    <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full"></span>
+                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 group-hover:rounded-xl"></span>
+                    <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full group-hover:rounded-xl"></span>
                   </Button>
                 </div>
               </Link>
@@ -95,32 +95,41 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* Left Column: Text Content */}
             <div className="space-y-8">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                Tune Your Life with Precision Engineering
+              <style jsx global>{`
+                @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+              `}</style>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight" style={{ fontFamily: 'Playfair Display, serif' }}>
+                Stop Guessing. Start Knowing.
               </h1>
-              <p className="text-xl text-white/90 leading-relaxed">
-                myPID.me helps you discover what actually works for you through data-driven personal experiments and feedback loops inspired by engineering principles.
+              <p className="text-xl text-white/90 leading-relaxed" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Your daily habits create your life's results. MyPID.me is the first app designed to be your personal science lab, helping you discover the hidden connections between what you do and how you feel, so you can build a better you with proof.
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
                 <Link href="/signup">
                   <div className="group relative overflow-hidden">
-                    <Button className="w-full sm:w-auto bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg transform group-hover:scale-105">
+                    <button 
+                      className="w-full sm:w-auto bg-[#ffa500] hover:bg-[#ffa500]/90 text-[#330c0c] font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg transform group-hover:scale-105"
+                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    >
                       Start Optimizing
-                      <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                      <ArrowRight className="ml-2 w-5 h-5 inline-block transition-transform duration-300 group-hover:translate-x-1" />
                       <span className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></span>
-                    </Button>
+                    </button>
                   </div>
                 </Link>
                 <a href="#how-it-works">
                   <div className="group relative overflow-hidden">
-                    <Button variant="outline" className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg transform group-hover:scale-105">
+                    <button 
+                      className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg transform group-hover:scale-105"
+                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    >
                       Learn More
                       <span className="absolute inset-0 w-0 h-full bg-white/10 transition-all duration-500 group-hover:w-full"></span>
-                    </Button>
+                    </button>
                   </div>
                 </a>
               </div>
-              <div className="flex items-center space-x-2 text-white/80">
+              <div className="flex items-center space-x-2 text-white/80" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                 <Check className="w-5 h-5 text-white" />
                 <span>No credit card required</span>
               </div>
@@ -130,7 +139,7 @@ export default function Home() {
             <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-indigo-600/20 backdrop-blur-sm z-10 rounded-2xl"></div>
               <Image
-                src="https://images.pexels.com/photos/3760323/pexels-photo-3760323.jpeg"
+                src="/images/home_section_1.webp"
                 alt="Person analyzing data on a dashboard"
                 fill
                 className="object-cover rounded-2xl"
