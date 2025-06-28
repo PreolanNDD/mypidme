@@ -804,27 +804,7 @@ export default function Home() {
               })}
               
               {/* View More Button */}
-              <div className="text-center pt-4">
-                <Link href="/signup">
-                  <button className="group relative overflow-hidden px-6 py-3 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-white transition-all duration-300 hover:bg-white/30 hover:border-white/50 hover:scale-105 hover:shadow-lg hover:shadow-white/20">
-                    {/* Sliding highlight effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500 ease-out"></div>
-                    
-                    {/* Content */}
-                    <div className="relative flex items-center space-x-2">
-                      <span className="text-sm font-medium transition-all duration-300 group-hover:tracking-wide">
-                        View More Community Findings
-                      </span>
-                      <div className="transform group-hover:translate-x-1 transition-transform duration-300">
-                        <ArrowRight className="w-4 h-4" />
-                      </div>
-                    </div>
-                    
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </button>
-                </Link>
-              </div>
+              
             </div>
           </div>
         </div>
