@@ -238,7 +238,7 @@ export default function Home() {
           </div>
         </div>
       </nav>
-      <section className="pt-5 pb-1 md:pt-5 md:pb-1" style={{ background: 'linear-gradient(to right, #9B5DE5, #3C1A5B)' }}>
+      <section className="pt-5 pb-10 md:pt-5 md:pb-10" style={{ background: 'linear-gradient(to right, #9B5DE5, #3C1A5B)' }}>
         {/* START: Added Image with Link at the Top */}
         <div className="absolute top-32 md:top-40 right-4 sm:right-6 lg:right-8 z-10"> {/* Added padding to offset the fixed nav bar */}
           <div className="text-center p-4">
