@@ -205,6 +205,16 @@ export default function Home() {
                   50% { filter: drop-shadow(0 0 10px rgba(155, 93, 229, 0.8)) drop-shadow(0 0 25px rgba(155, 93, 229, 0.6)); }
                 }
                 
+                @keyframes floatButton {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-5px); }
+                }
+                
+                @keyframes shimmer {
+                  0% { background-position: -200% 0; }
+                  100% { background-position: 200% 0; }
+                }
+                
                 .animate-fadeIn {
                   animation: fadeIn 1s ease-out forwards;
                 }
@@ -223,6 +233,16 @@ export default function Home() {
                 
                 .animate-glow-pulse {
                   animation: glowPulse 3s ease-in-out infinite;
+                }
+                
+                .animate-float-button {
+                  animation: floatButton 3s ease-in-out infinite;
+                }
+                
+                .animate-shimmer {
+                  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+                  background-size: 200% 100%;
+                  animation: shimmer 2s infinite;
                 }
                 
                 .delay-100 { animation-delay: 0.1s; }
@@ -342,26 +362,45 @@ export default function Home() {
               <p className="text-lg leading-relaxed" style={{ color: '#e6e0f8', fontFamily: 'Montserrat, sans-serif' }}>
                 MyPID.me automatically analyzes your data and reveals the patterns hiding in your routine. Our smart-scaling charts and relationship breakdowns help you answer your biggest questions. Does more sleep really improve your focus? Does caffeine affect your stress levels? Go beyond simple tracking and find real answers.
               </p>
-              <div className="pt-4">
+              <div className="pt-6">
                 <Link href="/signup">
-                  <Button className="bg-white hover:bg-gray-100 text-[#3C1A5B] shadow-md hover:shadow-lg transition-all duration-300 text-lg px-8 py-3">
-                    Start Analyzing
-                    <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Button>
+                  <button className="group relative overflow-hidden rounded-xl bg-white px-8 py-4 text-[#3C1A5B] font-bold text-lg shadow-lg transition-all duration-500 hover:shadow-xl hover:shadow-white/20 animate-float-button">
+                    {/* Animated background gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white via-purple-100 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 w-full h-full animate-shimmer"></div>
+                    
+                    {/* Content */}
+                    <div className="relative flex items-center justify-center space-x-3">
+                      <span className="tracking-wide group-hover:tracking-wider transition-all duration-300">
+                        Start Analyzing
+                      </span>
+                      <ArrowRight className="w-5 h-5 transition-all duration-300 group-hover:translate-x-2 group-hover:scale-110" />
+                    </div>
+                    
+                    {/* Glow effect */}
+                    <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{
+                        boxShadow: '0 0 20px 5px rgba(255, 255, 255, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    ></div>
+                  </button>
                 </Link>
               </div>
             </div>
             
-            {/* Right Column: Animated Chart Graphic */}
-            <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden">
+            {/* Right Column: Animated Chart Graphic - FIXED: Container issues */}
+            <div className="w-full h-[500px] flex items-center justify-center">
               {/* Glowing chart container */}
-              <div className="absolute inset-0 bg-[#2A1240]/80 rounded-2xl animate-glow-pulse">
+              <div className="w-full h-full bg-[#2A1240]/80 rounded-2xl animate-glow-pulse p-6">
                 {/* Chart visualization */}
-                <div className="relative h-full w-full p-6">
+                <div className="relative h-full w-full">
                   {/* Chart title and legend */}
-                  <div className="flex justify-between items-center mb-6">
-                    <div className="text-white font-bold">Sleep vs. Energy Levels</div>
-                    <div className="flex space-x-4">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
+                    <div className="text-white font-bold text-lg">Sleep vs. Energy Levels</div>
+                    <div className="flex flex-wrap gap-4">
                       <div className="flex items-center">
                         <div className="w-3 h-3 rounded-full bg-[#9B5DE5] mr-2"></div>
                         <span className="text-white text-sm">Sleep Hours</span>
@@ -392,7 +431,7 @@ export default function Home() {
                   </div>
                   
                   {/* Animated chart lines */}
-                  <div className="relative h-[calc(100%-4rem)] mt-16">
+                  <div className="relative h-[calc(100%-6rem)] mt-16">
                     {/* Purple line (Sleep) */}
                     <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                       <path 
