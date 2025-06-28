@@ -200,6 +200,11 @@ export default function Home() {
                   }
                 }
                 
+                @keyframes glowPulse {
+                  0%, 100% { filter: drop-shadow(0 0 5px rgba(155, 93, 229, 0.6)) drop-shadow(0 0 15px rgba(155, 93, 229, 0.4)); }
+                  50% { filter: drop-shadow(0 0 10px rgba(155, 93, 229, 0.8)) drop-shadow(0 0 25px rgba(155, 93, 229, 0.6)); }
+                }
+                
                 .animate-fadeIn {
                   animation: fadeIn 1s ease-out forwards;
                 }
@@ -214,6 +219,10 @@ export default function Home() {
                 
                 .animate-3d-entrance {
                   animation: image3DEntrance 1.2s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+                }
+                
+                .animate-glow-pulse {
+                  animation: glowPulse 3s ease-in-out infinite;
                 }
                 
                 .delay-100 { animation-delay: 0.1s; }
@@ -321,70 +330,153 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 3: How It Works - Dark Purple Background */}
-      <section id="how-it-works" className="py-20 bg-[#3C1A5B] text-white">
+      {/* Section 3: Data Analysis - Dark Purple Background - UPDATED: Moved content to left, added animated chart */}
+      <section id="data-analysis" className="py-20" style={{ background: 'linear-gradient(to bottom right, #3C1A5B, #2A1240)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              How myPID.me Works
-            </h2>
-            <p className="text-xl text-white/80 max-w-3xl mx-auto">
-              Inspired by PID controllers in engineering, we help you tune your life with precision
-            </p>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Left Column: Process Image */}
-            <div className="relative h-[400px] rounded-2xl overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-indigo-600/20 backdrop-blur-sm z-10 rounded-2xl"></div>
-              <Image
-                src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg"
-                alt="Engineering process diagram"
-                fill
-                className="object-cover rounded-2xl"
-              />
+            {/* Left Column: Content - UPDATED: Moved to left side */}
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ color: '#f5f5f5', fontFamily: 'Playfair Display, serif' }}>
+                Discover the "Why" Behind Your Days.
+              </h2>
+              <p className="text-lg leading-relaxed" style={{ color: '#e6e0f8', fontFamily: 'Montserrat, sans-serif' }}>
+                MyPID.me automatically analyzes your data and reveals the patterns hiding in your routine. Our smart-scaling charts and relationship breakdowns help you answer your biggest questions. Does more sleep really improve your focus? Does caffeine affect your stress levels? Go beyond simple tracking and find real answers.
+              </p>
+              <div className="pt-4">
+                <Link href="/signup">
+                  <Button className="bg-white hover:bg-gray-100 text-[#3C1A5B] shadow-md hover:shadow-lg transition-all duration-300 text-lg px-8 py-3">
+                    Start Analyzing
+                    <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+              </div>
             </div>
-
-            {/* Right Column: Process Steps */}
-            <div className="space-y-8">
-              <div className="relative pl-12">
-                <div className="absolute left-0 top-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">1</span>
+            
+            {/* Right Column: Animated Chart Graphic */}
+            <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden">
+              {/* Glowing chart container */}
+              <div className="absolute inset-0 bg-[#2A1240]/80 rounded-2xl animate-glow-pulse">
+                {/* Chart visualization */}
+                <div className="relative h-full w-full p-6">
+                  {/* Chart title and legend */}
+                  <div className="flex justify-between items-center mb-6">
+                    <div className="text-white font-bold">Sleep vs. Energy Levels</div>
+                    <div className="flex space-x-4">
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-[#9B5DE5] mr-2"></div>
+                        <span className="text-white text-sm">Sleep Hours</span>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="w-3 h-3 rounded-full bg-[#FFA500] mr-2"></div>
+                        <span className="text-white text-sm">Energy Level</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Chart grid lines */}
+                  <div className="absolute inset-0 mt-16">
+                    {[...Array(5)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="absolute w-full h-px bg-white/10"
+                        style={{ top: `${20 * i}%` }}
+                      ></div>
+                    ))}
+                    {[...Array(7)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="absolute h-full w-px bg-white/10"
+                        style={{ left: `${100 / 6 * i}%` }}
+                      ></div>
+                    ))}
+                  </div>
+                  
+                  {/* Animated chart lines */}
+                  <div className="relative h-[calc(100%-4rem)] mt-16">
+                    {/* Purple line (Sleep) */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <path 
+                        d="M0,70 C10,65 20,40 30,35 C40,30 50,50 60,45 C70,40 80,20 90,15 L100,10" 
+                        fill="none" 
+                        stroke="#9B5DE5" 
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        style={{
+                          filter: 'drop-shadow(0 0 8px rgba(155, 93, 229, 0.8))',
+                          animation: 'dashoffset 15s linear infinite'
+                        }}
+                      />
+                      {/* Data points */}
+                      {[
+                        { x: 0, y: 70 },
+                        { x: 30, y: 35 },
+                        { x: 60, y: 45 },
+                        { x: 90, y: 15 }
+                      ].map((point, i) => (
+                        <circle 
+                          key={i}
+                          cx={point.x} 
+                          cy={point.y} 
+                          r="2"
+                          fill="#9B5DE5"
+                          style={{
+                            filter: 'drop-shadow(0 0 5px rgba(155, 93, 229, 0.8))'
+                          }}
+                        />
+                      ))}
+                    </svg>
+                    
+                    {/* Orange line (Energy) */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <path 
+                        d="M0,80 C10,75 20,60 30,50 C40,40 50,30 60,25 C70,20 80,30 90,20 L100,15" 
+                        fill="none" 
+                        stroke="#FFA500" 
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        style={{
+                          filter: 'drop-shadow(0 0 8px rgba(255, 165, 0, 0.8))',
+                          animation: 'dashoffset 15s linear infinite'
+                        }}
+                      />
+                      {/* Data points */}
+                      {[
+                        { x: 0, y: 80 },
+                        { x: 30, y: 50 },
+                        { x: 60, y: 25 },
+                        { x: 90, y: 20 }
+                      ].map((point, i) => (
+                        <circle 
+                          key={i}
+                          cx={point.x} 
+                          cy={point.y} 
+                          r="2"
+                          fill="#FFA500"
+                          style={{
+                            filter: 'drop-shadow(0 0 5px rgba(255, 165, 0, 0.8))'
+                          }}
+                        />
+                      ))}
+                    </svg>
+                  </div>
+                  
+                  {/* X-axis labels */}
+                  <div className="absolute bottom-0 left-0 right-0 flex justify-between text-white/60 text-xs">
+                    <span>Mon</span>
+                    <span>Tue</span>
+                    <span>Wed</span>
+                    <span>Thu</span>
+                    <span>Fri</span>
+                    <span>Sat</span>
+                    <span>Sun</span>
+                  </div>
+                  
+                  {/* Correlation indicator */}
+                  <div className="absolute top-4 right-4 bg-white/10 px-3 py-1 rounded-full text-white text-sm flex items-center">
+                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+                    Strong Positive Correlation
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-2">Track Your Inputs & Outputs</h3>
-                <p className="text-white/80">
-                  Log your daily habits (inputs) and outcomes (outputs) in less than a minute per day.
-                </p>
-              </div>
-
-              <div className="relative pl-12">
-                <div className="absolute left-0 top-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">2</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">Analyze Relationships</h3>
-                <p className="text-white/80">
-                  Our algorithms identify correlations between your habits and goals, revealing what's working and what isn't.
-                </p>
-              </div>
-
-              <div className="relative pl-12">
-                <div className="absolute left-0 top-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">3</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">Run Experiments</h3>
-                <p className="text-white/80">
-                  Test hypotheses with controlled experiments to verify causation and fine-tune your approach.
-                </p>
-              </div>
-
-              <div className="relative pl-12">
-                <div className="absolute left-0 top-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">4</span>
-                </div>
-                <h3 className="text-xl font-bold mb-2">Adjust & Optimize</h3>
-                <p className="text-white/80">
-                  Use data-driven insights to continuously refine your habits and build your optimal lifestyle.
-                </p>
               </div>
             </div>
           </div>
