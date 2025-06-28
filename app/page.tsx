@@ -13,6 +13,7 @@ export default function Home() {
   const router = useRouter();
   const redirectingRef = useRef(false);
   const imageRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
@@ -26,13 +27,49 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  // Handle 3D hovering and spinning effect
+  // Handle image dip effect based on cursor position
+  const handleImageMouseMove = (e: React.MouseEvent) => {
+    if (!imageRef.current) return;
+    
+    // Get the dimensions and position of the image container
+    const rect = imageRef.current.getBoundingClientRect();
+    
+    // Calculate mouse position relative to the image container
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Calculate position as percentage of container width/height
+    const xPercent = x / rect.width;
+    const yPercent = y / rect.height;
+    
+    setMousePosition({ x: xPercent, y: yPercent });
+  };
+  
   const handleImageMouseEnter = () => {
     setIsHovering(true);
   };
   
   const handleImageMouseLeave = () => {
     setIsHovering(false);
+    setMousePosition({ x: 0.5, y: 0.5 }); // Reset to center
+  };
+
+  // Calculate the tilt based on mouse position
+  const getTiltStyle = () => {
+    if (!isHovering) {
+      return {
+        transform: 'translateY(0px)',
+        transition: 'transform 0.5s ease-out'
+      };
+    }
+    
+    // Determine which side to dip based on mouse X position
+    const tiltX = (mousePosition.x - 0.5) * 20; // Max tilt of 10 degrees
+    
+    return {
+      transform: `rotateY(${tiltX}deg)`,
+      transition: 'transform 0.1s ease-out'
+    };
   };
 
   if (loading || user) {
@@ -136,23 +173,10 @@ export default function Home() {
                   50% { transform: translateX(5px); }
                 }
                 
-                @keyframes float {
-                  0% { transform: translateY(0px) rotateY(0deg); }
-                  25% { transform: translateY(-10px) rotateY(90deg); }
-                  50% { transform: translateY(0px) rotateY(180deg); }
-                  75% { transform: translateY(10px) rotateY(270deg); }
-                  100% { transform: translateY(0px) rotateY(360deg); }
-                }
-                
                 @keyframes hover {
                   0% { transform: translateY(0px); }
                   50% { transform: translateY(-15px); }
                   100% { transform: translateY(0px); }
-                }
-                
-                @keyframes spin {
-                  0% { transform: rotateY(0deg); }
-                  100% { transform: rotateY(360deg); }
                 }
                 
                 .animate-fadeIn {
@@ -163,12 +187,8 @@ export default function Home() {
                   animation: slideIn 0.8s ease-out forwards;
                 }
                 
-                .animate-float {
+                .animate-hover {
                   animation: hover 4s ease-in-out infinite;
-                }
-                
-                .animate-spin-3d {
-                  animation: spin 8s linear infinite;
                 }
                 
                 .delay-100 { animation-delay: 0.1s; }
@@ -223,31 +243,25 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Hero Image - UPDATED: 3D hovering and spinning effect */}
+            {/* Right Column: Hero Image - UPDATED: Dipping effect based on cursor position */}
             <div 
               ref={imageRef}
-              className={`relative w-full h-[400px] md:h-[500px] lg:h-[600px] animate-fadeIn delay-200 ${isHovering ? 'animate-spin-3d' : 'animate-float'}`}
+              className="relative w-full h-[400px] md:h-[550px] lg:h-[700px] animate-fadeIn delay-200 animate-hover perspective-1000 transform-gpu"
+              onMouseMove={handleImageMouseMove}
               onMouseEnter={handleImageMouseEnter}
               onMouseLeave={handleImageMouseLeave}
-              style={{
-                transformStyle: 'preserve-3d',
-                perspective: '1000px'
-              }}
             >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative w-full h-full transform-style-preserve-3d transition-transform duration-500">
-                  <Image
-                    src="/images/home_section_1.webp"
-                    alt="Person analyzing data on a dashboard"
-                    fill
-                    className="object-contain"
-                    priority
-                    style={{
-                      transformStyle: 'preserve-3d',
-                      backfaceVisibility: 'hidden'
-                    }}
-                  />
-                </div>
+              <div 
+                className="absolute inset-0 flex items-center justify-center transition-transform duration-300"
+                style={getTiltStyle()}
+              >
+                <Image
+                  src="/images/home_section_1.webp"
+                  alt="Person analyzing data on a dashboard"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
             </div>
           </div>
