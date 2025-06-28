@@ -241,6 +241,21 @@ export default function Home() {
 
       {/* Section 1: Hero - Purple Gradient */}
       <section className="pt-32 pb-16 md:pt-40 md:pb-24" style={{ background: 'linear-gradient(to bottom right, #9B5DE5, #3C1A5B)' }}>
+              {/* START: Added Image with Link at the Top */}
+        <div className="pt-20"> {/* Added padding to offset the fixed nav bar */}
+          <div className="text-center p-4">
+            <Link href="https://bolt.new/">
+                <Image
+                  src="/public/images/logotext_poweredby_360w.png" // Replace with your image path
+                  alt="Descriptive text for your image"
+                  width={800} // Set your desired width
+                  height={200} // Set your desired height
+                  className="inline-block"
+                />
+            </Link>
+          </div>
+        </div>
+        {/* END: Added Image with Link at the Top */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* Left Column: Text Content - UPDATED: Split heading, added animations */}
