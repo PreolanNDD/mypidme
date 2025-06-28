@@ -40,34 +40,49 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md mr-2">
-                  <Settings className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  myPID.me
-                </span>
+              <Link href="/" className="flex items-center group">
+                <Image
+                  src="/images/logo.svg"
+                  alt="myPID.me Logo"
+                  width={120}
+                  height={40}
+                  className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+                />
               </Link>
             </div>
 
             {/* Navigation Links - Desktop */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-primary transition-colors duration-300">Features</a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-primary transition-colors duration-300">How It Works</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-primary transition-colors duration-300">Testimonials</a>
-              <a href="#pricing" className="text-gray-600 hover:text-primary transition-colors duration-300">Pricing</a>
-              <a href="#faq" className="text-gray-600 hover:text-primary transition-colors duration-300">FAQ</a>
+              {['features', 'how-it-works', 'testimonials', 'pricing', 'faq'].map((item) => (
+                <a 
+                  key={item} 
+                  href={`#${item}`} 
+                  className="relative text-gray-600 font-medium hover:text-primary transition-colors duration-300 group"
+                >
+                  <span className="capitalize">{item.replace(/-/g, ' ')}</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                </a>
+              ))}
             </div>
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
-              <Link href="/login" className="text-gray-700 hover:text-primary transition-colors duration-300 font-medium">
-                Log in
+              <Link href="/login">
+                <div className="relative overflow-hidden group">
+                  <span className="relative z-10 px-5 py-2 inline-block font-medium text-gray-700 group-hover:text-primary transition-colors duration-300">
+                    Log in
+                  </span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                </div>
               </Link>
               <Link href="/signup">
-                <Button className="bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all duration-300">
-                  Sign up
-                </Button>
+                <div className="relative overflow-hidden group">
+                  <Button className="relative z-10 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300 transform group-hover:scale-105">
+                    <span className="relative z-10">Sign up</span>
+                    <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                    <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full"></span>
+                  </Button>
+                </div>
               </Link>
             </div>
           </div>
@@ -88,15 +103,21 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 pt-4">
                 <Link href="/signup">
-                  <Button className="w-full sm:w-auto bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-lg">
-                    Start Optimizing
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
+                  <div className="group relative overflow-hidden">
+                    <Button className="w-full sm:w-auto bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg transform group-hover:scale-105">
+                      Start Optimizing
+                      <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                      <span className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></span>
+                    </Button>
+                  </div>
                 </Link>
                 <a href="#how-it-works">
-                  <Button variant="outline" className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg">
-                    Learn More
-                  </Button>
+                  <div className="group relative overflow-hidden">
+                    <Button variant="outline" className="w-full sm:w-auto bg-transparent hover:bg-white/10 text-white border-white border-2 font-bold py-3 px-8 rounded-lg transition-all duration-300 text-lg transform group-hover:scale-105">
+                      Learn More
+                      <span className="absolute inset-0 w-0 h-full bg-white/10 transition-all duration-500 group-hover:w-full"></span>
+                    </Button>
+                  </div>
                 </a>
               </div>
               <div className="flex items-center space-x-2 text-white/80">
@@ -366,9 +387,13 @@ export default function Home() {
                 </div>
                 <div className="pt-4">
                   <Link href="/signup" className="block w-full">
-                    <Button className="w-full bg-primary hover:bg-primary/90 text-white py-3 text-lg font-bold">
-                      Get Started
-                    </Button>
+                    <div className="group relative overflow-hidden w-full">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 text-lg font-bold transform group-hover:scale-[1.02] transition-all duration-300">
+                        Get Started
+                        <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                        <span className="absolute inset-0 w-0 h-full bg-white/20 transition-all duration-500 group-hover:w-full"></span>
+                      </Button>
+                    </div>
                   </Link>
                 </div>
               </div>
@@ -414,10 +439,13 @@ export default function Home() {
 
               <div className="pt-6">
                 <Link href="/signup">
-                  <Button className="bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-lg">
-                    Start Your Journey
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
+                  <div className="group relative overflow-hidden">
+                    <Button className="bg-white hover:bg-gray-100 text-primary font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-lg transform group-hover:scale-105">
+                      Start Your Journey
+                      <ArrowRight className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                      <span className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></span>
+                    </Button>
+                  </div>
                 </Link>
               </div>
             </div>
@@ -480,12 +508,13 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md mr-2">
-                  <Settings className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-                  myPID.me
-                </span>
+                <Image
+                  src="/images/logo.svg"
+                  alt="myPID.me Logo"
+                  width={120}
+                  height={40}
+                  className="h-10 w-auto"
+                />
               </div>
               <p className="text-gray-400 mb-4">
                 Engineering your personal optimization journey with precision and data.
