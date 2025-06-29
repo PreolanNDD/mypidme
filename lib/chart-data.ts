@@ -284,7 +284,7 @@ export const getDualMetricChartData = async (
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    console.log(`Generated ${chartData.length} data points for ${days} days`);
+
     return chartData;
   } catch (error) {
     console.error('Unexpected error in getDualMetricChartData:', error);
