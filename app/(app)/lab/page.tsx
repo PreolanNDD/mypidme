@@ -145,11 +145,11 @@ export default function LabPage() {
       if (!id || !status) {
         throw new Error('Invalid experiment ID or status');
       }
-      console.log(`Updating experiment ${id} status to ${status}`);
+
       return updateExperimentStatus(id, status);
     },
     onSuccess: (data) => {
-      console.log('Status update successful:', data);
+
       queryClient.invalidateQueries({ queryKey: ['experiments', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['experimentProgress', user?.id] });
     },
@@ -298,7 +298,6 @@ export default function LabPage() {
       console.error('Invalid experiment ID for reactivation');
       return;
     }
-    console.log('Reactivating experiment:', id);
     
     // Find the experiment in the completed list to avoid auto-completion
     const experiment = completedExperiments.find(exp => exp.id === id);
