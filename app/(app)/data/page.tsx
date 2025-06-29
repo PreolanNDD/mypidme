@@ -89,7 +89,7 @@ export default function DataPage() {
       return { chartData: rawChartData, axisConfig: null };
     }
 
-    // FIXED: Calculate maximum values including 0 values
+    // Calculate maximum values including 0 values
     const primaryValues = rawChartData
       .map(d => d.primaryValue)
       .filter(v => v !== null && v !== undefined) as number[];
@@ -136,7 +136,7 @@ export default function DataPage() {
       // Normalize boolean values to align with 1-10 scale
       processedData = rawChartData.map(d => ({
         ...d,
-        // FIXED: Properly handle false values (0) and true values (1)
+        // Properly handle false values (0) and true values (1)
         normalizedComparisonValue: d.comparisonValue === 1 ? 7.5 : 
                                    d.comparisonValue === 0 ? 2.5 : null
       }));
@@ -227,7 +227,7 @@ export default function DataPage() {
       return (
         <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-xl">
           <p className="font-medium text-primary-text mb-2">{label}</p>
-          {/* FIXED: Show 0 values properly */}
+          {/* Show 0 values properly */}
           {(data.primaryValue !== null && data.primaryValue !== undefined) && (
             <p className="text-sm flex items-center space-x-2">
               <span className="w-3 h-3 rounded-full bg-[#7ed984]"></span>
