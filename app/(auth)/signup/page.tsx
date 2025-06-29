@@ -20,24 +20,11 @@ export default function SignUp() {
   const [success, setSuccess] = useState('');
   const router = useRouter();
 
-  console.log('🔐 [SignUp] Component rendered with state:', {
-    email: formData.email,
-    firstName: formData.firstName,
-    lastName: formData.lastName,
-    loading,
-    hasError: !!error,
-    hasSuccess: !!success
-  });
+
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-  console.log('🔐 [SignUp] === SIGNUP ATTEMPT STARTED ===');
-  console.log('🔐 [SignUp] Form data:', {
-    email: formData.email,
-    firstName: formData.firstName,
-    lastName: formData.lastName,
-    passwordLength: formData.password.length
-  });
+
   
   setLoading(true);
   setError('');
@@ -46,7 +33,6 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     const supabase = createClient();
     
-    console.log('🔐 [SignUp] Attempting sign up for:', formData.email);
 
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: formData.email,
@@ -65,16 +51,6 @@ const handleSubmit = async (e: React.FormEvent) => {
       return; 
     }
     
-    console.log('📊 [SignUp] Sign up response:', {
-      hasUser: !!data.user,
-      userId: data.user?.id,
-      email: data.user?.email,
-      hasSession: !!data.session,
-      identitiesCount: data.user?.identities?.length || 0,
-      sessionExpiresAt: data.session?.expires_at,
-      accessTokenLength: data.session?.access_token?.length || 0,
-      refreshTokenLength: data.session?.refresh_token?.length || 0
-    });
 
     // Case 1: User already exists.
     if (data.user && data.user.identities && data.user.identities.length === 0) {
@@ -85,7 +61,6 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     // Case 2: Successful sign-up with immediate login (email confirmation is OFF)
     if (data.user && data.session) {
-      console.log('✅ [SignUp] Sign up successful with immediate login');
       // Force a page refresh to ensure the auth state is properly updated
       window.location.href = '/dashboard';
       return;
@@ -93,7 +68,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     
     // Case 3: Successful sign-up, but email confirmation is required
     if (data.user) {
-      console.log('📧 [SignUp] Sign up successful, email confirmation required');
+
       setSuccess('Account created! Please check your email to confirm your account.');
     }
 
@@ -102,13 +77,11 @@ const handleSubmit = async (e: React.FormEvent) => {
     setError('An unexpected error occurred. Please try again.');
   } finally {
     setLoading(false);
-    console.log('🔐 [SignUp] === SIGNUP ATTEMPT COMPLETED ===');
   }
 };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log('🔐 [SignUp] Input changed:', { name, valueLength: value.length });
     setFormData({
       ...formData,
       [name]: value,
