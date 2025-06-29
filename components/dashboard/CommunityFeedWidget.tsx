@@ -19,9 +19,6 @@ export function CommunityFeedWidget() {
     queryFn: () => getCommunityFindings(),
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    onSuccess: (data) => {
-    console.log('Received findings data:', data); // Add this line
-    },
   });
 
   // Get top 3 findings by score (upvotes - downvotes)
