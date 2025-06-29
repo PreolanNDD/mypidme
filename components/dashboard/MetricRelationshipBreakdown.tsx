@@ -256,6 +256,20 @@ export function MetricRelationshipBreakdown({
     return uniqueValues.length < 2;
   }, [chartData]);
 
+  // Check if we have enough data points for analysis
+  const hasEnoughDataPoints = useMemo(() => {
+    if (!chartData.length) return false;
+
+    // Count data points where both metrics have values (including zeros)
+    const validDataPoints = chartData.filter(dataPoint => 
+      dataPoint.primaryValue !== null && dataPoint.primaryValue !== undefined &&
+      dataPoint.comparisonValue !== null && dataPoint.comparisonValue !== undefined
+    );
+
+    // We need at least 2 data points for correlation analysis
+    return validDataPoints.length >= 2;
+  }, [chartData]);
+
   // Render Conditional Averages Section
   const renderConditionalAverages = () => {
     if (hasInsufficientVariance) {
@@ -272,6 +286,19 @@ export function MetricRelationshipBreakdown({
               You're doing a great job logging your data! This analysis works by comparing different types of days (like high-energy days vs. low-energy days). To find a pattern, the app needs a bit more variety in your logged data for <strong className="text-indigo-700">{comparisonMetric.name}</strong>. Keep tracking consistently, and new insights will appear here as soon as a pattern emerges!
             </p>
           </div>
+        </div>
+      );
+    }
+
+    if (!hasEnoughDataPoints) {
+      return (
+        <div className="text-center py-6 group/nodata">
+          <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-500 group-hover/nodata:scale-110 group-hover/nodata:shadow-md">
+            <BarChart2 className="w-8 h-8 text-gray-400 transition-all duration-500 group-hover/nodata:text-gray-600" />
+          </div>
+          <p className="text-secondary-text transition-all duration-500 group-hover/nodata:text-gray-700">
+            Not enough data for conditional analysis. Log more entries to see patterns.
+          </p>
         </div>
       );
     }
@@ -421,6 +448,27 @@ export function MetricRelationshipBreakdown({
             </h5>
             <p className="text-secondary-text leading-relaxed transition-all duration-500 group-hover/insufficient:text-indigo-600">
               You're doing a great job logging your data! This analysis works by comparing different types of days (like high-energy days vs. low-energy days). To find a pattern, the app needs a bit more variety in your logged data for <strong className="text-indigo-700">{comparisonMetric.name}</strong>. Keep tracking consistently, and new insights will appear here as soon as a pattern emerges!
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (!hasEnoughDataPoints) {
+      return (
+        <div className="text-center py-8 space-y-4 group/nostreak">
+          <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-500 group-hover/nostreak:scale-110 group-hover/nostreak:shadow-md">
+            <AlertCircle className="w-8 h-8 text-gray-400 transition-all duration-500 group-hover/nostreak:text-gray-600" />
+          </div>
+          <div className="space-y-2 max-w-lg mx-auto">
+            <h5 className="font-medium text-primary-text text-lg transition-all duration-500 group-hover/nostreak:text-gray-700 group-hover/nostreak:tracking-wide">
+              Unlock Your Consistency Insight
+            </h5>
+            <p className="text-secondary-text transition-all duration-500 group-hover/nostreak:text-gray-700">
+              This analysis reveals how building a streak of positive inputs impacts your outcomes.
+            </p>
+            <p className="text-secondary-text transition-all duration-500 group-hover/nostreak:text-gray-700">
+              Your first insight is just a 3-day streak away. Start one today by logging a positive value (like a 'Yes' for a workout or a high rating for your sleep quality) for 3 days in a row!
             </p>
           </div>
         </div>
