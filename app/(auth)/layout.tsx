@@ -14,45 +14,30 @@ export default function AuthLayout({
   const pathname = usePathname();
   const redirectingRef = useRef(false);
 
-  console.log('🔒 [AuthLayout] Component rendered with state:', {
-    hasUser: !!user,
-    userId: user?.id,
-    loading,
-    pathname,
-    isRedirecting: redirectingRef.current
-  });
 
   useEffect(() => {
-    console.log('🔒 [AuthLayout] useEffect triggered:', {
-      loading,
-      hasUser: !!user,
-      userId: user?.id,
-      pathname,
-      isRedirecting: redirectingRef.current
-    });
+
 
     // Allow access to update-password page even if user is authenticated
     if (pathname === '/update-password') {
-      console.log('🔒 [AuthLayout] Update password page - allowing access regardless of auth state');
       return;
     }
 
     // For other auth pages, redirect authenticated users to dashboard
     if (!loading && user && !redirectingRef.current) {
-      console.log('🔒 [AuthLayout] User is authenticated, redirecting to dashboard from auth page');
       redirectingRef.current = true;
       router.replace('/dashboard'); // Use replace instead of push
     }
     
     // Reset redirecting flag when user is not authenticated
     if (!user && redirectingRef.current) {
-      console.log('🔒 [AuthLayout] User not authenticated, resetting redirect flag');
+
       redirectingRef.current = false;
     }
   }, [user, loading, router, pathname]);
 
   if (loading) {
-    console.log('🔒 [AuthLayout] Showing loading spinner - auth state being determined');
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -63,7 +48,7 @@ export default function AuthLayout({
   // For update-password page, allow access regardless of auth state
   // For other auth pages, don't render if user is authenticated (will redirect)
   if (pathname !== '/update-password' && user) {
-    console.log('🔒 [AuthLayout] User authenticated on auth page, showing redirect spinner');
+
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -71,7 +56,7 @@ export default function AuthLayout({
     );
   }
 
-  console.log('🔒 [AuthLayout] Rendering auth layout for pathname:', pathname);
+
 
   // Render all auth pages with responsive layout and safety margins
   return (
