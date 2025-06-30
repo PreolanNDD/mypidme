@@ -353,7 +353,7 @@ export function Sidebar() {
             {isOpen && (
               <div className="flex items-center justify-center space-x-1">
                 <span>© 2025</span>
-                <span className="text-primary font-medium">MyPID.me</span>
+                <span className="text-primary font-medium">MyPID.me built with Bolt.new</span>
               </div>
             )}
           </div>
