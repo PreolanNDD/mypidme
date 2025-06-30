@@ -208,26 +208,28 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
   const isAuthor = user?.id === finding.author_id;
 
   // Fetch trackable items for chart context with better caching
+  // IMPORTANT CHANGE: Use the finding's author_id instead of current user's id
   const { data: trackableItems = [] } = useQuery({
-    queryKey: ['trackableItems', user?.id],
-    queryFn: () => getTrackableItems(user!.id),
-    enabled: !!user?.id && finding.share_data === true && (!!finding.chart_config || !!finding.experiment_id),
+    queryKey: ['trackableItems', finding.author_id],
+    queryFn: () => getTrackableItems(finding.author_id),
+    enabled: finding.share_data === true && (!!finding.chart_config || !!finding.experiment_id),
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
   });
 
   // Fetch chart data if there's chart config with better caching
+  // IMPORTANT CHANGE: Use the finding's author_id instead of current user's id
   const { data: chartData = [] } = useQuery({
     queryKey: ['findingChartData', finding.id, finding.chart_config],
     queryFn: () => {
-      if (!finding.chart_config || !user?.id) return [];
+      if (!finding.chart_config || !finding.author_id) return [];
       
       const { primaryMetricId, comparisonMetricId, startDate, endDate } = finding.chart_config;
       
       // If we have specific date range, use it
       if (startDate && endDate) {
         return getDualMetricChartData(
-          user.id,
+          finding.author_id,
           primaryMetricId,
           comparisonMetricId || null,
           startDate,
@@ -237,7 +239,7 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
       // Fallback to using dateRange if available (for backward compatibility)
       else if (finding.chart_config.dateRange) {
         return getDualMetricChartData(
-          user.id,
+          finding.author_id,
           primaryMetricId,
           comparisonMetricId || null,
           finding.chart_config.dateRange
@@ -246,22 +248,23 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
       
       // Default to 30 days if no date information is available
       return getDualMetricChartData(
-        user.id,
+        finding.author_id,
         primaryMetricId,
         comparisonMetricId || null,
         30
       );
     },
-    enabled: !!user?.id && finding.share_data === true && !!finding.chart_config,
+    enabled: finding.share_data === true && !!finding.chart_config,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Fetch experiment data if there's an experiment_id
+  // IMPORTANT CHANGE: Use the finding's author_id instead of current user's id
   const { data: experiments = [] } = useQuery({
-    queryKey: ['experiments', user?.id],
-    queryFn: () => getExperiments(user!.id),
-    enabled: !!user?.id && finding.share_data === true && !!finding.experiment_id,
+    queryKey: ['experiments', finding.author_id],
+    queryFn: () => getExperiments(finding.author_id),
+    enabled: finding.share_data === true && !!finding.experiment_id,
     staleTime: 10 * 60 * 1000, // 10 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes
   });
