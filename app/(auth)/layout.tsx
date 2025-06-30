@@ -14,10 +14,7 @@ export default function AuthLayout({
   const pathname = usePathname();
   const redirectingRef = useRef(false);
 
-
   useEffect(() => {
-
-
     // Allow access to update-password page even if user is authenticated
     if (pathname === '/update-password') {
       return;
@@ -31,13 +28,11 @@ export default function AuthLayout({
     
     // Reset redirecting flag when user is not authenticated
     if (!user && redirectingRef.current) {
-
       redirectingRef.current = false;
     }
   }, [user, loading, router, pathname]);
 
   if (loading) {
-
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -48,15 +43,12 @@ export default function AuthLayout({
   // For update-password page, allow access regardless of auth state
   // For other auth pages, don't render if user is authenticated (will redirect)
   if (pathname !== '/update-password' && user) {
-
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
-
-
 
   // Render all auth pages with responsive layout and safety margins
   return (

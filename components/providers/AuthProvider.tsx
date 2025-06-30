@@ -111,15 +111,15 @@ export function AuthProvider({
           )
         ]);
 
-        const { data, error } = await fetchWithTimeout as any;
+        const { data: userProfile, error: profileError } = await fetchWithTimeout as any;
         
         // Check if component is still mounted before proceeding
         if (!mountedRef.current) {
           return null;
         }
         
-        if (error) {
-          if (error.code === 'PGRST116') {
+        if (profileError) {
+          if (profileError.code === 'PGRST116') {
             // ENHANCED: Get user metadata more safely
             const userMetadata = user?.user_metadata || {};
             const insertData = {
@@ -154,15 +154,15 @@ export function AuthProvider({
             }
           } else {
             // For other errors, throw to trigger retry logic
-            throw error;
+            throw profileError;
           }
         }
         
-        if (data) {
+        if (userProfile) {
           // Cache the profile
-          profileCacheRef.current.set(userId, data);
+          profileCacheRef.current.set(userId, userProfile);
           retryCountRef.current.delete(userId); // Reset retry count on success
-          return data;
+          return userProfile;
         } else {
           return null;
         }
