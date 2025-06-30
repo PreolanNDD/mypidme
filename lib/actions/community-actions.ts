@@ -240,6 +240,8 @@ export interface ShareFindingData {
   primaryMetricId?: string;
   comparisonMetricId?: string | null;
   dateRange?: number;
+  startDate?: string;
+  endDate?: string;
   // For experiment context
   experimentId?: string;
 }
@@ -291,11 +293,23 @@ export async function shareFindingAction(data: ShareFindingData) {
 
     // Add context-specific data
     if (data.type === 'chart') {
-      insertData.chart_config = {
-        primaryMetricId: data.primaryMetricId,
-        comparisonMetricId: data.comparisonMetricId,
-        dateRange: data.dateRange
-      };
+      // If we have specific date range, use it
+      if (data.startDate && data.endDate) {
+        insertData.chart_config = {
+          primaryMetricId: data.primaryMetricId,
+          comparisonMetricId: data.comparisonMetricId,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          dateRange: data.dateRange // Keep for backward compatibility
+        };
+      } else {
+        // Otherwise use the date range
+        insertData.chart_config = {
+          primaryMetricId: data.primaryMetricId,
+          comparisonMetricId: data.comparisonMetricId,
+          dateRange: data.dateRange
+        };
+      }
     } else if (data.type === 'experiment') {
       insertData.experiment_id = data.experimentId || null;
     }

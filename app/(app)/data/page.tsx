@@ -207,12 +207,19 @@ export default function DataPage() {
   const handleShareFinding = () => {
     if (!shouldFetchChart || !primaryMetricId) return;
     
-    // Navigate to community/new with chart context
+    // Calculate the actual date range for the chart
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - parseInt(selectedDateRange) + 1);
+    
+    // Navigate to community/new with chart context including actual date range
     const params = new URLSearchParams({
       type: 'chart',
       primaryMetricId,
       ...(comparisonMetricId !== 'none' && { comparisonMetricId }),
-      dateRange: selectedDateRange
+      dateRange: selectedDateRange,
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0]
     });
     
     router.push(`/community/new?${params.toString()}`);

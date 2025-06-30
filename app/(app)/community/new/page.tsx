@@ -26,6 +26,8 @@ interface ShareContext {
   primaryMetricId?: string;
   comparisonMetricId?: string | null;
   dateRange?: number;
+  startDate?: string;
+  endDate?: string;
   experimentId?: string;
 }
 
@@ -101,7 +103,9 @@ export default function CreateFindingPage() {
         type: 'chart' as const,
         primaryMetricId: searchParams.get('primaryMetricId') || undefined,
         comparisonMetricId: searchParams.get('comparisonMetricId') || null,
-        dateRange: searchParams.get('dateRange') ? parseInt(searchParams.get('dateRange')!) : undefined
+        dateRange: searchParams.get('dateRange') ? parseInt(searchParams.get('dateRange')!) : undefined,
+        startDate: searchParams.get('startDate') || undefined,
+        endDate: searchParams.get('endDate') || undefined
       };
       return chartContext;
     } else if (type === 'experiment') {
@@ -152,11 +156,24 @@ export default function CreateFindingPage() {
 
   // Fetch chart data for preview
   const { data: chartData = [] } = useQuery({
-    queryKey: ['chartData', selectedGoalId, selectedHabitId, selectedDateRange],
+    queryKey: ['chartData', selectedGoalId, selectedHabitId, selectedDateRange, context?.startDate, context?.endDate],
     queryFn: () => {
-      if (!selectedGoalId) return [];
+      if (!selectedGoalId || !user?.id) return [];
+      
+      // If we have specific date range from context, use it
+      if (context?.type === 'chart' && context.startDate && context.endDate) {
+        return getDualMetricChartData(
+          user.id,
+          selectedGoalId,
+          selectedHabitId === 'none' ? null : selectedHabitId,
+          context.startDate,
+          context.endDate
+        );
+      }
+      
+      // Otherwise use the selected date range
       return getDualMetricChartData(
-        user!.id,
+        user.id,
         selectedGoalId,
         selectedHabitId === 'none' ? null : selectedHabitId,
         parseInt(selectedDateRange)
@@ -289,19 +306,50 @@ export default function CreateFindingPage() {
     // Set chart config based on selected metrics
     if (selectedGoalId && selectedHabitId !== 'none') {
       formData.set('shareData', 'on');
-      formData.set('chartConfig', JSON.stringify({
-        primaryMetricId: selectedGoalId,
-        comparisonMetricId: selectedHabitId,
-        dateRange: parseInt(selectedDateRange)
-      }));
+      
+      // If we have specific date range from context, use it
+      if (context?.type === 'chart' && context.startDate && context.endDate) {
+        formData.set('chartConfig', JSON.stringify({
+          primaryMetricId: selectedGoalId,
+          comparisonMetricId: selectedHabitId,
+          startDate: context.startDate,
+          endDate: context.endDate
+        }));
+      } else {
+        // Otherwise use the selected date range
+        // Calculate start and end dates based on selected date range
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - parseInt(selectedDateRange) + 1);
+        
+        formData.set('chartConfig', JSON.stringify({
+          primaryMetricId: selectedGoalId,
+          comparisonMetricId: selectedHabitId,
+          startDate: startDate.toISOString().split('T')[0],
+          endDate: endDate.toISOString().split('T')[0],
+          dateRange: parseInt(selectedDateRange) // Keep for backward compatibility
+        }));
+      }
     } else if (context) {
       formData.set('shareData', 'on');
       if (context.type === 'chart') {
-        formData.set('chartConfig', JSON.stringify({
-          primaryMetricId: context.primaryMetricId,
-          comparisonMetricId: context.comparisonMetricId,
-          dateRange: context.dateRange
-        }));
+        // If we have specific date range from context, use it
+        if (context.startDate && context.endDate) {
+          formData.set('chartConfig', JSON.stringify({
+            primaryMetricId: context.primaryMetricId,
+            comparisonMetricId: context.comparisonMetricId,
+            startDate: context.startDate,
+            endDate: context.endDate,
+            dateRange: context.dateRange // Keep for backward compatibility
+          }));
+        } else {
+          // Otherwise use the date range
+          formData.set('chartConfig', JSON.stringify({
+            primaryMetricId: context.primaryMetricId,
+            comparisonMetricId: context.comparisonMetricId,
+            dateRange: context.dateRange
+          }));
+        }
       } else if (context.type === 'experiment') {
         formData.set('experimentId', context.experimentId || '');
       }
@@ -319,12 +367,24 @@ export default function CreateFindingPage() {
     if (!context) return '';
     
     if (context.type === 'chart') {
+      if (context.startDate && context.endDate) {
+        return `This finding is based on your data analysis from ${formatDate(context.startDate)} to ${formatDate(context.endDate)}.`;
+      }
       return `This finding is based on your data analysis${context.dateRange ? ` over the last ${context.dateRange} days` : ''}.`;
     } else if (context.type === 'experiment') {
       return 'This finding is based on your experiment results.';
     }
     
     return '';
+  };
+
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
 
   // Auto-populate content for experiment findings

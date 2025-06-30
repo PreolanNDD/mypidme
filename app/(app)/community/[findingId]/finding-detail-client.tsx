@@ -222,12 +222,34 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
     queryFn: () => {
       if (!finding.chart_config || !user?.id) return [];
       
-      const { primaryMetricId, comparisonMetricId, dateRange } = finding.chart_config;
+      const { primaryMetricId, comparisonMetricId, startDate, endDate } = finding.chart_config;
+      
+      // If we have specific date range, use it
+      if (startDate && endDate) {
+        return getDualMetricChartData(
+          user.id,
+          primaryMetricId,
+          comparisonMetricId || null,
+          startDate,
+          endDate
+        );
+      } 
+      // Fallback to using dateRange if available (for backward compatibility)
+      else if (finding.chart_config.dateRange) {
+        return getDualMetricChartData(
+          user.id,
+          primaryMetricId,
+          comparisonMetricId || null,
+          finding.chart_config.dateRange
+        );
+      }
+      
+      // Default to 30 days if no date information is available
       return getDualMetricChartData(
         user.id,
         primaryMetricId,
         comparisonMetricId || null,
-        dateRange || 30
+        30
       );
     },
     enabled: !!user?.id && finding.share_data === true && !!finding.chart_config,
