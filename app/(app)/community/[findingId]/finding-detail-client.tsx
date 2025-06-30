@@ -47,9 +47,14 @@ function ReportDialog({ isOpen, onClose, onSubmit, loading }: ReportDialogProps)
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="w-full max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-heading text-xl text-primary-text">
-            Report Finding
-          </DialogTitle>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+              <Flag className="w-5 h-5 text-white" />
+            </div>
+            <DialogTitle className="font-heading text-xl text-primary-text">
+              Report Finding
+            </DialogTitle>
+          </div>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -125,7 +130,7 @@ function DeleteDialog({ isOpen, onClose, onConfirm, loading, findingTitle }: Del
 
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex items-start space-x-2">
-              <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+              <AlertTriangle className="w-5 h-5 mt-0.5 flex-shrink-0 text-yellow-600" />
               <div>
                 <p className="text-sm font-medium text-yellow-800 mb-1">
                   Warning: This action cannot be undone.
@@ -667,30 +672,24 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
           <div className="max-w-4xl mx-auto space-y-8">
             {/* Header */}
             <div className="mb-8">
-              <Button
-                variant="ghost"
+              <button
                 onClick={() => router.back()}
-                className="mb-4 text-white hover:bg-white/10"
+                className="group/viewall relative overflow-hidden px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-lg hover:shadow-white/20 mb-4"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/viewall:translate-x-full transition-transform duration-500 ease-out"></div>
-              
-              {/* Content */}
-              <div className="relative flex items-center space-x-2">
-                <span className="text-sm font-medium transition-all duration-300 group-hover/viewall:tracking-wide">
-                  View All
-                </span>
-                <div className="transform group-hover/viewall:translate-x-1 transition-transform duration-300">
-                  <ArrowRight className="w-4 h-4" />
+                {/* Sliding highlight effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/viewall:translate-x-full transition-transform duration-500 ease-out"></div>
+                
+                {/* Content */}
+                <div className="relative flex items-center space-x-2">
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="text-sm font-medium transition-all duration-300 group-hover/viewall:tracking-wide">
+                    Back
+                  </span>
                 </div>
-              </div>
-              
-              {/* Glow effect */}
-              <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-300"></div>
-            </button>
-          </div>
+                
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-300"></div>
+              </button>
               <div>
                 <h1 className="font-heading text-3xl text-white mb-2">
                   {finding.title}

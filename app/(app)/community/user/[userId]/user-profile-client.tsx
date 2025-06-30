@@ -80,14 +80,24 @@ export function UserProfileClient({ userProfile, userFindings }: UserProfileClie
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Main Page Header - Enhanced with animations */}
           <div className={`flex items-center space-x-3 mb-8 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <Button
-              variant="ghost"
+            <button
               onClick={() => router.back()}
-              className="text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 group"
+              className="group/viewall relative overflow-hidden px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:border-white/40 hover:scale-105 hover:shadow-lg hover:shadow-white/20"
             >
-              <ArrowLeft className="w-4 h-4 mr-2 transition-transform duration-300 group-hover:-translate-x-1" />
-              Back
-            </Button>
+              {/* Sliding highlight effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/viewall:translate-x-full transition-transform duration-500 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center space-x-2">
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm font-medium transition-all duration-300 group-hover/viewall:tracking-wide">
+                  Back
+                </span>
+              </div>
+              
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-300"></div>
+            </button>
             
             {/* User Profile Header */}
             <div className="flex items-start space-x-4 group/profile">
