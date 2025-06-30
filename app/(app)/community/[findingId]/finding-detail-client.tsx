@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { CorrelationCard } from '@/components/dashboard/CorrelationCard';
+import { RelationshipStory } from '@/components/dashboard/RelationshipStory';
 import { MetricRelationshipBreakdown } from '@/components/dashboard/MetricRelationshipBreakdown';
 import { ChevronUp, ChevronDown, Flag, User, Calendar, ArrowLeft, MessageSquare, Target, TrendingUp, TrendingDown, BarChart3, Trash2, AlertTriangle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -846,10 +846,10 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                   </CardContent>
                 </Card>
 
-                {/* At a Glance - Correlation Analysis */}
+                {/* Relationship Story - Replacing At a Glance/Correlation Card */}
                 {correlationScore !== null && primaryMetric && comparisonMetric && (
                   <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl">
-                    <CorrelationCard
+                    <RelationshipStory
                       correlationScore={correlationScore}
                       primaryMetricName={primaryMetric.name}
                       comparisonMetricName={comparisonMetric.name}
