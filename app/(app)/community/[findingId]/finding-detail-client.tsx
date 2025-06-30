@@ -675,6 +675,22 @@ export function FindingDetailClient({ initialFinding }: FindingDetailClientProps
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/viewall:translate-x-full transition-transform duration-500 ease-out"></div>
+              
+              {/* Content */}
+              <div className="relative flex items-center space-x-2">
+                <span className="text-sm font-medium transition-all duration-300 group-hover/viewall:tracking-wide">
+                  View All
+                </span>
+                <div className="transform group-hover/viewall:translate-x-1 transition-transform duration-300">
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              </div>
+              
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-lg bg-white/10 opacity-0 group-hover/viewall:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          </div>
               <div>
                 <h1 className="font-heading text-3xl text-white mb-2">
                   {finding.title}
