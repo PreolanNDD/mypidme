@@ -17,8 +17,8 @@ const dmSerifDisplay = DM_Serif_Display({
 });
 
 export const metadata: Metadata = {
-  title: 'PIDMe - Tune Your Life',
-  description: 'A personal optimization platform inspired by PID controllers',
+  title: 'MyPID.me - Stop Guessing. Start Knowing.',
+  description: 'A Personal Insight Dashboard to optimize your lifestle based on your data.',
 };
 
 async function getInitialAuthData() {
