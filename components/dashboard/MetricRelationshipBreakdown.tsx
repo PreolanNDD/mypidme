@@ -415,15 +415,15 @@ export function MetricRelationshipBreakdown({
                 {higherGroup.label} shows <span className="font-medium">{Math.abs(difference).toFixed(1)} points higher</span> average {primaryMetric.name} than {lowerGroup.label}.
                 {Math.abs(difference) >= 2 ? (
                   <span className="block mt-2 text-sm font-medium text-blue-700 transition-all duration-300 group-hover/diff:text-indigo-700">
-                    This is a significant difference! It suggests a strong relationship between these metrics.
+                    Upon closer inpsection, this is a significant difference! It suggests a strong relationship between these metrics.
                   </span>
                 ) : Math.abs(difference) >= 1 ? (
                   <span className="block mt-2 text-sm font-medium text-blue-700 transition-all duration-300 group-hover/diff:text-indigo-700">
-                    This is a notable difference that's worth paying attention to.
+                    Upon closer inpsection, this is a notable difference that's worth paying attention to.
                   </span>
                 ) : (
                   <span className="block mt-2 text-sm font-medium text-blue-700 transition-all duration-300 group-hover/diff:text-indigo-700">
-                    This is a subtle difference. More data might reveal a stronger pattern over time.
+                    Upon closer inpsection, this is a subtle difference. More data might reveal a stronger pattern over time.
                   </span>
                 )}
               </p>
